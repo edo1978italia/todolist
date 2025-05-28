@@ -21,7 +21,7 @@
     <button onclick="addTask()">Aggiungi</button>
     <ul id="taskList"></ul>
 
-    <script type="module">
+    <script type="module" defer>
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
 
@@ -83,11 +83,17 @@
             loadTasks();
         }
 
-        // Completa / Annulla completamento (Aggiunto)
+        // Completa / Annulla completamento
         async function toggleComplete(id, currentState) {
             await updateDoc(doc(db, "tasks", id), { completed: !currentState });
             loadTasks();
         }
+
+        // **Rende le funzioni globali**
+        window.addTask = addTask;
+        window.editTask = editTask;
+        window.deleteTask = deleteTask;
+        window.toggleComplete = toggleComplete;
 
         // Carica le attività all'avvio
         window.onload = loadTasks;
