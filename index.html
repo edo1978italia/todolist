@@ -3,37 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List con Firebase Firestore</title>
+    <title>To-Do List with Firebase Firestore</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
     <style>
-        body { font-family: "Poppins", sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px; }
-        #listContainer { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
-        input, button { width: 90%; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 16px; }
-        button { background: linear-gradient(90deg, #5a6fea, #60d1f5); color: white; font-weight: bold; cursor: pointer; border: none; }
-        button:hover { opacity: 0.8; }
-        .task-item { background: linear-gradient(120deg, #5a6fea, #60d1f5); color: white; border-radius: 8px; padding: 10px; margin: 10px 0; display: flex; flex-direction: column; align-items: center; box-shadow: 0px 2px 5px rgba(0,0,0,0.1); }
-        .task-date { font-size: 12px; color: #f2f2f2; }
-        .task-buttons { display: flex; gap: 8px; justify-content: center; margin-top: 5px; }
-        .completed { text-decoration: line-through; font-style: italic; color: #cbd5e0; }
+        body { font-family: "Poppins", sans-serif; background-color: #f4f4f4; text-align: center; }
+        #listContainer { max-width: 600px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
+        button { background: #5a6fea; color: white; padding: 6px; font-size: 12px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #60d1f5; }
+        .completed { text-decoration: line-through; font-style: italic; color: gray; }
+        .task-buttons { display: flex; gap: 8px; }
+        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #ddd; }
+        .task-text { flex-grow: 1; text-align: left; }
     </style>
 </head>
 <body>
 
-    <h2>To-Do List con Firebase Firestore</h2>
-    <input type="text" id="listName" placeholder="Nome Lista">
-    <button onclick="createList()">Crea Lista</button>
-
-    <div id="listContainer">
-        <input type="text" id="taskInput" placeholder="Aggiungi attività">
-        <button onclick="addTask()">Aggiungi</button>
-        <ul id="taskList"></ul>
-    </div>
+    <h2>To-Do List with Firebase Firestore</h2>
+    <input type="text" id="taskInput" placeholder="Add a task">
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
 
-        // Configura Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
             authDomain: "todolistedo.firebaseapp.com",
@@ -43,7 +36,6 @@
             appId: "1:700684050233:web:755d10254e8c2cf222d2e8"
         };
 
-        // Inizializza Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -52,14 +44,12 @@
                 let tasks = "";
                 snapshot.docs.forEach((docSnapshot) => {
                     let task = docSnapshot.data();
-                    const formattedDate = new Date().toLocaleDateString();
                     tasks += `<li class="task-item">
-                        <div class="task-date">${formattedDate}</div>
-                        <span class="${task.completed ? "completed" : ""}">${task.name}</span>
+                        <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
                         <div class="task-buttons">
                             <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
-                            <button onclick="editTask('${docSnapshot.id}', '${task.name}')">Modifica</button>
-                            <button onclick="deleteTask('${docSnapshot.id}')">Elimina</button>
+                            <button onclick="editTask('${docSnapshot.id}', '${task.name}')">Edit</button>
+                            <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
                         </div>
                     </li>`;
                 });
@@ -69,14 +59,14 @@
 
         async function addTask() {
             const taskInput = document.getElementById("taskInput").value.trim();
-            if (taskInput === "") return alert("Il campo attività è vuoto!");
+            if (taskInput === "") return alert("Task field is empty!");
 
             await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
             document.getElementById("taskInput").value = "";
         }
 
         async function editTask(id, currentName) {
-            const newName = prompt("Modifica il task:", currentName);
+            const newName = prompt("Edit task:", currentName);
             if (newName) {
                 await updateDoc(doc(db, "tasks", id), { name: newName });
             }
