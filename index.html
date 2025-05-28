@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>To-Do List con Firebase Firestore</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
         <style>
             body {
                 font-family: "Poppins", sans-serif;
@@ -43,14 +43,15 @@
     </head>
     <body>
         <h2>To-Do List con Firebase Firestore</h2>
-        <input type="text" id="taskInput" placeholder="Aggiungi attività" />
+        <input type="text" id="taskInput" placeholder="Aggiungi attività">
         <button onclick="addTask()">Aggiungi</button>
         <ul id="taskList"></ul>
 
-        <!-- Importa Firebase correttamente con UMD (Universal Module Definition) -->
-        <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
-        <script>
+        <!-- Use Firebase as an ES Module -->
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
+            import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
+
             // Firebase configuration
             const firebaseConfig = {
                 apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
@@ -62,69 +63,63 @@
             };
 
             // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
             // Carica le attività dal database Firestore
             function loadTasks() {
-                db.collection("tasks").onSnapshot((snapshot) => {
+                onSnapshot(collection(db, "tasks"), (snapshot) => {
                     let tasks = "";
-                    snapshot.docs.forEach((doc) => {
-                        let task = doc.data();
+                    snapshot.docs.forEach((docSnapshot) => {
+                        let task = docSnapshot.data();
                         tasks += `<li>
-                        <span class="${task.completed ? "completed" : ""}">${task.name}</span>
-                        <div class="task-buttons">
-                            <button onclick="toggleComplete('${doc.id}', ${task.completed})">✔</button>
-                            <button onclick="editTask('${doc.id}', '${task.name}')">Modifica</button>
-                            <button onclick="deleteTask('${doc.id}')">Elimina</button>
-                        </div>
-                    </li>`;
+                            <span class="${task.completed ? "completed" : ""}">${task.name}</span>
+                            <div class="task-buttons">
+                                <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
+                                <button onclick="editTask('${docSnapshot.id}', '${task.name}')">Modifica</button>
+                                <button onclick="deleteTask('${docSnapshot.id}')">Elimina</button>
+                            </div>
+                        </li>`;
                     });
                     document.getElementById("taskList").innerHTML = tasks;
                 });
             }
 
             // Aggiunge una nuova attività
-            function addTask() {
+            async function addTask() {
                 const taskInput = document.getElementById("taskInput").value.trim();
                 if (taskInput === "") return alert("Il campo attività è vuoto!");
 
-                db.collection("tasks")
-                    .add({ name: taskInput, completed: false })
-                    .then(() => {
-                        document.getElementById("taskInput").value = ""; // Clear input field
-                        loadTasks();
-                    });
+                try {
+                    await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
+                    document.getElementById("taskInput").value = ""; // Clear input field
+                    loadTasks();
+                } catch (error) {
+                    console.error("Error adding task:", error);
+                }
             }
 
             // Modifica un'attività
-            function editTask(id, currentName) {
+            async function editTask(id, currentName) {
                 const newName = prompt("Modifica il task:", currentName);
                 if (newName) {
-                    db.collection("tasks")
-                        .doc(id)
-                        .update({ name: newName })
-                        .then(() => loadTasks());
+                    try {
+                        await updateDoc(doc(db, "tasks", id), { name: newName });
+                        loadTasks();
+                    } catch (error) {
+                        console.error("Error updating task:", error);
+                    }
                 }
             }
 
             // Elimina un'attività
-            function deleteTask(id) {
-                db.collection("tasks")
-                    .doc(id)
-                    .delete()
-                    .then(() => loadTasks());
+            async function deleteTask(id) {
+                try {
+                    await deleteDoc(doc(db, "tasks", id));
+                    loadTasks();
+                } catch (error) {
+                    console.error("Error deleting task:", error);
+                }
             }
 
             // Completa / Annulla completamento
-            function toggleComplete(id, currentState) {
-                db.collection("tasks")
-                    .doc(id)
-                    .update({ completed: !currentState })
-                    .then(() => loadTasks());
-            }
-
-            // Carica le attività all'avvio
-            window.onload = loadTasks;
-        </script>
-    </body>
-</html>
