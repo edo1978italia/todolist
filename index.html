@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>To-Do List con Firebase Firestore</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
         <style>
             body {
                 font-family: "Poppins", sans-serif;
@@ -43,7 +43,7 @@
     </head>
     <body>
         <h2>To-Do List con Firebase Firestore</h2>
-        <input type="text" id="taskInput" placeholder="Aggiungi attività">
+        <input type="text" id="taskInput" placeholder="Aggiungi attività" />
         <button onclick="addTask()">Aggiungi</button>
         <ul id="taskList"></ul>
 
@@ -51,7 +51,7 @@
         <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
         <script>
-            // Configura Firebase
+            // Firebase configuration
             const firebaseConfig = {
                 apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
                 authDomain: "todolistedo.firebaseapp.com",
@@ -61,10 +61,9 @@
                 appId: "1:700684050233:web:755d10254e8c2cf222d2e8"
             };
 
-            // Inizializza Firebase
+            // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             const db = firebase.firestore();
-
             // Carica le attività dal database Firestore
             function loadTasks() {
                 db.collection("tasks").onSnapshot((snapshot) => {
