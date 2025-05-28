@@ -1,28 +1,38 @@
 // Importa Firebase (necessario quando usi `type="module"`)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc
+} from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
 
 // Configura Firebase
 const firebaseConfig = {
-    apiKey: "TUA_API_KEY",
-    authDomain: "TUO_PROGETTO.firebaseapp.com",
-    projectId: "TUO_PROGETTO",
-    storageBucket: "TUO_PROGETTO.appspot.com",
-    messagingSenderId: "ID_MESSAGGI",
-    appId: "TUA_APP_ID"
+    apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
+    authDomain: "todolistedo.firebaseapp.com",
+    projectId: "todolistedo",
+    storageBucket: "todolistedo.firebasestorage.app",
+    messagingSenderId: "700684050233",
+    appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
+    measurementId: "G-HR8GGBGQTJ"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const analytics = getAnalytics(app);
 
 // Funzione per caricare le attività
 async function loadTasks() {
     const querySnapshot = await getDocs(collection(db, "tasks"));
     let tasks = "";
-    querySnapshot.forEach(doc => {
+    querySnapshot.forEach((doc) => {
         let task = doc.data();
         tasks += `<li>
-            <span class="${task.completed ? 'completed' : ''}">${task.name}</span>
+            <span class="${task.completed ? "completed" : ""}">${task.name}</span>
             <div class="task-buttons">
                 <button onclick="toggleComplete('${doc.id}', ${task.completed})">✔</button>
                 <button onclick="editTask('${doc.id}', '${task.name}')">Modifica</button>
