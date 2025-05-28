@@ -6,20 +6,28 @@
     <title>To-Do List con Firebase Firestore</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
     <style>
-        body { font-family: "Poppins", sans-serif; background-color: #f4f4f4; text-align: center; }
-        #listContainer { max-width: 600px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
-        button { background: #5a6fea; color: white; padding: 10px; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #60d1f5; }
-        .completed { text-decoration: line-through; font-style: italic; color: gray; }
-        .task-buttons { display: flex; gap: 10px; justify-content: center; }
+        body { font-family: "Poppins", sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px; }
+        #listContainer { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
+        input, button { width: 90%; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 16px; }
+        button { background: linear-gradient(90deg, #5a6fea, #60d1f5); color: white; font-weight: bold; cursor: pointer; border: none; }
+        button:hover { opacity: 0.8; }
+        .task-item { background: linear-gradient(120deg, #5a6fea, #60d1f5); color: white; border-radius: 8px; padding: 10px; margin: 10px 0; display: flex; flex-direction: column; align-items: center; box-shadow: 0px 2px 5px rgba(0,0,0,0.1); }
+        .task-date { font-size: 12px; color: #f2f2f2; }
+        .task-buttons { display: flex; gap: 8px; justify-content: center; margin-top: 5px; }
+        .completed { text-decoration: line-through; font-style: italic; color: #cbd5e0; }
     </style>
 </head>
 <body>
 
     <h2>To-Do List con Firebase Firestore</h2>
-    <input type="text" id="taskInput" placeholder="Aggiungi attività">
-    <button onclick="addTask()">Aggiungi</button>
-    <ul id="taskList"></ul>
+    <input type="text" id="listName" placeholder="Nome Lista">
+    <button onclick="createList()">Crea Lista</button>
+
+    <div id="listContainer">
+        <input type="text" id="taskInput" placeholder="Aggiungi attività">
+        <button onclick="addTask()">Aggiungi</button>
+        <ul id="taskList"></ul>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
@@ -39,13 +47,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Carica le attività dal database Firestore
         function loadTasks() {
             onSnapshot(collection(db, "tasks"), (snapshot) => {
                 let tasks = "";
                 snapshot.docs.forEach((docSnapshot) => {
                     let task = docSnapshot.data();
-                    tasks += `<li>
+                    const formattedDate = new Date().toLocaleDateString();
+                    tasks += `<li class="task-item">
+                        <div class="task-date">${formattedDate}</div>
                         <span class="${task.completed ? "completed" : ""}">${task.name}</span>
                         <div class="task-buttons">
                             <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
@@ -58,16 +67,14 @@
             });
         }
 
-        // Aggiunge una nuova attività
         async function addTask() {
             const taskInput = document.getElementById("taskInput").value.trim();
             if (taskInput === "") return alert("Il campo attività è vuoto!");
 
             await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
-            document.getElementById("taskInput").value = ""; // Pulisce il campo input
+            document.getElementById("taskInput").value = "";
         }
 
-        // Modifica un'attività
         async function editTask(id, currentName) {
             const newName = prompt("Modifica il task:", currentName);
             if (newName) {
@@ -75,23 +82,19 @@
             }
         }
 
-        // Elimina un'attività
         async function deleteTask(id) {
             await deleteDoc(doc(db, "tasks", id));
         }
 
-        // Completa / Annulla completamento
         async function toggleComplete(id, currentState) {
             await updateDoc(doc(db, "tasks", id), { completed: !currentState });
         }
 
-        // **Rende le funzioni globali**
         window.addTask = addTask;
         window.editTask = editTask;
         window.deleteTask = deleteTask;
         window.toggleComplete = toggleComplete;
 
-        // Carica le attività all'avvio
         window.onload = loadTasks;
     </script>
 
