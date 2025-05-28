@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>To-Do List con Firebase Firestore</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
         <style>
             body {
                 font-family: "Poppins", sans-serif;
@@ -43,14 +43,13 @@
     </head>
     <body>
         <h2>To-Do List con Firebase Firestore</h2>
-        <input type="text" id="taskInput" placeholder="Aggiungi attività" />
+        <input type="text" id="taskInput" placeholder="Aggiungi attività">
         <button onclick="addTask()">Aggiungi</button>
         <ul id="taskList"></ul>
 
-        <!-- Importa Firebase tramite CDN -->
+        <!-- Importa Firebase correttamente con UMD (Universal Module Definition) -->
         <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
-
         <script>
             // Configura Firebase
             const firebaseConfig = {
@@ -93,7 +92,7 @@
                 db.collection("tasks")
                     .add({ name: taskInput, completed: false })
                     .then(() => {
-                        taskInput.value = "";
+                        document.getElementById("taskInput").value = ""; // Clear input field
                         loadTasks();
                     });
             }
