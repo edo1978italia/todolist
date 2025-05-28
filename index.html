@@ -21,8 +21,76 @@
     <button onclick="addTask()">Aggiungi</button>
     <ul id="taskList"></ul>
 
-    <!-- Importa il file JavaScript separato -->
-    <script type="module" src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
+    <script>
+        // Configura Firebase
+        // Configura Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
+    authDomain: "todolistedo.firebaseapp.com",
+    projectId: "todolistedo",
+    storageBucket: "todolistedo.firebasestorage.app",
+    messagingSenderId: "700684050233",
+    appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
+    measurementId: "G-HR8GGBGQTJ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+        // Carica le attività dal database Firestore
+        function loadTasks() {
+            db.collection("tasks").onSnapshot(snapshot => {
+                let tasks = "";
+                snapshot.docs.forEach(doc => {
+                    let task = doc.data();
+                    tasks += `<li>
+                        <span class="${task.completed ? 'completed' : ''}">${task.name}</span>
+                        <div class="task-buttons">
+                            <button onclick="toggleComplete('${doc.id}', ${task.completed})">✔</button>
+                            <button onclick="editTask('${doc.id}', '${task.name}')">Modifica</button>
+                            <button onclick="deleteTask('${doc.id}')">Elimina</button>
+                        </div>
+                    </li>`;
+                });
+                document.getElementById("taskList").innerHTML = tasks;
+            });
+        }
+
+        // Aggiunge una nuova attività
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            const taskText = taskInput.value.trim();
+            if (taskText === "") return alert("Il campo attività è vuoto!");
+
+            db.collection("tasks").add({ name: taskText, completed: false }).then(() => {
+                taskInput.value = "";
+            });
+        }
+
+        // Modifica un'attività
+        function editTask(id, currentName) {
+            const newName = prompt("Modifica il task:", currentName);
+            if (newName) {
+                db.collection("tasks").doc(id).update({ name: newName });
+            }
+        }
+
+        // Elimina un'attività
+        function deleteTask(id) {
+            db.collection("tasks").doc(id).delete();
+        }
+
+        // Completa / Annulla completamento
+        function toggleComplete(id, currentState) {
+            db.collection("tasks").doc(id).update({ completed: !currentState });
+        }
+
+        // Carica le attività all'avvio
+        window.onload = loadTasks;
+    </script>
 
 </body>
 </html>
