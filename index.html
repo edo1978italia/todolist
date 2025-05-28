@@ -1,126 +1,96 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>To-Do List con Firebase Firestore</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
-        <style>
-            body {
-                font-family: "Poppins", sans-serif;
-                background-color: #f4f4f4;
-                text-align: center;
-            }
-            #listContainer {
-                max-width: 600px;
-                margin: auto;
-                padding: 20px;
-                background: white;
-                border-radius: 10px;
-                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            }
-            button {
-                background: #5a6fea;
-                color: white;
-                padding: 10px;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            button:hover {
-                background: #60d1f5;
-            }
-            .completed {
-                text-decoration: line-through;
-                font-style: italic;
-                color: gray;
-            }
-            .task-buttons {
-                display: flex;
-                gap: 10px;
-                justify-content: center;
-            }
-        </style>
-    </head>
-    <body>
-        <h2>To-Do List con Firebase Firestore</h2>
-        <input type="text" id="taskInput" placeholder="Aggiungi attività" />
-        <button onclick="addTask()">Aggiungi</button>
-        <ul id="taskList"></ul>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List con Firebase Firestore</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <style>
+        body { font-family: "Poppins", sans-serif; background-color: #f4f4f4; text-align: center; }
+        #listContainer { max-width: 600px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
+        button { background: #5a6fea; color: white; padding: 10px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #60d1f5; }
+        .completed { text-decoration: line-through; font-style: italic; color: gray; }
+        .task-buttons { display: flex; gap: 10px; justify-content: center; }
+    </style>
+</head>
+<body>
 
-        <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
-        <script>
-            // Configura Firebase
+    <h2>To-Do List con Firebase Firestore</h2>
+    <input type="text" id="taskInput" placeholder="Aggiungi attività">
+    <button onclick="addTask()">Aggiungi</button>
+    <ul id="taskList"></ul>
 
-            // TODO: Add SDKs for Firebase products that you want to use
-            // https://firebase.google.com/docs/web/setup#available-libraries
+    <!-- Importa Firebase tramite CDN -->
+    <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
 
-            // Your web app's Firebase configuration
-            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-            const firebaseConfig = {
-                apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
-                authDomain: "todolistedo.firebaseapp.com",
-                projectId: "todolistedo",
-                storageBucket: "todolistedo.firebasestorage.app",
-                messagingSenderId: "700684050233",
-                appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
-                measurementId: "G-HR8GGBGQTJ"
-            };
+    <script>
+        // Configura Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
+            authDomain: "todolistedo.firebaseapp.com",
+            projectId: "todolistedo",
+            storageBucket: "todolistedo.appspot.com",
+            messagingSenderId: "700684050233",
+            appId: "1:700684050233:web:755d10254e8c2cf222d2e8"
+        };
 
-            // Initialize Firebase
-            const app = initializeApp(firebaseConfig);
-            const analytics = getAnalytics(app);
-            const db = firebase.firestore();
+        // Inizializza Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-            // Carica le attività dal database Firestore
-            function loadTasks() {
-                db.collection("tasks").onSnapshot((snapshot) => {
-                    let tasks = "";
-                    snapshot.docs.forEach((doc) => {
-                        let task = doc.data();
-                        tasks += `<li>
-                                    <span class="${task.completed ? "completed" : ""}">${task.name}</span>
-                                    <div class="task-buttons">
-                                        <button onclick="toggleComplete('${doc.id}', ${task.completed})">✔</button>
-                                        <button onclick="editTask('${doc.id}', '${task.name}')">Modifica</button>
-                                        <button onclick="deleteTask('${doc.id}')">Elimina</button>
-                                    </div>
-                                </li>`;
-                    });
-                    document.getElementById("taskList").innerHTML = tasks;
+        // Carica le attività dal database Firestore
+        function loadTasks() {
+            db.collection("tasks").onSnapshot(snapshot => {
+                let tasks = "";
+                snapshot.docs.forEach(doc => {
+                    let task = doc.data();
+                    tasks += `<li>
+                        <span class="${task.completed ? 'completed' : ''}">${task.name}</span>
+                        <div class="task-buttons">
+                            <button onclick="toggleComplete('${doc.id}', ${task.completed})">✔</button>
+                            <button onclick="editTask('${doc.id}', '${task.name}')">Modifica</button>
+                            <button onclick="deleteTask('${doc.id}')">Elimina</button>
+                        </div>
+                    </li>`;
                 });
+                document.getElementById("taskList").innerHTML = tasks;
+            });
+        }
+
+        // Aggiunge una nuova attività
+        function addTask() {
+            const taskInput = document.getElementById("taskInput").value.trim();
+            if (taskInput === "") return alert("Il campo attività è vuoto!");
+
+            db.collection("tasks").add({ name: taskInput, completed: false }).then(() => {
+                taskInput.value = "";
+                loadTasks();
+            });
+        }
+
+        // Modifica un'attività
+        function editTask(id, currentName) {
+            const newName = prompt("Modifica il task:", currentName);
+            if (newName) {
+                db.collection("tasks").doc(id).update({ name: newName }).then(() => loadTasks());
             }
+        }
 
-            // Aggiunge una nuova attività
-            function addTask() {
-                const taskInput = document.getElementById("taskInput").value.trim();
-                if (taskInput === "") return alert("Il campo attività è vuoto!");
+        // Elimina un'attività
+        function deleteTask(id) {
+            db.collection("tasks").doc(id).delete().then(() => loadTasks());
+        }
 
-                db.collection("tasks")
-                    .add({ name: taskInput, completed: false })
-                    .then(() => console.log("Lista salvata!"));
-            }
+        // Completa / Annulla completamento
+        function toggleComplete(id, currentState) {
+            db.collection("tasks").doc(id).update({ completed: !currentState }).then(() => loadTasks());
+        }
 
-            // Modifica un'attività
-            function editTask(id, currentName) {
-                const newName = prompt("Modifica il task:", currentName);
-                if (newName) {
-                    db.collection("tasks").doc(id).update({ name: newName });
-                }
-            }
+        // Carica le attività all'avvio
+        window.onload = loadTasks;
+    </script>
 
-            // Elimina un'attività
-            function deleteTask(id) {
-                db.collection("tasks").doc(id).delete();
-            }
-
-            // Completa / Annulla completamento
-            function toggleComplete(id, currentState) {
-                db.collection("tasks").doc(id).update({ completed: !currentState });
-            }
-
-            // Carica le attività all'avvio
-            window.onload = loadTasks;
-        </script>
-    </body>
+</body>
 </html>
