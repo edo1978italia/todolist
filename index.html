@@ -77,7 +77,7 @@
             apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
             authDomain: "todolistedo.firebaseapp.com",
             projectId: "todolistedo",
-            storageBucket: "todolistedo.appspot.com", // Corretto!
+            storageBucket: "todolistedo.appspot.com",
             messagingSenderId: "700684050233",
             appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
             measurementId: "G-HR8GGBGQTJ"
@@ -92,9 +92,9 @@
         function registerUser() {
             const email = document.getElementById("emailInput").value;
             const password = document.getElementById("passwordInput").value;
-            
+
             console.log("Tentativo di registrazione...");
-            
+
             createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 alert("Registrazione riuscita! " + userCredential.user.email);
@@ -109,7 +109,7 @@
         function loginUser() {
             const email = document.getElementById("emailInput").value;
             const password = document.getElementById("passwordInput").value;
-            
+
             signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 alert("Login riuscito! Ciao " + userCredential.user.email);
@@ -141,20 +141,6 @@
         });
 
         // 📝 Gestione Task
-        function loadTasks() {
-            onSnapshot(collection(db, "tasks"), (snapshot) => {
-                let tasks = "";
-                snapshot.docs.reverse().forEach((docSnapshot) => {
-                    let task = docSnapshot.data();
-                    tasks += `<li class="task-item">
-                        <span class="task-text">${task.name}</span>
-                        <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
-                    </li>`;
-                });
-                document.getElementById("taskList").innerHTML = tasks;
-            });
-        }
-
         async function addTask() {
             const taskInput = document.getElementById("taskInput").value.trim();
             if (!taskInput) return alert("Inserisci un task valido!");
@@ -169,7 +155,6 @@
         window.loginUser = loginUser;
         window.logoutUser = logoutUser;
         window.addTask = addTask;
-        window.loadTasks = loadTasks;
     </script>
 </body>
 </html>
