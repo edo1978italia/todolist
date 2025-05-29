@@ -41,17 +41,6 @@
                 background: #247fd8;
                 transform: scale(1.05);
             }
-            .task-item {
-                opacity: 0;
-                transform: scale(0.9);
-                transition:
-                    opacity 0.3s ease,
-                    transform 0.3s ease;
-            }
-            .task-item.show {
-                opacity: 1;
-                transform: scale(1);
-            }
         </style>
     </head>
     <body>
@@ -79,8 +68,8 @@
 
         <script type="module">
             // Import the functions you need from the SDKs you need
-            import { initializeApp } from "firebase/app";
-            import { getAnalytics } from "firebase/analytics";
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+            import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
             // TODO: Add SDKs for Firebase products that you want to use
             // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -100,10 +89,11 @@
             const app = initializeApp(firebaseConfig);
             const analytics = getAnalytics(app);
 
-            // 🔐 Autenticazione
+            // 🔐 Gestione Autenticazione
             function registerUser() {
                 const email = document.getElementById("emailInput").value;
                 const password = document.getElementById("passwordInput").value;
+
                 createUserWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
                         alert("Registrazione riuscita! " + userCredential.user.email);
@@ -116,6 +106,7 @@
             function loginUser() {
                 const email = document.getElementById("emailInput").value;
                 const password = document.getElementById("passwordInput").value;
+
                 signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
                         alert("Login riuscito! Ciao " + userCredential.user.email);
@@ -150,10 +141,8 @@
                     let tasks = "";
                     snapshot.docs.reverse().forEach((docSnapshot) => {
                         let task = docSnapshot.data();
-                        tasks += `<li class="task-item show">
-                        <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
-                        <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
-                        <button onclick="editTask('${docSnapshot.id}', '${task.name}')">Edit</button>
+                        tasks += `<li class="task-item">
+                        <span class="task-text">${task.name}</span>
                         <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
                     </li>`;
                     });
@@ -165,23 +154,12 @@
                 const taskInput = document.getElementById("taskInput").value.trim();
                 if (!taskInput) return alert("Inserisci un task valido!");
 
-                const docRef = await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
-
-                document.getElementById("taskList").insertAdjacentHTML(
-                    "afterbegin",
-                    `
-                <li class="task-item show">
-                    <span class="task-text">${taskInput}</span>
-                    <button onclick="toggleComplete('${docRef.id}', false)">✔</button>
-                    <button onclick="editTask('${docRef.id}', '${taskInput}')">Edit</button>
-                    <button onclick="deleteTask('${docRef.id}')">Delete</button>
-                </li>
-            `
-                );
+                await addDoc(collection(db, "tasks"), { name: taskInput });
 
                 document.getElementById("taskInput").value = "";
             }
 
+            // Esponi le funzioni globalmente
             window.registerUser = registerUser;
             window.loginUser = loginUser;
             window.logoutUser = logoutUser;
