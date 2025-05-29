@@ -20,12 +20,38 @@
             border-radius: 10px;
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
         }
-        input {
-            width: 80%;
+        #mainContainer {
+            display: none;
+        }
+        #header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #taskList {
+            padding-left: 20px;
+            width: 90%;
             padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #inputContainer, #extraBox, #listContainer {
+            max-width: 600px;
+            margin: auto;
+            padding: 10px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        #extraBox {
+            font-size: 12px;
         }
         button {
             background: rgb(3, 93, 181);
@@ -36,10 +62,49 @@
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
         }
         button:hover {
             background: #247fd8;
             transform: scale(1.05);
+        }
+        .completed {
+            text-decoration: line-through;
+            font-style: italic;
+            color: #ed5e5e;
+        }
+        .task-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .task-item:nth-child(odd) {
+            background: #ffffff;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .task-item:nth-child(even) {
+            background: #f0f0f0;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .task-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 2px solid #ddd;
+            border-radius: 5px;
+            width: 96%;
+        }
+        #taskInput {
+            width: 57%;
+            padding: 12px;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+        .task-text {
+            flex-grow: 1;
+            text-align: left;
         }
     </style>
 </head>
@@ -53,26 +118,30 @@
         <p id="userInfo"></p>
     </div>
 
-    <div id="header">
-        <h4>TO BUY LIST</h4>
-    </div>
+    <div id="mainContainer">
+        <div id="header">
+            <h4>TO BUY LIST</h4>
+        </div>
 
-    <div id="inputContainer">
-        <input type="text" id="taskInput" placeholder="Add a task">
-        <button onclick="addTask()">Add</button>
-    </div>
+        <div id="inputContainer">
+            <input type="text" id="taskInput" placeholder="Add a task">
+            <button onclick="addTask()">Add</button>
+        </div>
 
-    <div id="listContainer">
-        <ul id="taskList"></ul>
+        <div id="listContainer">
+            <ul id="taskList"></ul>
+        </div>
+
+        <div id="extraBox">
+            <p>E IO PAGO!</p>
+        </div>
     </div>
 
     <script type="module">
-        // Import Firebase e moduli necessari dal CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-        // Configurazione Firebase corretta
         const firebaseConfig = {
             apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
             authDomain: "todolistedo.firebaseapp.com",
@@ -83,78 +152,76 @@
             measurementId: "G-HR8GGBGQTJ"
         };
 
-        // Inizializza Firebase e Authentication
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 🔐 Gestione Autenticazione
-        function registerUser() {
-            const email = document.getElementById("emailInput").value;
-            const password = document.getElementById("passwordInput").value;
+        function updateUI(user) {
+            const authContainer = document.getElementById("authContainer");
+            const mainContainer = document.getElementById("mainContainer");
 
-            console.log("Tentativo di registrazione...");
-
-            createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                alert("Registrazione riuscita! " + userCredential.user.email);
-                console.log("Utente registrato:", userCredential.user);
-            })
-            .catch((error) => {
-                console.error("Errore durante la registrazione:", error);
-                alert("Errore: " + error.message);
-            });
-        }
-
-        function loginUser() {
-            const email = document.getElementById("emailInput").value;
-            const password = document.getElementById("passwordInput").value;
-
-            signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                alert("Login riuscito! Ciao " + userCredential.user.email);
-                console.log("Utente loggato:", userCredential.user);
-            })
-            .catch((error) => {
-                console.error("Errore durante il login:", error);
-                alert("Errore: " + error.message);
-            });
-        }
-
-        function logoutUser() {
-            signOut(auth).then(() => {
-                alert("Logout effettuato.");
-                console.log("Logout effettuato.");
-            }).catch((error) => {
-                console.error("Errore durante il logout:", error);
-                alert("Errore: " + error.message);
-            });
+            if (user) {
+                authContainer.style.display = "none";
+                mainContainer.style.display = "block";
+                loadTasks();
+            } else {
+                authContainer.style.display = "block";
+                mainContainer.style.display = "none";
+            }
         }
 
         onAuthStateChanged(auth, (user) => {
-            const userInfo = document.getElementById("userInfo");
-            if (user) {
-                userInfo.innerText = "Connesso come: " + user.email;
-            } else {
-                userInfo.innerText = "Nessun utente connesso";
-            }
+            updateUI(user);
         });
 
-        // 📝 Gestione Task
+        function loadTasks() {
+            console.log("Recupero task...");
+            onSnapshot(collection(db, "tasks"), (snapshot) => {
+                let tasksHtml = "";
+                snapshot.docs.reverse().forEach((docSnapshot) => {
+                    let task = docSnapshot.data();
+                    tasksHtml += `<li class="task-item">
+                        <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
+                        <div class="task-buttons">
+                            <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
+                            <button onclick="editTask('${docSnapshot.id}', '${task.name}')">Edit</button>
+                            <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
+                        </div>
+                    </li>`;
+                });
+                document.getElementById("taskList").innerHTML = tasksHtml;
+            });
+        }
+
         async function addTask() {
             const taskInput = document.getElementById("taskInput").value.trim();
             if (!taskInput) return alert("Inserisci un task valido!");
-
-            await addDoc(collection(db, "tasks"), { name: taskInput });
-
+            await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
             document.getElementById("taskInput").value = "";
         }
 
-        // Esponi le funzioni globalmente
+        async function editTask(id, currentName) {
+            const newName = prompt("Modifica task:", currentName);
+            if (newName) {
+                await updateDoc(doc(db, "tasks", id), { name: newName });
+            }
+        }
+
+        async function deleteTask(id) {
+            await deleteDoc(doc(db, "tasks", id));
+        }
+
+        async function toggleComplete(id, currentState) {
+            await updateDoc(doc(db, "tasks", id), { completed: !currentState });
+        }
+
         window.registerUser = registerUser;
         window.loginUser = loginUser;
         window.logoutUser = logoutUser;
         window.addTask = addTask;
+        window.editTask = editTask;
+        window.deleteTask = deleteTask;
+        window.toggleComplete = toggleComplete;
     </script>
 </body>
 </html>
