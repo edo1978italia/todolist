@@ -1,177 +1,217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TO BUY LIST EDO</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-    <style>
-        body {
-            font-family: "Poppins", sans-serif;
-            background-color: #d0d0d0;
-            text-align: center;
-            color: #2e2e2e;
-        }
-        #authContainer {
-            margin: 20px auto;
-            max-width: 400px;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-        }
-        #mainContainer {
-            display: none;
-        }
-        #header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        #taskList {
-            padding-left: 20px;
-            width: 90%;
-            padding: 10px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        #inputContainer, #extraBox, #listContainer {
-            max-width: 600px;
-            margin: auto;
-            padding: 10px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        #extraBox {
-            font-size: 12px;
-        }
-        button {
-            background: rgb(3, 93, 181);
-            color: white;
-            padding: 10px;
-            font-size: 12px;
-            border-radius: 3px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
-        }
-        button:hover {
-            background: #247fd8;
-            transform: scale(1.05);
-        }
-        .completed {
-            text-decoration: line-through;
-            font-style: italic;
-            color: #ed5e5e;
-        }
-        .task-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        .task-item {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 2px solid #ddd;
-            border-radius: 5px;
-            width: 96%;
-        }
-        #taskInput {
-            width: 57%;
-            padding: 12px;
-            box-sizing: border-box;
-            margin-bottom: 5px;
-            margin-top: 5px;
-        }
-        .task-text {
-            flex-grow: 1;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-    <div id="authContainer">
-        <input type="email" id="emailInput" placeholder="Email">
-        <input type="password" id="passwordInput" placeholder="Password">
-        <button onclick="registerUser()">Registrati</button>
-        <button onclick="loginUser()">Login</button>
-        <button onclick="logoutUser()">Logout</button>
-        <p id="userInfo"></p>
-    </div>
-
-    <div id="mainContainer">
-        <div id="header">
-            <h4>TO BUY LIST</h4>
-        </div>
-
-        <div id="inputContainer">
-            <input type="text" id="taskInput" placeholder="Add a task">
-            <button onclick="addTask()">Add</button>
-        </div>
-
-        <div id="listContainer">
-            <ul id="taskList"></ul>
-        </div>
-
-        <div id="extraBox">
-            <p>E IO PAGO!</p>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
-            authDomain: "todolistedo.firebaseapp.com",
-            projectId: "todolistedo",
-            storageBucket: "todolistedo.appspot.com",
-            messagingSenderId: "700684050233",
-            appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
-            measurementId: "G-HR8GGBGQTJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        function updateUI(user) {
-            const authContainer = document.getElementById("authContainer");
-            const mainContainer = document.getElementById("mainContainer");
-
-            if (user) {
-                authContainer.style.display = "none";
-                mainContainer.style.display = "block";
-                loadTasks();
-            } else {
-                authContainer.style.display = "block";
-                mainContainer.style.display = "none";
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TO BUY LIST EDO</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
+        <style>
+            body {
+                font-family: "Poppins", sans-serif;
+                background-color: #d0d0d0;
+                text-align: center;
+                color: #2e2e2e;
             }
-        }
+            #authContainer {
+                margin: 20px auto;
+                max-width: 400px;
+                padding: 20px;
+                background: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            }
+            #mainContainer {
+                display: none;
+            }
+            
+            
+            #header button {
+                background: rgb(181, 3, 3); /* Rosso per distinguere il logout */
+                color: white;
+                border-radius: 5px;
+                padding: 6px 12px;
+                font-size: 14px;
+                cursor: pointer;
+            }
 
-        onAuthStateChanged(auth, (user) => {
-            updateUI(user);
-        });
+            #header button:hover {
+                background: rgb(228, 30, 30);
+            }
 
-        function loadTasks() {
-            onSnapshot(collection(db, "tasks"), (snapshot) => {
-                let tasksHtml = "";
-                snapshot.docs.reverse().forEach((docSnapshot) => {
-                    let task = docSnapshot.data();
-                    tasksHtml += `<li class="task-item">
+            #header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+            #taskList {
+                padding-left: 20px;
+                width: 90%;
+                padding: 10px;
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+            }
+            #inputContainer,
+            #extraBox,
+            #listContainer {
+                max-width: 600px;
+                margin: auto;
+                padding: 10px;
+                background: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 5px;
+            }
+            #extraBox {
+                font-size: 12px;
+            }
+            button {
+                background: rgb(3, 93, 181);
+                color: white;
+                padding: 10px;
+                font-size: 12px;
+                border-radius: 3px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+            }
+            button:hover {
+                background: #247fd8;
+                transform: scale(1.05);
+            }
+            .completed {
+                text-decoration: line-through;
+                font-style: italic;
+                color: #ed5e5e;
+            }
+            .task-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+            .task-item:nth-child(odd) {
+                background: #ffffff;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            }
+            .task-item:nth-child(even) {
+                background: #f0f0f0;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            }
+            .task-item {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+                border-bottom: 2px solid #ddd;
+                border-radius: 5px;
+                width: 96%;
+            }
+            #taskInput {
+                width: 57%;
+                padding: 12px;
+                box-sizing: border-box;
+                margin-bottom: 5px;
+                margin-top: 5px;
+            }
+            .task-text {
+                flex-grow: 1;
+                text-align: left;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="authContainer">
+            <input type="email" id="emailInput" placeholder="Email" />
+            <input type="password" id="passwordInput" placeholder="Password" />
+            <button onclick="registerUser()">Registrati</button>
+            <button onclick="loginUser()">Login</button>
+            <button onclick="logoutUser()">Logout</button>
+            <p id="userInfo"></p>
+        </div>
+
+        <div id="mainContainer">
+            <div id="header">
+                <button onclick="logoutUser()">Logout</button>
+                <h4>TO BUY LIST</h4>
+            </div>
+
+            <div id="inputContainer">
+                <input type="text" id="taskInput" placeholder="Add a task" />
+                <button onclick="addTask()">Add</button>
+            </div>
+
+            <div id="listContainer">
+                <ul id="taskList"></ul>
+            </div>
+
+            <div id="extraBox">
+                <p>E IO PAGO!</p>
+            </div>
+        </div>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+            import {
+                getAuth,
+                createUserWithEmailAndPassword,
+                signInWithEmailAndPassword,
+                signOut,
+                onAuthStateChanged
+            } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+            import {
+                getFirestore,
+                collection,
+                addDoc,
+                doc,
+                updateDoc,
+                deleteDoc,
+                onSnapshot
+            } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
+                authDomain: "todolistedo.firebaseapp.com",
+                projectId: "todolistedo",
+                storageBucket: "todolistedo.appspot.com",
+                messagingSenderId: "700684050233",
+                appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
+                measurementId: "G-HR8GGBGQTJ"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            function updateUI(user) {
+                const authContainer = document.getElementById("authContainer");
+                const mainContainer = document.getElementById("mainContainer");
+
+                if (user) {
+                    authContainer.style.display = "none";
+                    mainContainer.style.display = "block";
+                    loadTasks();
+                } else {
+                    authContainer.style.display = "block";
+                    mainContainer.style.display = "none";
+                }
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                updateUI(user);
+            });
+
+            function loadTasks() {
+                onSnapshot(collection(db, "tasks"), (snapshot) => {
+                    let tasksHtml = "";
+                    snapshot.docs.reverse().forEach((docSnapshot) => {
+                        let task = docSnapshot.data();
+                        tasksHtml += `<li class="task-item">
                         <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
                         <div class="task-buttons">
                             <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
@@ -179,40 +219,35 @@
                             <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
                         </div>
                     </li>`;
+                    });
+                    document.getElementById("taskList").innerHTML = tasksHtml;
                 });
-                document.getElementById("taskList").innerHTML = tasksHtml;
-            });
-        }
-
-        async function addTask() {
-            const taskInput = document.getElementById("taskInput").value.trim();
-            if (!taskInput) return alert("Inserisci un task valido!");
-            await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
-            document.getElementById("taskInput").value = "";
-        }
-
-        async function editTask(id, currentName) {
-            const newName = prompt("Modifica task:", currentName);
-            if (newName) {
-                await updateDoc(doc(db, "tasks", id), { name: newName });
             }
-        }
 
-        async function deleteTask(id) {
-            await deleteDoc(doc(db, "tasks", id));
-        }
+            window.addTask = async function () {
+                const taskInput = document.getElementById("taskInput").value.trim();
+                if (!taskInput) return alert("Inserisci un task valido!");
+                await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
+                document.getElementById("taskInput").value = "";
+            };
 
-        async function toggleComplete(id, currentState) {
-            await updateDoc(doc(db, "tasks", id), { completed: !currentState });
-        }
+            window.editTask = async function (id, currentName) {
+                const newName = prompt("Modifica task:", currentName);
+                if (newName) {
+                    await updateDoc(doc(db, "tasks", id), { name: newName });
+                }
+            };
 
-        window.registerUser = registerUser;
-        window.loginUser = loginUser;
-        window.logoutUser = logoutUser;
-        window.addTask = addTask;
-        window.editTask = editTask;
-        window.deleteTask = deleteTask;
-        window.toggleComplete = toggleComplete;
-    </script>
-</body>
+            window.deleteTask = async function (id) {
+                const confirmation = confirm("⚠️ Sei sicuro di voler eliminare questo task?");
+                if (confirmation) {
+                    await deleteDoc(doc(db, "tasks", id));
+                }
+            };
+
+            window.toggleComplete = async function (id, currentState) {
+                await updateDoc(doc(db, "tasks", id), { completed: !currentState });
+            };
+        </script>
+    </body>
 </html>
