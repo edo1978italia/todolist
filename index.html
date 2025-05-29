@@ -18,6 +18,7 @@
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
+                
             }
             #header img {
                 width: 50px;
@@ -36,31 +37,45 @@
                 margin: auto;
                 padding: 10px;
                 background: #ffffff;
-                border-radius: 15px;
+                border-radius: 10px;
                 box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
                 text-align: center;
                 flex-direction: column;
                 align-items: center; /* Centra gli elementi */
-                margin-bottom: 15px; /* Spazio extra prima di listContainer */
+                margin-bottom: 5px; /* Spazio extra prima di listContainer */
+            }
+            #extraBox {
+                max-width: 600px;
+                margin: auto;
+                padding: 10px;
+                background: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                flex-direction: column;
+                align-items: center; /* Centra gli elementi */
+                margin-bottom: 10px; /* Spazio extra prima di listContainer */
+                font-size: 12px;
             }
             #listContainer {
                 max-width: 600px;
                 margin: auto;
                 padding: 10px;
                 background: #ffffff;
-                border-radius: 15px;
+                border-radius: 10px;
                 box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
                 text-align: center;
                 display: flex;
                 flex-direction: column;
                 align-items: center; /* Centra gli elementi */
+                margin-bottom: 5px; /* Spazio extra prima di listContainer */
             }
             button {
                 background: rgb(3, 93, 181);
                 color: white;
                 padding: 10px;
                 font-size: 12px;
-                border-radius: 6px;
+                border-radius: 3px;
                 border: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
@@ -93,8 +108,8 @@
                 justify-content: center; /* Centra gli elementi */
                 align-items: center;
                 padding: 10px;
-                border-bottom: 1px solid #ddd;
-                border-radius: 8px;
+                border-bottom: 2px solid #ddd;
+                border-radius: 5px;
                 width: 96%; /* Garantisce una disposizione uniforme */
             }
             #taskInput {
@@ -102,9 +117,8 @@
                 padding: 12px; /* Aggiunge spazio interno per migliore leggibilità */
                 box-sizing: border-box; /* Evita overflow del padding */
                 margin-bottom: 5px; /* Aggiunge spazio sotto l'input */
-                margin-top: 5px; 
+                margin-top: 5px;
             }
-            
 
             .task-text {
                 flex-grow: 1;
@@ -114,15 +128,19 @@
     </head>
     <body>
         <div id="header">
-            <h2>TO BUY LIST</h2>
+            <h4>TO BUY LIST</h4>
         </div>
         <div id="inputContainer">
+            
             <input type="text" id="taskInput" placeholder="Add a task" />
             <button onclick="addTask()">Add</button>
         </div>
-       
+
         <div id="listContainer">
             <ul id="taskList"></ul>
+        </div>
+        <div id="extraBox">
+            <p>E IO PAGO!</p>
         </div>
 
         <script type="module">
