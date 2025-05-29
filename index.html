@@ -1,112 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To Buy List</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-    <style>
-        body { 
-            font-family: "Poppins", sans-serif; 
-            background-color: #d0d0d0; /* Grigio leggermente più scuro */
-            text-align: center;
-            color: #2E2E2E; 
-        }
-        #header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        #header img {
-            width: 50px;
-            height: 50px;
-        }
-        #listContainer { 
-            max-width: 600px; 
-            margin: auto; 
-            padding: 20px; 
-            background: white; 
-            border-radius: 15px; 
-            box-shadow: 0px 6px 15px rgba(0,0,0,0.2); 
-        }
-        button { 
-            background: rgb(3, 93, 181); 
-            color: white; 
-            padding: 8px; 
-            font-size: 14px; 
-            border-radius: 6px; 
-            border: none; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Ombra per effetto 3D */
-        }
-        button:hover { 
-            background: #247fd8; 
-            transform: scale(1.05);
-        }
-        .completed { 
-            text-decoration: line-through; 
-            font-style: italic; 
-            color: gray; 
-        }
-        .task-buttons { 
-            display: flex; 
-            gap: 10px; 
-        }
-        .task-item:nth-child(odd) { 
-            background: #ffffff; 
-        }
-        .task-item:nth-child(even) { 
-            background: #f0f0f0; 
-        }
-        .task-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 10px; 
-            border-bottom: 1px solid #ddd; 
-            border-radius: 8px; 
-        }
-        .task-text { 
-            flex-grow: 1; 
-            text-align: left; 
-        }
-    </style>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>To Buy List</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
+        <style>
+            body {
+                font-family: "Poppins", sans-serif;
+                background-color: #d0d0d0; /* Grigio leggermente più scuro */
+                text-align: center;
+                color: #2e2e2e;
+            }
+            #header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+            #header img {
+                width: 50px;
+                height: 50px;
+            }
+            #taskList {
+                padding-left: 20px;
+                width: 90%;
+                padding: 3px;
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+            }
+            #listContainer {
+                max-width: 600px;
+                margin: auto;
+                padding: 10px;
+                background: #ffffff;
+                border-radius: 15px;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center; /* Centra gli elementi */
+            }
+            button {
+                background: rgb(3, 93, 181);
+                color: white;
+                padding: 8px;
+                font-size: 14px;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Ombra per effetto 3D */
+            }
+            button:hover {
+                background: #247fd8;
+                transform: scale(1.05);
+            }
+            .completed {
+                text-decoration: line-through;
+                font-style: italic;
+                color: gray;
+            }
+            .task-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center; /* Centra i pulsanti */
+            }
+            .task-item:nth-child(odd) {
+                background: #ffffff;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            }
+            .task-item:nth-child(even) {
+                background: #f0f0f0;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            }
+            .task-item {
+                display: flex;
+                justify-content: center; /* Centra gli elementi */
+                align-items: center;
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                border-radius: 8px;
+                width: 96%; /* Garantisce una disposizione uniforme */
+            }
+            .task-text {
+                flex-grow: 1;
+                text-align: left; /* Centra il testo */
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <h2>To Buy List</h2>
+        </div>
 
-    <div id="header">
-        <h2>To Buy List</h2>
-    </div>
+        <input type="text" id="taskInput" placeholder="Add a task" />
+        <button onclick="addTask()">Add</button>
+        <div id="listContainer">
+            <ul id="taskList"></ul>
+        </div>
 
-    <input type="text" id="taskInput" placeholder="Add a task">
-    <button onclick="addTask()">Add</button>
-    <ul id="taskList"></ul>
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
+            import {
+                getFirestore,
+                collection,
+                addDoc,
+                doc,
+                updateDoc,
+                deleteDoc,
+                onSnapshot
+            } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js";
+            const firebaseConfig = {
+                apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
+                authDomain: "todolistedo.firebaseapp.com",
+                projectId: "todolistedo",
+                storageBucket: "todolistedo.appspot.com",
+                messagingSenderId: "700684050233",
+                appId: "1:700684050233:web:755d10254e8c2cf222d2e8"
+            };
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
-            authDomain: "todolistedo.firebaseapp.com",
-            projectId: "todolistedo",
-            storageBucket: "todolistedo.appspot.com",
-            messagingSenderId: "700684050233",
-            appId: "1:700684050233:web:755d10254e8c2cf222d2e8"
-        };
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        function loadTasks() {
-            onSnapshot(collection(db, "tasks"), (snapshot) => {
-                let tasks = "";
-                snapshot.docs.forEach((docSnapshot, index) => {
-                    let task = docSnapshot.data();
-                    tasks += `<li class="task-item ${index % 2 === 0 ? 'even' : 'odd'}">
+            function loadTasks() {
+                onSnapshot(collection(db, "tasks"), (snapshot) => {
+                    let tasks = "";
+                    snapshot.docs.forEach((docSnapshot, index) => {
+                        let task = docSnapshot.data();
+                        tasks += `<li class="task-item">
                         <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
                         <div class="task-buttons">
                             <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
@@ -114,44 +139,43 @@
                             <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
                         </div>
                     </li>`;
+                    });
+                    document.getElementById("taskList").innerHTML = tasks;
                 });
-                document.getElementById("taskList").innerHTML = tasks;
-            });
-        }
-
-        async function addTask() {
-            const taskInput = document.getElementById("taskInput").value.trim();
-            if (taskInput === "") return alert("Task field is empty!");
-
-            await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
-            document.getElementById("taskInput").value = "";
-        }
-
-        async function editTask(id, currentName) {
-            const newName = prompt("Edit task:", currentName);
-            if (newName) {
-                await updateDoc(doc(db, "tasks", id), { name: newName });
             }
-        }
 
-        async function deleteTask(id) {
-            const confirmation = confirm("Are you sure you want to delete this task?");
-            if (confirmation) {
-                await deleteDoc(doc(db, "tasks", id));
+            async function addTask() {
+                const taskInput = document.getElementById("taskInput").value.trim();
+                if (taskInput === "") return alert("Task field is empty!");
+
+                await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
+                document.getElementById("taskInput").value = "";
             }
-        }
 
-        async function toggleComplete(id, currentState) {
-            await updateDoc(doc(db, "tasks", id), { completed: !currentState });
-        }
+            async function editTask(id, currentName) {
+                const newName = prompt("Edit task:", currentName);
+                if (newName) {
+                    await updateDoc(doc(db, "tasks", id), { name: newName });
+                }
+            }
 
-        window.addTask = addTask;
-        window.editTask = editTask;
-        window.deleteTask = deleteTask;
-        window.toggleComplete = toggleComplete;
+            async function deleteTask(id) {
+                const confirmation = confirm("Are you sure you want to delete this task?");
+                if (confirmation) {
+                    await deleteDoc(doc(db, "tasks", id));
+                }
+            }
 
-        window.onload = loadTasks;
-    </script>
+            async function toggleComplete(id, currentState) {
+                await updateDoc(doc(db, "tasks", id), { completed: !currentState });
+            }
 
-</body>
+            window.addTask = addTask;
+            window.editTask = editTask;
+            window.deleteTask = deleteTask;
+            window.toggleComplete = toggleComplete;
+
+            window.onload = loadTasks;
+        </script>
+    </body>
 </html>
