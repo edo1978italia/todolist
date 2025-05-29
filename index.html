@@ -18,7 +18,6 @@
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
-                
             }
             #header img {
                 width: 50px;
@@ -131,7 +130,6 @@
             <h4>TO BUY LIST</h4>
         </div>
         <div id="inputContainer">
-            
             <input type="text" id="taskInput" placeholder="Add a task" />
             <button onclick="addTask()">Add</button>
         </div>
@@ -166,7 +164,35 @@
 
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
+            import {
+                getAuth,
+                signInWithEmailAndPassword,
+                createUserWithEmailAndPassword
+            } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js";
 
+            const auth = getAuth();
+
+            // Funzione per registrare un nuovo utente
+            function registerUser(email, password) {
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log("Registrazione riuscita!", userCredential.user);
+                    })
+                    .catch((error) => {
+                        console.error("Errore nella registrazione:", error);
+                    });
+            }
+
+            // Funzione per fare login
+            function loginUser(email, password) {
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log("Login riuscito!", userCredential.user);
+                    })
+                    .catch((error) => {
+                        console.error("Errore di login:", error);
+                    });
+            }
             function loadTasks() {
                 onSnapshot(collection(db, "tasks"), (snapshot) => {
                     let tasks = "";
