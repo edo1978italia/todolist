@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>To Buy List</title>
+        <title>TO BUY LIST EDO</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
         <style>
             body {
@@ -26,10 +26,22 @@
             #taskList {
                 padding-left: 20px;
                 width: 90%;
-                padding: 3px;
+                padding: 10px;
                 margin: auto;
                 display: flex;
                 flex-direction: column;
+            }
+            #inputContainer {
+                max-width: 600px;
+                margin: auto;
+                padding: 10px;
+                background: #ffffff;
+                border-radius: 15px;
+                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                flex-direction: column;
+                align-items: center; /* Centra gli elementi */
+                margin-bottom: 15px; /* Spazio extra prima di listContainer */
             }
             #listContainer {
                 max-width: 600px;
@@ -46,13 +58,13 @@
             button {
                 background: rgb(3, 93, 181);
                 color: white;
-                padding: 8px;
-                font-size: 14px;
+                padding: 10px;
+                font-size: 12px;
                 border-radius: 6px;
                 border: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Ombra per effetto 3D */
+                box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2); /* Ombra per effetto 3D */
             }
             button:hover {
                 background: #247fd8;
@@ -61,7 +73,7 @@
             .completed {
                 text-decoration: line-through;
                 font-style: italic;
-                color: gray;
+                color: #ed5e5e;
             }
             .task-buttons {
                 display: flex;
@@ -85,6 +97,15 @@
                 border-radius: 8px;
                 width: 96%; /* Garantisce una disposizione uniforme */
             }
+            #taskInput {
+                width: 57%; /* Occupa l'intera larghezza del contenitore */
+                padding: 12px; /* Aggiunge spazio interno per migliore leggibilità */
+                box-sizing: border-box; /* Evita overflow del padding */
+                margin-bottom: 5px; /* Aggiunge spazio sotto l'input */
+                margin-top: 5px; 
+            }
+            
+
             .task-text {
                 flex-grow: 1;
                 text-align: left; /* Centra il testo */
@@ -93,11 +114,13 @@
     </head>
     <body>
         <div id="header">
-            <h2>To Buy List</h2>
+            <h2>TO BUY LIST</h2>
         </div>
-
-        <input type="text" id="taskInput" placeholder="Add a task" />
-        <button onclick="addTask()">Add</button>
+        <div id="inputContainer">
+            <input type="text" id="taskInput" placeholder="Add a task" />
+            <button onclick="addTask()">Add</button>
+        </div>
+       
         <div id="listContainer">
             <ul id="taskList"></ul>
         </div>
