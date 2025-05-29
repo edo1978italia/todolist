@@ -78,14 +78,6 @@
             gap: 10px;
             justify-content: center;
         }
-        .task-item:nth-child(odd) {
-            background: #ffffff;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-        }
-        .task-item:nth-child(even) {
-            background: #f0f0f0;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-        }
         .task-item {
             display: flex;
             justify-content: center;
@@ -175,7 +167,6 @@
         });
 
         function loadTasks() {
-            console.log("Recupero task...");
             onSnapshot(collection(db, "tasks"), (snapshot) => {
                 let tasksHtml = "";
                 snapshot.docs.reverse().forEach((docSnapshot) => {
