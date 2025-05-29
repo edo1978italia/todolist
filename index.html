@@ -111,6 +111,18 @@
                 border-radius: 5px;
                 width: 96%;
             }
+            .input-group {
+                margin-bottom: 10px; /* Aggiunge spazio tra i campi */
+                display: block; /* Garantisce che ogni campo sia su una riga separata */
+            }
+            input {
+                width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
             #taskInput {
                 width: 57%;
                 padding: 12px;
@@ -126,11 +138,13 @@
     </head>
     <body>
         <div id="authContainer">
-            <input type="email" id="emailInput" placeholder="Email" />
-            <input type="password" id="passwordInput" placeholder="Password" />
-            <button onclick="registerUser()">Registrati</button>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Email" />
+            </div>
+            <div class="input-group">
+                <input type="password" id="passwordInput" placeholder="Password" />
+            </div>
             <button onclick="loginUser()">Login</button>
-            <button onclick="logoutUser()">Logout</button>
             <p id="userInfo"></p>
         </div>
 
@@ -223,6 +237,21 @@
                 });
             }
 
+            async function loginUser() {
+                const email = document.getElementById("emailInput").value;
+                const password = document.getElementById("passwordInput").value;
+
+                try {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    updateUI(userCredential.user);
+                    console.log("Login riuscito:", userCredential.user);
+                } catch (error) {
+                    alert("Errore di login: " + error.message);
+                    console.error("Login error:", error);
+                }
+            }
+            window.loginUser = loginUser;
+
             window.addTask = async function () {
                 const taskInput = document.getElementById("taskInput").value.trim();
                 if (!taskInput) return alert("Inserisci un task valido!");
@@ -247,7 +276,7 @@
             window.toggleComplete = async function (id, currentState) {
                 await updateDoc(doc(db, "tasks", id), { completed: !currentState });
             };
-            
+
             async function logoutUser() {
                 try {
                     await signOut(auth);
