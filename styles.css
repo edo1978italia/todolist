@@ -1,0 +1,140 @@
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #d0d0d0;
+    text-align: center;
+    color: #2e2e2e;
+}
+#authContainer {
+    margin: 20px auto;
+    max-width: 400px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+#mainContainer {
+    display: none;
+}
+
+#header button {
+    background: rgb(181, 3, 3); /* Rosso per distinguere il logout */
+    color: white;
+    border-radius: 5px;
+    padding: 10px 34px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+#header button:hover {
+    background: rgb(228, 30, 30);
+}
+
+#header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+#taskList {
+    padding-left: 20px;
+    width: 90%;
+    padding: 10px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
+#inputContainer,
+#extraBox,
+#listContainer {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+#extraBox {
+    font-size: 12px;
+}
+button {
+    background: rgb(3, 93, 181);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+}
+button:hover {
+    background: #247fd8;
+    transform: scale(1.05);
+}
+.completed {
+    text-decoration: line-through;
+    font-style: italic;
+    color: #ed5e5e;
+}
+.task-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.task-item:nth-child(odd) {
+    background: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+.task-item:nth-child(even) {
+    background: #f0f0f0;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+.task-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+    border-radius: 5px;
+    width: 96%;
+}
+.input-group {
+    margin-bottom: 10px; /* Aggiunge spazio tra i campi */
+    display: block; /* Garantisce che ogni campo sia su una riga separata */
+}
+
+.link-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    margin-right: 8px;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#taskInput {
+    width: 57%;
+    padding: 12px;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+.task-text {
+    flex-grow: 1;
+    text-align: left;
+}

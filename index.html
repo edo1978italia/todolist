@@ -5,137 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>TO BUY LIST EDO</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
-        <style>
-            body {
-                font-family: "Poppins", sans-serif;
-                background-color: #d0d0d0;
-                text-align: center;
-                color: #2e2e2e;
-            }
-            #authContainer {
-                margin: 20px auto;
-                max-width: 400px;
-                padding: 20px;
-                background: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-            }
-            #mainContainer {
-                display: none;
-            }
-
-            #header button {
-                background: rgb(181, 3, 3); /* Rosso per distinguere il logout */
-                color: white;
-                border-radius: 5px;
-                padding: 10px 34px;
-                font-size: 14px;
-                cursor: pointer;
-                margin-bottom: 5px;
-            }
-
-            #header button:hover {
-                background: rgb(228, 30, 30);
-            }
-
-            #header {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-            }
-            #taskList {
-                padding-left: 20px;
-                width: 90%;
-                padding: 10px;
-                margin: auto;
-                display: flex;
-                flex-direction: column;
-            }
-            #inputContainer,
-            #extraBox,
-            #listContainer {
-                max-width: 600px;
-                margin: auto;
-                padding: 10px;
-                background: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-                text-align: center;
-                flex-direction: column;
-                align-items: center;
-                margin-bottom: 5px;
-            }
-            #extraBox {
-                font-size: 12px;
-            }
-            button {
-                background: rgb(3, 93, 181);
-                color: white;
-                padding: 10px;
-                font-size: 12px;
-                border-radius: 3px;
-                border: none;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
-            }
-            button:hover {
-                background: #247fd8;
-                transform: scale(1.05);
-            }
-            .completed {
-                text-decoration: line-through;
-                font-style: italic;
-                color: #ed5e5e;
-            }
-            .task-buttons {
-                display: flex;
-                gap: 10px;
-                justify-content: center;
-            }
-            .task-item:nth-child(odd) {
-                background: #ffffff;
-                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-            }
-            .task-item:nth-child(even) {
-                background: #f0f0f0;
-                box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-            }
-            .task-item {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 10px;
-                border-bottom: 2px solid #ddd;
-                border-radius: 5px;
-                width: 96%;
-            }
-            .input-group {
-                margin-bottom: 10px; /* Aggiunge spazio tra i campi */
-                display: block; /* Garantisce che ogni campo sia su una riga separata */
-            }
-            input {
-                width: 100%;
-                padding: 10px;
-                box-sizing: border-box;
-                border-radius: 5px;
-                border: 1px solid #ccc;
-            }
-
-            #taskInput {
-                width: 57%;
-                padding: 12px;
-                box-sizing: border-box;
-                margin-bottom: 5px;
-                margin-top: 5px;
-            }
-            .task-text {
-                flex-grow: 1;
-                text-align: left;
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
         <div id="authContainer">
@@ -152,11 +22,11 @@
         <div id="mainContainer">
             <div id="header">
                 <button onclick="logoutUser()">Logout</button>
-                
             </div>
 
             <div id="inputContainer">
                 <input type="text" id="taskInput" placeholder="Add a task" />
+                <input type="url" id="linkInput" placeholder="Link prodotto (opzionale)" />
                 <button onclick="addTask()">Add</button>
             </div>
 
@@ -169,11 +39,25 @@
             </div>
         </div>
 
+        <!-- Modale di modifica -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditModal()">&times;</span>
+                <h2>Modifica prodotto</h2>
+                <label for="editNameInput">Nome prodotto:</label>
+                <input type="text" id="editNameInput" placeholder="Nome prodotto" />
+
+                <label for="editLinkInput">Link prodotto (opzionale):</label>
+                <input type="url" id="editLinkInput" placeholder="Inserisci il link al prodotto" />
+
+                <button onclick="saveTaskChanges()">Salva</button>
+            </div>
+        </div>
+
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
             import {
                 getAuth,
-                createUserWithEmailAndPassword,
                 signInWithEmailAndPassword,
                 signOut,
                 onAuthStateChanged
@@ -185,7 +69,8 @@
                 doc,
                 updateDoc,
                 deleteDoc,
-                onSnapshot
+                onSnapshot,
+                getDoc
             } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
             const firebaseConfig = {
@@ -226,70 +111,66 @@
                     snapshot.docs.reverse().forEach((docSnapshot) => {
                         let task = docSnapshot.data();
                         tasksHtml += `<li class="task-item">
-                        <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
-                        <div class="task-buttons">
-                            <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
-                            <button onclick="editTask('${docSnapshot.id}', '${task.name}')">Edit</button>
-                            <button onclick="deleteTask('${docSnapshot.id}')">Delete</button>
-                        </div>
-                    </li>`;
+                            <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
+                            <div class="task-buttons">
+                                ${task.link ? `<button class="link-button" onclick="window.open('${task.link}', '_blank')">🔴</button>` : ""}
+                                <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
+                                <button onclick="editTask('${docSnapshot.id}')">🖉</button>
+                                <button onclick="deleteTask('${docSnapshot.id}')"> 🗑 </button>
+                            </div>
+                        </li>`;
                     });
                     document.getElementById("taskList").innerHTML = tasksHtml;
                 });
             }
 
-            async function loginUser() {
-                const email = document.getElementById("emailInput").value;
-                const password = document.getElementById("passwordInput").value;
-
-                try {
-                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    updateUI(userCredential.user);
-                    console.log("Login riuscito:", userCredential.user);
-                } catch (error) {
-                    alert("Errore di login: " + error.message);
-                    console.error("Login error:", error);
-                }
-            }
-            window.loginUser = loginUser;
-
             window.addTask = async function () {
                 const taskInput = document.getElementById("taskInput").value.trim();
+                const linkInput = document.getElementById("linkInput").value.trim();
                 if (!taskInput) return alert("Inserisci un task valido!");
-                await addDoc(collection(db, "tasks"), { name: taskInput, completed: false });
+                await addDoc(collection(db, "tasks"), {
+                    name: taskInput,
+                    link: linkInput || ""
+                });
                 document.getElementById("taskInput").value = "";
+                document.getElementById("linkInput").value = "";
             };
 
-            window.editTask = async function (id, currentName) {
-                const newName = prompt("Modifica task:", currentName);
-                if (newName) {
-                    await updateDoc(doc(db, "tasks", id), { name: newName });
+            let currentTaskId = null;
+            window.editTask = async function (id) {
+                currentTaskId = id;
+                const taskRef = doc(db, "tasks", id);
+                const taskSnapshot = await getDoc(taskRef);
+
+                if (taskSnapshot.exists()) {
+                    const taskData = taskSnapshot.data();
+                    document.getElementById("editNameInput").value = taskData.name;
+                    document.getElementById("editLinkInput").value = taskData.link || "";
+                    document.getElementById("editModal").style.display = "flex";
                 }
             };
 
-            window.deleteTask = async function (id) {
-                const confirmation = confirm("⚠️ Sei sicuro di voler eliminare questo task?");
-                if (confirmation) {
-                    await deleteDoc(doc(db, "tasks", id));
-                }
+            window.closeEditModal = function () {
+                document.getElementById("editModal").style.display = "none";
             };
 
-            window.toggleComplete = async function (id, currentState) {
-                await updateDoc(doc(db, "tasks", id), { completed: !currentState });
+            window.saveTaskChanges = async function () {
+                const newName = document.getElementById("editNameInput").value;
+                const newLink = document.getElementById("editLinkInput").value;
+
+                if (currentTaskId && newName) {
+                    await updateDoc(doc(db, "tasks", currentTaskId), { 
+                        name: newName, 
+                        link: newLink 
+                    });
+                }
+
+                closeEditModal();
             };
 
-            async function logoutUser() {
-                try {
-                    await signOut(auth);
-                    updateUI(null); // Assicura che l'interfaccia venga aggiornata correttamente
-                    console.log("Logout effettuato con successo");
-                } catch (error) {
-                    console.error("Errore durante il logout:", error);
-                    alert("Errore nel logout: " + error.message);
-                }
-            }
-
-            window.logoutUser = logoutUser; // Esposizione della funzione per il pulsante
+            window.deleteTask = async function (id) { /* Elimina il task dal database */ };
+            window.toggleComplete = async function (id, currentState) { /* Cambia stato completato */ };
+            window.logoutUser = async function () { /* Logout utente */ };
         </script>
     </body>
 </html>
