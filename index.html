@@ -159,18 +159,39 @@
                 const newLink = document.getElementById("editLinkInput").value;
 
                 if (currentTaskId && newName) {
-                    await updateDoc(doc(db, "tasks", currentTaskId), { 
-                        name: newName, 
-                        link: newLink 
+                    await updateDoc(doc(db, "tasks", currentTaskId), {
+                        name: newName,
+                        link: newLink
                     });
                 }
 
                 closeEditModal();
             };
 
-            window.deleteTask = async function (id) { /* Elimina il task dal database */ };
-            window.toggleComplete = async function (id, currentState) { /* Cambia stato completato */ };
-            window.logoutUser = async function () { /* Logout utente */ };
+            window.deleteTask = async function (id) {
+                try {
+                    const confirmation = confirm("⚠️ Sei sicuro di voler eliminare questo task?");
+                    if (confirmation) {
+                        await deleteDoc(doc(db, "tasks", id));
+                        console.log(`Task ${id} eliminato.`);
+                    }
+                } catch (error) {
+                    console.error("Errore nell'eliminazione del task:", error);
+                }
+            };
+
+            window.toggleComplete = async function (id, currentState) {
+                try {
+                    await updateDoc(doc(db, "tasks", id), { completed: !currentState });
+                    console.log(`Task ${id} completato.`);
+                } catch (error) {
+                    console.error("Errore nel completare il task:", error);
+                }
+            };
+
+            window.logoutUser = async function () {
+                /* Logout utente */
+            };
         </script>
     </body>
 </html>
