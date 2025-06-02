@@ -73,7 +73,7 @@ body {
     border-radius: 5px;
     flex-direction: column;
     z-index: 500; /* Assicura che il menu sia sopra gli altri elementi */
-    min-width: 150px;
+    min-width: 80px;
 }
 
 /* Modifica: assicura che il menu venga reso visibile */
@@ -88,14 +88,16 @@ body {
 /* Stile per i pulsanti nel menu */
 .menu button {
     display: block;
-    width: 100%;
+    width: 97%;
     padding: 10px;
     border: none;
     background: none;
     cursor: pointer;
     text-align: left;
 }
-
+.task-item.has-link .menu-button {
+    color: red; /* Cambia colore dei tre puntini */
+}
 /* Aggiunge un'animazione di apertura */
 .menu.active {
     opacity: 1;

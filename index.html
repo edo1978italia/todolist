@@ -114,7 +114,8 @@
                     snapshot.docs.reverse().forEach((docSnapshot) => {
                         let task = docSnapshot.data();
                         tasksHtml += `
-                <li class="task-item">
+                <li class="task-item ${task.link ? 'has-link' : ''}">
+
                     <span class="task-text ${task.completed ? "completed" : ""}" data-task-id="${docSnapshot.id}">${task.name}</span>
 
 
