@@ -25,8 +25,8 @@
             </div>
 
             <div id="inputContainer">
-                <input type="text" id="taskInput" placeholder="Add a task" />
-                <input type="url" id="linkInput" placeholder="Link prodotto (opzionale)" />
+                <input type="text" id="taskInput" placeholder="Add a product" />
+                <input type="url" id="linkInput" placeholder="Link (optional)" />
                 <button onclick="addTask()">Add</button>
             </div>
 
@@ -43,16 +43,17 @@
         <div id="editModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeEditModal()">&times;</span>
-                <h2>Modifica prodotto</h2>
-                <label for="editNameInput">Nome prodotto:</label>
-                <input type="text" id="editNameInput" placeholder="Nome prodotto" />
+                <h2>Edit</h2>
+                <label for="editNameInput">Name:</label>
+                <input type="text" id="editNameInput" placeholder="Name" />
 
-                <label for="editLinkInput">Link prodotto (opzionale):</label>
-                <input type="url" id="editLinkInput" placeholder="Inserisci il link al prodotto" />
+                <label for="editLinkInput">Link (optional):</label>
+                <input type="url" id="editLinkInput" placeholder="Link (optional)" />
 
-                <button onclick="saveTaskChanges()">Salva</button>
+                <button onclick="saveTaskChanges()">Save</button>
             </div>
         </div>
+        <script src="script.js"></script>
 
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
@@ -188,10 +189,32 @@
                     console.error("Errore nel completare il task:", error);
                 }
             };
+            async function loginUser() {
+                const email = document.getElementById("emailInput").value;
+                const password = document.getElementById("passwordInput").value;
 
-            window.logoutUser = async function () {
-                /* Logout utente */
-            };
+                try {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    updateUI(userCredential.user);
+                    console.log("Login riuscito:", userCredential.user);
+                } catch (error) {
+                    alert("Errore di login: " + error.message);
+                    console.error("Login error:", error);
+                }
+            }
+            window.loginUser = loginUser;
+            async function logoutUser() {
+                try {
+                    await signOut(auth);
+                    updateUI(null); // Assicura che l'interfaccia venga aggiornata correttamente
+                    console.log("Logout effettuato con successo");
+                } catch (error) {
+                    console.error("Errore durante il logout:", error);
+                    alert("Errore nel logout: " + error.message);
+                }
+            }
+
+            window.logoutUser = logoutUser; // Esposizione della funzione per il pulsante
         </script>
     </body>
 </html>
