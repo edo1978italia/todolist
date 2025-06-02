@@ -52,7 +52,10 @@ body {
     border-radius: 5px;
     background: #247fd8;
 }
-
+/* ✅ Se il task ha un link, il bottone diventa rosso, mantenendo le stesse dimensioni */
+.task-item.has-link .menu-container {
+    background: rgb(239, 34, 34); /* Rosso */
+}
 .menu-button {
     background: none;
     border: none;
@@ -64,9 +67,9 @@ body {
 .menu {
     display: none; /* Nasconde il menu inizialmente */
     position: absolute;
-    top: 100%;
-    right: 0;
-    background: #80a1c1;
+    top: 0px;
+    right: 28px;
+    background: #2b8ae5;
     border: 1px solid #ccc;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 5px;
@@ -95,9 +98,7 @@ body {
     cursor: pointer;
     text-align: left;
 }
-.task-item.has-link .menu-button {
-    color: red; /* Cambia colore dei tre puntini */
-}
+
 /* Aggiunge un'animazione di apertura */
 .menu.active {
     opacity: 1;
@@ -135,7 +136,7 @@ button {
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
 }
 button:hover {
-    background: #247fd8;
+    /*background: #247fd8;*/
     transform: scale(1.05);
 }
 .completed {
