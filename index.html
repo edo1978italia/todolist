@@ -31,7 +31,9 @@
             </div>
 
             <div id="listContainer">
-                <ul id="taskList"></ul>
+                <ul id="taskList">
+                    <!-- I task vengono generati dinamicamente -->
+                </ul>
             </div>
 
             <div id="extraBox">
@@ -88,8 +90,6 @@
             const auth = getAuth(app);
             const db = getFirestore(app);
 
-            
-            
             function updateUI(user) {
                 const authContainer = document.getElementById("authContainer");
                 const mainContainer = document.getElementById("mainContainer");
@@ -113,19 +113,56 @@
                     let tasksHtml = "";
                     snapshot.docs.reverse().forEach((docSnapshot) => {
                         let task = docSnapshot.data();
-                        tasksHtml += `<li class="task-item">
-                            <span class="task-text ${task.completed ? "completed" : ""}">${task.name}</span>
-                            <div class="task-buttons">
-                                ${task.link ? `<button class="link-button" onclick="window.open('${task.link}', '_blank')">🔴</button>` : ""}
-                                <button onclick="toggleComplete('${docSnapshot.id}', ${task.completed})">✔</button>
-                                <button onclick="editTask('${docSnapshot.id}')">🖉</button>
-                                <button onclick="deleteTask('${docSnapshot.id}')"> 🗑 </button>
-                            </div>
-                        </li>`;
+                        tasksHtml += `
+                <li class="task-item">
+                    <span class="task-text ${task.completed ? "completed" : ""}" data-task-id="${docSnapshot.id}">${task.name}</span>
+
+
+                    <div class="menu-container">
+                        <button class="menu-button" onclick="toggleMenu(this)">⋮</button>
+                        <div class="menu">
+                            ${task.link ? `<button onclick="window.open('${task.link}', '_blank')">🔗 Link</button>` : ""}
+                            <button onclick="toggleComplete('${docSnapshot.id}')">✔ Check</button>
+                            <button onclick="editTask('${docSnapshot.id}')">🖉 Edit</button>
+                            <button onclick="deleteTask('${docSnapshot.id}')">🗑 Delete</button>
+                        </div>
+                    </div>
+                </li>`;
                     });
                     document.getElementById("taskList").innerHTML = tasksHtml;
                 });
             }
+
+            document.addEventListener("click", function (event) {
+                // Controlla se il click è su un bottone dei tre puntini
+                if (event.target.matches(".menu-button")) {
+                    const menu = event.target.nextElementSibling;
+
+                    // Chiudi gli altri menu prima di aprire quello cliccato
+                    document.querySelectorAll(".menu").forEach((m) => {
+                        if (m !== menu) {
+                            m.classList.remove("active");
+                            m.style.display = "none";
+                        }
+                    });
+
+                    // Attiva/disattiva il menu
+                    menu.classList.toggle("active");
+
+                    // Verifica che `display: block` venga applicato
+                    if (menu.classList.contains("active")) {
+                        menu.style.display = "block";
+                    } else {
+                        menu.style.display = "none";
+                    }
+                } else {
+                    // Se il click è fuori dal menu, chiudilo
+                    document.querySelectorAll(".menu").forEach((menu) => {
+                        menu.classList.remove("active");
+                        menu.style.display = "none";
+                    });
+                }
+            });
 
             window.addTask = async function () {
                 const taskInput = document.getElementById("taskInput").value.trim();
@@ -171,26 +208,55 @@
                 closeEditModal();
             };
 
-            window.deleteTask = async function (id) {
+            window.toggleComplete = async function (id) {
                 try {
-                    const confirmation = confirm("⚠️ Sei sicuro di voler eliminare questo task?");
-                    if (confirmation) {
-                        await deleteDoc(doc(db, "tasks", id));
-                        console.log(`Task ${id} eliminato.`);
+                    // Trova l'elemento del task nel DOM
+                    const taskElement = document.querySelector(`[data-task-id="${id}"]`);
+
+                    if (!taskElement) {
+                        console.error(`Task ${id} non trovato nel DOM.`);
+                        return;
                     }
+
+                    // Alterna la classe "completed" nel DOM
+                    taskElement.classList.toggle("completed");
+
+                    // Recupera lo stato attuale
+                    const isCompleted = taskElement.classList.contains("completed");
+
+                    // Aggiorna il database Firebase con il nuovo stato
+                    await updateDoc(doc(db, "tasks", id), { completed: isCompleted });
+
+                    console.log(`Task ${id} aggiornato, stato completato: ${isCompleted}`);
                 } catch (error) {
-                    console.error("Errore nell'eliminazione del task:", error);
+                    console.error("Errore nell'aggiornamento del task:", error);
                 }
             };
 
-            window.toggleComplete = async function (id, currentState) {
-                try {
-                    await updateDoc(doc(db, "tasks", id), { completed: !currentState });
-                    console.log(`Task ${id} completato.`);
-                } catch (error) {
-                    console.error("Errore nel completare il task:", error);
-                }
-            };
+            window.deleteTask = async function (id) {
+    try {
+        // Mostra una finestra di conferma prima di eliminare
+        if (!confirm("⚠️ Sei sicuro di voler eliminare questo task?")) {
+            console.log("Eliminazione annullata.");
+            return; // Se l'utente clicca 'Annulla', interrompe l'operazione
+        }
+
+        // Elimina il task da Firebase
+        await deleteDoc(doc(db, "tasks", id));
+
+        // Rimuove il task dal DOM
+        const taskElement = document.querySelector(`[data-task-id="${id}"]`);
+        if (taskElement) {
+            taskElement.remove();
+        }
+
+        console.log(`Task ${id} eliminato con successo.`);
+    } catch (error) {
+        console.error("Errore nell'eliminazione del task:", error);
+    }
+};
+
+            
             async function loginUser() {
                 const email = document.getElementById("emailInput").value;
                 const password = document.getElementById("passwordInput").value;

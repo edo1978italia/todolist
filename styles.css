@@ -45,6 +45,62 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+.menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.menu {
+    display: none; /* Nasconde il menu inizialmente */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    border-radius: 5px;
+    flex-direction: column;
+    z-index: 500; /* Assicura che il menu sia sopra gli altri elementi */
+    min-width: 150px;
+}
+
+/* Modifica: assicura che il menu venga reso visibile */
+.menu.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+
+/* Stile per i pulsanti nel menu */
+.menu button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+/* Aggiunge un'animazione di apertura */
+.menu.active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+
 #inputContainer,
 #extraBox,
 #listContainer {
@@ -140,8 +196,7 @@ input {
 }
 
 .modal {
-    
-   display: none;
+    display: none;
     position: fixed;
     left: 0;
     top: 0;
@@ -150,7 +205,6 @@ input {
     background-color: rgba(20, 20, 20, 0.5);
     justify-content: center;
     align-items: center;
-    
 }
 
 .modal-content {
@@ -166,19 +220,13 @@ input {
     margin-bottom: 5px;
     position: absolute;
     top: 25%;
-  
-    
+
     margin-left: 10px;
     margin-right: 10px;
-    
 }
-
-
-
 
 .close {
     float: right;
     font-size: 24px;
     cursor: pointer;
-    
 }
