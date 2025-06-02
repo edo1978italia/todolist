@@ -124,13 +124,14 @@ input {
     box-sizing: border-box;
     border-radius: 5px;
     border: 1px solid #ccc;
+    margin-bottom: 10px;
 }
 
 #taskInput {
-    width: 57%;
+    width: 100%;
     padding: 12px;
     box-sizing: border-box;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     margin-top: 5px;
 }
 .task-text {
@@ -148,6 +149,8 @@ input {
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
+    
+    
 }
 
 .modal-content {
@@ -155,7 +158,7 @@ input {
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    width: 300px;
+    width: 400px;
 
     position: absolute;
     top: 50%;
@@ -167,4 +170,5 @@ input {
     float: right;
     font-size: 24px;
     cursor: pointer;
+    
 }
