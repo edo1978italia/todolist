@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js"; 
+import firebaseConfig from "./config.js"; 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import {
     getAuth,
@@ -47,16 +47,22 @@ onAuthStateChanged(auth, (user) => {
 
 async function loginUser() {
     try {
-        const email = document.getElementById("emailInput").value;
-        const password = document.getElementById("passwordInput").value;
+        const email = document.getElementById("emailInput").value.trim();
+        const password = document.getElementById("passwordInput").value.trim();
+
+        if (!email || !password) {
+            alert("Inserisci email e password!");
+            return;
+        }
+
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log("Login riuscito:", userCredential.user);
+        document.getElementById("userInfo").innerText = `Benvenuto, ${userCredential.user.email}`;
     } catch (error) {
+        console.error("Errore di login:", error);
         alert("Errore di login: " + error.message);
-        console.error("Login error:", error);
     }
 }
-window.loginUser = loginUser;
 
 async function logoutUser() {
     try {
