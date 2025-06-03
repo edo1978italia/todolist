@@ -90,7 +90,9 @@ body {
     transition:
         opacity 0.2s ease-in-out,
         transform 0.2s ease-in-out;
-}.menu {
+}
+
+.menu {
     display: none; /* Nasconde il menu inizialmente */
     position: absolute;
     top: 0;
@@ -102,8 +104,14 @@ body {
     border-radius: 5px;
     flex-direction: column;
     z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
-    min-width: 80px;
+    min-width: 75px;
     
+    
+}
+
+.menu button:hover {
+    background: #f1f1f1; /* 🔥 Cambia colore quando ci passi sopra */
+    color: #007bff; /* 🔥 Cambia il colore del testo */
 }
 
 /* Modifica: assicura che il menu venga reso visibile */

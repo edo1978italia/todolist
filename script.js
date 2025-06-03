@@ -124,7 +124,6 @@ async function loadTasks(snapshot) {
     });
 }
 
-
 function toggleMenu(button) {
     const menu = button.nextElementSibling;
 
@@ -146,8 +145,6 @@ function toggleMenu(button) {
     menu.style.display = menu.classList.contains("active") ? "block" : "none";
 }
 window.toggleMenu = toggleMenu;
-
-
 
 window.openEditModal = async function (taskId) {
     const taskRef = doc(db, "tasks", taskId);
@@ -183,11 +180,9 @@ window.saveTaskChanges = async function () {
     }
 };
 
-
 window.closeEditModal = function () {
     document.getElementById("editModal").style.display = "none";
 };
-
 
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("menu-button")) {
@@ -201,14 +196,16 @@ document.addEventListener("click", function (event) {
 
 window.addTask = async function () {
     const taskInput = document.getElementById("taskInput");
-    const linkInput = document.getElementById("linkInput").value.trim();
+    const linkInput = document.getElementById("linkInput");
     const taskName = taskInput.value.trim();
+    const taskLink = linkInput.value.trim();
 
     if (!taskName) return alert("Inserisci un task valido!");
 
-    await addDoc(collection(db, "tasks"), { name: taskName, link: linkInput || "" });
+    await addDoc(collection(db, "tasks"), { name: taskName, link: taskLink || "" });
 
-    taskInput.value = ""; // 🔥 Resetta il campo input dopo l'aggiunta
+    taskInput.value = ""; // 🔥 Resetta il campo nome
+    linkInput.value = ""; // 🔥 Resetta anche il campo link
 };
 
 
@@ -219,7 +216,6 @@ window.deleteTask = async function (id) {
     }
 };
 
-
 window.toggleComplete = async function (id) {
     const taskRef = doc(db, "tasks", id);
     const taskSnapshot = await getDoc(taskRef);
@@ -229,4 +225,3 @@ window.toggleComplete = async function (id) {
         await updateDoc(taskRef, { completed: !taskData.completed }); // Alterna tra true e false
     }
 };
-
