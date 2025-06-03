@@ -27,7 +27,7 @@ body {
 }
 
 #header button:hover {
-    background: rgb(228, 30, 30);
+    background: rgb(181, 3, 3);
 }
 
 #header {
@@ -54,7 +54,7 @@ body {
 }
 /* ✅ Se il task ha un link, il bottone diventa rosso, mantenendo le stesse dimensioni */
 .task-item.has-link .menu-container {
-    background: rgb(239, 34, 34); /* Rosso */
+    background: rgb(232, 16, 16); /* Rosso */
 }
 .menu-button {
     background: none;
@@ -67,7 +67,7 @@ body {
 .menu {
     display: none; /* Nasconde il menu inizialmente */
     position: absolute;
-    top: 0px;
+    top: 0;
     right: 28px;
     background: #2b8ae5;
     border: 1px solid #ccc;
@@ -142,7 +142,7 @@ button:hover {
 .completed {
     text-decoration: line-through;
     font-style: italic;
-    color: #ed5e5e;
+    color: #ff0000;
 }
 .task-buttons {
     display: flex;
