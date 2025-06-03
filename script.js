@@ -63,6 +63,8 @@ async function loginUser() {
         alert("Errore di login: " + error.message);
     }
 }
+window.loginUser = loginUser;
+
 
 async function logoutUser() {
     try {
