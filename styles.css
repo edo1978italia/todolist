@@ -239,33 +239,3 @@ input {
     font-size: 24px;
     cursor: pointer;
 }
-
-
-#bottomMenu {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #247fd8;
-    padding: 10px;
-    display: flex;
-    justify-content: space-around;
-}
-
-#bottomMenu button {
-    background: #a28a8a;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#bottomMenu button:hover {
-    background: #d0d0d0;
-}
-
-#mainContent {
-    padding: 20px;
-}
-
