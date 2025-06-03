@@ -273,3 +273,66 @@ input {
     font-size: 24px;
     cursor: pointer;
 }
+
+#sidebar {
+    display: none; /* 🔥 Nasconde il pannello */
+    position: fixed;
+    top: 0;
+    left: -300px; /* Posizione iniziale fuori schermo */
+    width: 250px;
+    height: 100%;
+    background: #2b8ae5;
+    color: white;
+    padding: 15px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease-in-out;
+}
+
+#sidebar nav button {
+    display: block;
+    width: 100%;
+    margin: 20px 0;
+    padding: 10px;
+    background: white;
+    color: #2b8ae5;
+    border: none;
+    cursor: pointer;
+}
+
+#sidebar nav {
+    display: none; /* 🔥 Nasconde il menu di default */
+}
+
+#sidebar nav button:hover {
+    background: #f1f1f1;
+}
+#openSidebar {
+    position: fixed;
+    top: 8px;
+    left: 10px;
+    background: transparent;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+#closeSidebar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+#userInfo {
+    margin-top: 80px; /* 🔥 Sposta il testo più in basso */
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+

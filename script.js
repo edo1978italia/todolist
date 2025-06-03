@@ -31,19 +31,33 @@ let unsubscribeTasks = null;
 onAuthStateChanged(auth, (user) => {
     const authContainer = document.getElementById("authContainer");
     const mainContainer = document.getElementById("mainContainer");
+    const sidebar = document.getElementById("sidebar");
+    const openSidebarBtn = document.getElementById("openSidebar");
+    const sidebarMenu = document.querySelector("#sidebar nav");
 
     if (user) {
         authContainer.style.display = "none";
         mainContainer.style.display = "block";
+        sidebar.style.display = "block"; // 🔥 Mostra il pannello dopo il login
+        openSidebarBtn.style.display = "block"; // 🔥 Mantiene sempre visibile il pulsante
+        sidebarMenu.style.display = "block"; // 🔥 Mostra il menu nel pannello
+        document.getElementById("userEmail").innerText = user.email;
+
         unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
             loadTasks(snapshot);
         });
     } else {
         authContainer.style.display = "block";
         mainContainer.style.display = "none";
+        sidebar.style.display = "none"; // 🔥 Nasconde il pannello se non loggato
+        sidebarMenu.style.display = "none"; // 🔥 Nasconde il menu se non loggato
+        openSidebarBtn.style.display = "block"; // 🔥 Mantiene il pulsante visibile anche se non loggato
+
         if (unsubscribeTasks) unsubscribeTasks();
     }
 });
+
+
 
 async function loginUser() {
     try {
@@ -225,3 +239,38 @@ window.toggleComplete = async function (id) {
         await updateDoc(taskRef, { completed: !taskData.completed }); // Alterna tra true e false
     }
 };
+
+
+window.toggleSidebar = function () {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
+};
+
+window.navigateTo = function (page) {
+    window.location.href = page;
+};
+
+// 🔥 Pagina 1 → To-Do List
+document.querySelector("#sidebar nav button:nth-child(1)").addEventListener("click", function () {
+    navigateTo("https://edo1978italia.github.io/todolist/");
+});
+
+// 🔥 Pagina 2 → Un esempio di lista della spesa
+document.querySelector("#sidebar nav button:nth-child(2)").addEventListener("click", function () {
+    navigateTo("https://edo1978italia.github.io/todolist/");
+});
+
+// 🔥 Pagina 3 → Un esempio di calendario
+document.querySelector("#sidebar nav button:nth-child(3)").addEventListener("click", function () {
+    navigateTo("https://edo1978italia.github.io/todolist/");
+});
+
+
+
+// Mostra l'email dell'utente loggato
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById("userEmail").innerText = user.email;
+    }
+});
+

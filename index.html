@@ -19,6 +19,20 @@
         <p id="userInfo"></p>
     </div>
 
+    <div id="sidebar">
+    <div id="userInfo">
+        <p>Benvenuto, <span id="userEmail"></span></p>
+    </div>
+    <nav>
+        <button onclick="navigateTo('index1.html')">Pagina 1</button>
+        <button onclick="navigateTo('index2.html')">Pagina 2</button>
+        <button onclick="navigateTo('index3.html')">Pagina 3</button>
+    </nav>
+    <button id="closeSidebar" onclick="toggleSidebar()">✖ Chiudi</button>
+</div>
+<button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
+
+    
     <div id="mainContainer">
         <div id="header">
             <button onclick="logoutUser()">Logout</button>
