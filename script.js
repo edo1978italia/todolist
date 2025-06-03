@@ -88,7 +88,7 @@ async function loadTasks(snapshot) {
                 <div class="menu-container">
                     <button class="menu-button">⋮</button>
                     <div class="menu">
-                        ${task.link ? `<button onclick="window.open('${task.link}', '_blank')">🔗 Link</button>` : ""}
+                        ${task.link ? `<button class="task-link" data-link="${task.link}">🔗 Link</button>` : ""}
                         <button class="toggle-complete" data-task-id="${docSnapshot.id}">✔ Check</button>
                         <button class="edit-task" data-task-id="${docSnapshot.id}">🖉 Edit</button>
                         <button class="delete-task" data-task-id="${docSnapshot.id}">🗑 Delete</button>
@@ -98,16 +98,40 @@ async function loadTasks(snapshot) {
     });
     document.getElementById("taskList").innerHTML = tasksHtml;
 
-    // 🔥 Aggiungiamo i listener dopo la generazione del DOM!
-    document.querySelectorAll(".menu-button").forEach((button) => {
+    // 🔥 Assicura che i nuovi pulsanti ricevano correttamente gli event listener
+    document.querySelectorAll(".task-link").forEach((button) => {
         button.addEventListener("click", function () {
-            toggleMenu(button);
+            window.open(button.dataset.link, "_blank");
+        });
+    });
+
+    document.querySelectorAll(".toggle-complete").forEach((button) => {
+        button.addEventListener("click", function () {
+            toggleComplete(button.dataset.taskId);
+        });
+    });
+
+    document.querySelectorAll(".edit-task").forEach((button) => {
+        button.addEventListener("click", function () {
+            openEditModal(button.dataset.taskId);
+        });
+    });
+
+    document.querySelectorAll(".delete-task").forEach((button) => {
+        button.addEventListener("click", function () {
+            deleteTask(button.dataset.taskId);
         });
     });
 }
 
+
 function toggleMenu(button) {
     const menu = button.nextElementSibling;
+
+    if (!menu || !menu.classList.contains("menu")) {
+        console.error("Menu non trovato per il pulsante:", button);
+        return;
+    }
 
     // Chiude tutti gli altri menu prima di aprire quello cliccato
     document.querySelectorAll(".menu").forEach((m) => {
@@ -118,15 +142,51 @@ function toggleMenu(button) {
     });
 
     // Attiva/disattiva il menu cliccato
-    if (menu.style.display === "block") {
-        menu.style.display = "none";
-        menu.classList.remove("active");
-    } else {
-        menu.style.display = "block";
-        menu.classList.add("active");
-    }
+    menu.classList.toggle("active");
+    menu.style.display = menu.classList.contains("active") ? "block" : "none";
 }
 window.toggleMenu = toggleMenu;
+
+
+
+window.openEditModal = async function (taskId) {
+    const taskRef = doc(db, "tasks", taskId);
+    const taskSnapshot = await getDoc(taskRef);
+
+    if (taskSnapshot.exists()) {
+        const taskData = taskSnapshot.data();
+        document.getElementById("editNameInput").value = taskData.name || "";
+        document.getElementById("editLinkInput").value = taskData.link || "";
+        document.getElementById("editModal").dataset.taskId = taskId;
+        document.getElementById("editModal").style.display = "block";
+    } else {
+        alert("Errore: task non trovato!");
+    }
+};
+
+window.saveTaskChanges = async function () {
+    const taskId = document.getElementById("editModal").dataset.taskId;
+    const newName = document.getElementById("editNameInput").value.trim();
+    const newLink = document.getElementById("editLinkInput").value.trim();
+
+    if (!taskId || !newName) {
+        return; // 🔥 Evita alert o messaggi invasivi
+    }
+
+    try {
+        const taskRef = doc(db, "tasks", taskId);
+        await updateDoc(taskRef, { name: newName, link: newLink });
+
+        closeEditModal(); // 🔥 Chiude il modal dopo il salvataggio
+    } catch (error) {
+        console.error("Errore nel salvataggio del task:", error);
+    }
+};
+
+
+window.closeEditModal = function () {
+    document.getElementById("editModal").style.display = "none";
+};
 
 
 document.addEventListener("click", function (event) {
@@ -139,18 +199,34 @@ document.addEventListener("click", function (event) {
     }
 });
 
-
 window.addTask = async function () {
-    const taskInput = document.getElementById("taskInput").value.trim();
+    const taskInput = document.getElementById("taskInput");
     const linkInput = document.getElementById("linkInput").value.trim();
-    if (!taskInput) return alert("Inserisci un task valido!");
-    await addDoc(collection(db, "tasks"), { name: taskInput, link: linkInput || "" });
+    const taskName = taskInput.value.trim();
+
+    if (!taskName) return alert("Inserisci un task valido!");
+
+    await addDoc(collection(db, "tasks"), { name: taskName, link: linkInput || "" });
+
+    taskInput.value = ""; // 🔥 Resetta il campo input dopo l'aggiunta
 };
+
 
 window.deleteTask = async function (id) {
-    await deleteDoc(doc(db, "tasks", id));
+    const confirmation = confirm("Sei sicuro di voler eliminare questo task?");
+    if (confirmation) {
+        await deleteDoc(doc(db, "tasks", id));
+    }
 };
 
+
 window.toggleComplete = async function (id) {
-    await updateDoc(doc(db, "tasks", id), { completed: true });
+    const taskRef = doc(db, "tasks", id);
+    const taskSnapshot = await getDoc(taskRef);
+
+    if (taskSnapshot.exists()) {
+        const taskData = taskSnapshot.data();
+        await updateDoc(taskRef, { completed: !taskData.completed }); // Alterna tra true e false
+    }
 };
+
