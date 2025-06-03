@@ -1,291 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>TO BUY LIST EDO</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
-        <link rel="stylesheet" href="styles.css" />
-    </head>
-    <body>
-        <div id="authContainer">
-            <div class="input-group">
-                <input type="email" id="emailInput" placeholder="Email" />
-            </div>
-            <div class="input-group">
-                <input type="password" id="passwordInput" placeholder="Password" />
-            </div>
-            <button onclick="loginUser()">Login</button>
-            <p id="userInfo"></p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TO BUY LIST EDO</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="authContainer">
+        <div class="input-group">
+            <input type="email" id="emailInput" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="passwordInput" placeholder="Password">
+        </div>
+        <button onclick="loginUser()">Login</button>
+        <p id="userInfo"></p>
+    </div>
+
+    <div id="mainContainer">
+        <div id="header">
+            <button onclick="logoutUser()">Logout</button>
         </div>
 
-        <div id="mainContainer">
-            <div id="header">
-                <button onclick="logoutUser()">Logout</button>
-            </div>
-
-            <div id="inputContainer">
-                <input type="text" id="taskInput" placeholder="Add a product" />
-                <input type="url" id="linkInput" placeholder="Link (optional)" />
-                <button onclick="addTask()">Add</button>
-            </div>
-
-            <div id="listContainer">
-                <ul id="taskList">
-                    <!-- I task vengono generati dinamicamente -->
-                </ul>
-            </div>
-
-            <div id="extraBox">
-                <p>E IO PAGO!</p>
-            </div>
+        <div id="inputContainer">
+            <input type="text" id="taskInput" placeholder="Add a product">
+            <input type="url" id="linkInput" placeholder="Link (optional)">
+            <button onclick="addTask()">Add</button>
         </div>
 
-        <!-- Modale di modifica -->
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeEditModal()">&times;</span>
-                <h2>Edit</h2>
-                <label for="editNameInput">Name:</label>
-                <input type="text" id="editNameInput" placeholder="Name" />
-
-                <label for="editLinkInput">Link (optional):</label>
-                <input type="url" id="editLinkInput" placeholder="Link (optional)" />
-
-                <button onclick="saveTaskChanges()">Save</button>
-            </div>
+        <div id="listContainer">
+            <ul id="taskList"></ul>
         </div>
-        <!--<script src="script.js"></script> -->
 
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-            import {
-                getAuth,
-                signInWithEmailAndPassword,
-                signOut,
-                onAuthStateChanged
-            } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-            import {
-                getFirestore,
-                collection,
-                addDoc,
-                doc,
-                updateDoc,
-                deleteDoc,
-                onSnapshot,
-                getDoc
-            } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        <div id="extraBox">
+            <p>E IO PAGO!</p>
+        </div>
+    </div>
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
-                authDomain: "todolistedo.firebaseapp.com",
-                projectId: "todolistedo",
-                storageBucket: "todolistedo.appspot.com",
-                messagingSenderId: "700684050233",
-                appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
-                measurementId: "G-HR8GGBGQTJ"
-            };
+    <!-- Modale di modifica -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit</h2>
+            <label for="editNameInput">Name:</label>
+            <input type="text" id="editNameInput" placeholder="Name">
+            <label for="editLinkInput">Link (optional):</label>
+            <input type="url" id="editLinkInput" placeholder="Link (optional)">
+            <button onclick="saveTaskChanges()">Save</button>
+        </div>
+    </div>
 
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
+    <!-- Importazione del JavaScript separato -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
 
-            function updateUI(user) {
-                const authContainer = document.getElementById("authContainer");
-                const mainContainer = document.getElementById("mainContainer");
-
-                if (user) {
-                    authContainer.style.display = "none";
-                    mainContainer.style.display = "block";
-                    loadTasks();
-                } else {
-                    authContainer.style.display = "block";
-                    mainContainer.style.display = "none";
-                }
-            }
-
-            onAuthStateChanged(auth, (user) => {
-                updateUI(user);
-            });
-
-            function loadTasks() {
-                onSnapshot(collection(db, "tasks"), (snapshot) => {
-                    let tasksHtml = "";
-                    snapshot.docs.reverse().forEach((docSnapshot) => {
-                        let task = docSnapshot.data();
-                        tasksHtml += `
-                <li class="task-item ${task.link ? 'has-link' : ''}">
-
-                    <span class="task-text ${task.completed ? "completed" : ""}" data-task-id="${docSnapshot.id}">${task.name}</span>
-
-
-                    <div class="menu-container">
-                        <button class="menu-button" onclick="toggleMenu(this)">⋮</button>
-                        <div class="menu">
-                            ${task.link ? `<button onclick="window.open('${task.link}', '_blank')">🔗 Link</button>` : ""}
-                            <button onclick="toggleComplete('${docSnapshot.id}')">✔ Check</button>
-                            <button onclick="editTask('${docSnapshot.id}')">🖉 Edit</button>
-                            <button onclick="deleteTask('${docSnapshot.id}')">🗑 Delete</button>
-                        </div>
-                    </div>
-                </li>`;
-                    });
-                    document.getElementById("taskList").innerHTML = tasksHtml;
-                });
-            }
-
-            document.addEventListener("click", function (event) {
-                // Controlla se il click è su un bottone dei tre puntini
-                if (event.target.matches(".menu-button")) {
-                    const menu = event.target.nextElementSibling;
-
-                    // Chiudi gli altri menu prima di aprire quello cliccato
-                    document.querySelectorAll(".menu").forEach((m) => {
-                        if (m !== menu) {
-                            m.classList.remove("active");
-                            m.style.display = "none";
-                        }
-                    });
-
-                    // Attiva/disattiva il menu
-                    menu.classList.toggle("active");
-
-                    // Verifica che `display: block` venga applicato
-                    if (menu.classList.contains("active")) {
-                        menu.style.display = "block";
-                    } else {
-                        menu.style.display = "none";
-                    }
-                } else {
-                    // Se il click è fuori dal menu, chiudilo
-                    document.querySelectorAll(".menu").forEach((menu) => {
-                        menu.classList.remove("active");
-                        menu.style.display = "none";
-                    });
-                }
-            });
-
-            window.addTask = async function () {
-                const taskInput = document.getElementById("taskInput").value.trim();
-                const linkInput = document.getElementById("linkInput").value.trim();
-                if (!taskInput) return alert("Inserisci un task valido!");
-                await addDoc(collection(db, "tasks"), {
-                    name: taskInput,
-                    link: linkInput || ""
-                });
-                document.getElementById("taskInput").value = "";
-                document.getElementById("linkInput").value = "";
-            };
-
-            let currentTaskId = null;
-            window.editTask = async function (id) {
-                currentTaskId = id;
-                const taskRef = doc(db, "tasks", id);
-                const taskSnapshot = await getDoc(taskRef);
-
-                if (taskSnapshot.exists()) {
-                    const taskData = taskSnapshot.data();
-                    document.getElementById("editNameInput").value = taskData.name;
-                    document.getElementById("editLinkInput").value = taskData.link || "";
-                    document.getElementById("editModal").style.display = "flex";
-                }
-            };
-
-            window.closeEditModal = function () {
-                document.getElementById("editModal").style.display = "none";
-            };
-
-            window.saveTaskChanges = async function () {
-                const newName = document.getElementById("editNameInput").value;
-                const newLink = document.getElementById("editLinkInput").value;
-
-                if (currentTaskId && newName) {
-                    await updateDoc(doc(db, "tasks", currentTaskId), {
-                        name: newName,
-                        link: newLink
-                    });
-                }
-
-                closeEditModal();
-            };
-
-            window.toggleComplete = async function (id) {
-                try {
-                    // Trova l'elemento del task nel DOM
-                    const taskElement = document.querySelector(`[data-task-id="${id}"]`);
-
-                    if (!taskElement) {
-                        console.error(`Task ${id} non trovato nel DOM.`);
-                        return;
-                    }
-
-                    // Alterna la classe "completed" nel DOM
-                    taskElement.classList.toggle("completed");
-
-                    // Recupera lo stato attuale
-                    const isCompleted = taskElement.classList.contains("completed");
-
-                    // Aggiorna il database Firebase con il nuovo stato
-                    await updateDoc(doc(db, "tasks", id), { completed: isCompleted });
-
-                    console.log(`Task ${id} aggiornato, stato completato: ${isCompleted}`);
-                } catch (error) {
-                    console.error("Errore nell'aggiornamento del task:", error);
-                }
-            };
-
-            window.deleteTask = async function (id) {
-    try {
-        // Mostra una finestra di conferma prima di eliminare
-        if (!confirm("⚠️ Sei sicuro di voler eliminare questo task?")) {
-            console.log("Eliminazione annullata.");
-            return; // Se l'utente clicca 'Annulla', interrompe l'operazione
-        }
-
-        // Elimina il task da Firebase
-        await deleteDoc(doc(db, "tasks", id));
-
-        // Rimuove il task dal DOM
-        const taskElement = document.querySelector(`[data-task-id="${id}"]`);
-        if (taskElement) {
-            taskElement.remove();
-        }
-
-        console.log(`Task ${id} eliminato con successo.`);
-    } catch (error) {
-        console.error("Errore nell'eliminazione del task:", error);
-    }
-};
 
             
-            async function loginUser() {
-                const email = document.getElementById("emailInput").value;
-                const password = document.getElementById("passwordInput").value;
-
-                try {
-                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    updateUI(userCredential.user);
-                    console.log("Login riuscito:", userCredential.user);
-                } catch (error) {
-                    alert("Errore di login: " + error.message);
-                    console.error("Login error:", error);
-                }
-            }
-            window.loginUser = loginUser;
-            async function logoutUser() {
-                try {
-                    await signOut(auth);
-                    updateUI(null); // Assicura che l'interfaccia venga aggiornata correttamente
-                    console.log("Logout effettuato con successo");
-                } catch (error) {
-                    console.error("Errore durante il logout:", error);
-                    alert("Errore nel logout: " + error.message);
-                }
-            }
-
-            window.logoutUser = logoutUser; // Esposizione della funzione per il pulsante
-        </script>
-        <script type="module" src="script.js"></script>
-
-    </body>
-</html>
