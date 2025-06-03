@@ -90,6 +90,30 @@ body {
     transition:
         opacity 0.2s ease-in-out,
         transform 0.2s ease-in-out;
+}.menu {
+    display: none; /* Nasconde il menu inizialmente */
+    position: absolute;
+    top: 0;
+    right: 28px;
+    background: #2b8ae5;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    border-radius: 5px;
+    flex-direction: column;
+    z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
+    min-width: 80px;
+    
+}
+
+/* Modifica: assicura che il menu venga reso visibile */
+.menu.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+    transition:
+        opacity 0.2s ease-in-out,
+        transform 0.2s ease-in-out;
 }
 
 /* Stile per i pulsanti nel menu */
