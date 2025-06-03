@@ -110,7 +110,7 @@ function loadPage(page) {
             window.location.href = "todo.html"; 
             break;
         case "settings":
-            window.open("https://www.esempio.com/settings", "_self"); // ✅ Apri nella stessa finestra
+            window.open("https://www.google.com/", "_self"); // ✅ Apri nella stessa finestra
             break;
         default:
             console.error("❌ Pagina non trovata.");
