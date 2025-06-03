@@ -1,4 +1,4 @@
-import firebaseConfig from "./config.js"; 
+import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import {
     getAuth,
@@ -65,7 +65,6 @@ async function loginUser() {
 }
 window.loginUser = loginUser;
 
-
 async function logoutUser() {
     try {
         if (unsubscribeTasks) unsubscribeTasks();
@@ -129,8 +128,9 @@ function toggleMenu(button) {
 }
 window.toggleMenu = toggleMenu;
 
+
 document.addEventListener("click", function (event) {
-    if (event.target.matches(".menu-button")) {
+    if (event.target.classList.contains("menu-button")) {
         toggleMenu(event.target);
     } else {
         document.querySelectorAll(".menu").forEach((menu) => {
@@ -138,6 +138,7 @@ document.addEventListener("click", function (event) {
         });
     }
 });
+
 
 window.addTask = async function () {
     const taskInput = document.getElementById("taskInput").value.trim();
