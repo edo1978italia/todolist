@@ -57,6 +57,18 @@
         </div>
         <script src="script.js"></script>
 
+        <!-- Barra inferiore del menu -->
+        <div id="bottomMenu">
+            <button onclick="loadPage('home')">Home</button>
+            <button onclick="loadPage('todo')">To-Do</button>
+            <button onclick="loadPage('settings')">Settings</button>
+        </div>
+
+        <!-- Contenuto che cambia dinamicamente -->
+        <div id="mainContent">
+            <!-- Qui verrà caricato il contenuto della pagina selezionata -->
+        </div>
+
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
             import {
@@ -93,14 +105,17 @@
             function updateUI(user) {
                 const authContainer = document.getElementById("authContainer");
                 const mainContainer = document.getElementById("mainContainer");
+                const bottomMenu = document.getElementById("bottomMenu"); // Seleziona la barra del menu
 
                 if (user) {
                     authContainer.style.display = "none";
                     mainContainer.style.display = "block";
+                    bottomMenu.style.display = "flex"; // ✅ Mostra la barra menu
                     loadTasks();
                 } else {
                     authContainer.style.display = "block";
                     mainContainer.style.display = "none";
+                    bottomMenu.style.display = "none"; // ✅ Nasconde la barra menu
                 }
             }
 
@@ -114,7 +129,7 @@
                     snapshot.docs.reverse().forEach((docSnapshot) => {
                         let task = docSnapshot.data();
                         tasksHtml += `
-                <li class="task-item ${task.link ? 'has-link' : ''}">
+                <li class="task-item ${task.link ? "has-link" : ""}">
 
                     <span class="task-text ${task.completed ? "completed" : ""}" data-task-id="${docSnapshot.id}">${task.name}</span>
 
@@ -235,29 +250,28 @@
             };
 
             window.deleteTask = async function (id) {
-    try {
-        // Mostra una finestra di conferma prima di eliminare
-        if (!confirm("⚠️ Sei sicuro di voler eliminare questo task?")) {
-            console.log("Eliminazione annullata.");
-            return; // Se l'utente clicca 'Annulla', interrompe l'operazione
-        }
+                try {
+                    // Mostra una finestra di conferma prima di eliminare
+                    if (!confirm("⚠️ Sei sicuro di voler eliminare questo task?")) {
+                        console.log("Eliminazione annullata.");
+                        return; // Se l'utente clicca 'Annulla', interrompe l'operazione
+                    }
 
-        // Elimina il task da Firebase
-        await deleteDoc(doc(db, "tasks", id));
+                    // Elimina il task da Firebase
+                    await deleteDoc(doc(db, "tasks", id));
 
-        // Rimuove il task dal DOM
-        const taskElement = document.querySelector(`[data-task-id="${id}"]`);
-        if (taskElement) {
-            taskElement.remove();
-        }
+                    // Rimuove il task dal DOM
+                    const taskElement = document.querySelector(`[data-task-id="${id}"]`);
+                    if (taskElement) {
+                        taskElement.remove();
+                    }
 
-        console.log(`Task ${id} eliminato con successo.`);
-    } catch (error) {
-        console.error("Errore nell'eliminazione del task:", error);
-    }
-};
+                    console.log(`Task ${id} eliminato con successo.`);
+                } catch (error) {
+                    console.error("Errore nell'eliminazione del task:", error);
+                }
+            };
 
-            
             async function loginUser() {
                 const email = document.getElementById("emailInput").value;
                 const password = document.getElementById("passwordInput").value;

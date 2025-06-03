@@ -42,6 +42,31 @@ async function loadTasks() {
     });
     document.getElementById("taskList").innerHTML = tasks;
 }
+function loadTasks() {
+                onSnapshot(collection(db, "tasks"), (snapshot) => {
+                    let tasksHtml = "";
+                    snapshot.docs.reverse().forEach((docSnapshot) => {
+                        let task = docSnapshot.data();
+                        tasksHtml += `
+                <li class="task-item ${task.link ? "has-link" : ""}">
+
+                    <span class="task-text ${task.completed ? "completed" : ""}" data-task-id="${docSnapshot.id}">${task.name}</span>
+
+
+                    <div class="menu-container">
+                        <button class="menu-button" onclick="toggleMenu(this)">⋮</button>
+                        <div class="menu">
+                            ${task.link ? `<button onclick="window.open('${task.link}', '_blank')">🔗 Link</button>` : ""}
+                            <button onclick="toggleComplete('${docSnapshot.id}')">✔ Check</button>
+                            <button onclick="editTask('${docSnapshot.id}')">🖉 Edit</button>
+                            <button onclick="deleteTask('${docSnapshot.id}')">🗑 Delete</button>
+                        </div>
+                    </div>
+                </li>`;
+                    });
+                    document.getElementById("taskList").innerHTML = tasksHtml;
+                });
+            }
 
 // Funzione per aggiungere una nuova attività
 async function addTask() {
@@ -75,3 +100,22 @@ async function toggleComplete(id, currentState) {
 
 // Carica le attività all'avvio
 window.onload = loadTasks;
+
+function loadPage(page) {
+    switch (page) {
+        case "home":
+            window.location.href = "home.html"; 
+            break;
+        case "todo":
+            window.location.href = "todo.html"; 
+            break;
+        case "settings":
+            window.open("https://www.esempio.com/settings", "_self"); // ✅ Apri nella stessa finestra
+            break;
+        default:
+            console.error("❌ Pagina non trovata.");
+    }
+}
+
+
+
