@@ -37,17 +37,22 @@ window.loginUser = loginUser;
 // 🔥 Gestione logout
 async function logoutUser() {
     try {
-        await signOut(auth);
+        await signOut(auth); // 🔥 Disconnessione da Firebase
         localStorage.removeItem("userLoggedIn");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userPhoto");
-        console.log("✅ Logout completato, dati cancellati!");
-        window.location.replace("index.html");
+
+        console.log("✅ Logout completato, utente disconnesso!");
+
+        setTimeout(() => {
+            window.location.replace("index.html");
+        }, 500); // 🔥 Attendi un attimo per garantire il logout
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
     }
 }
+
 
 window.logoutUser = logoutUser;
 
@@ -110,5 +115,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const logoutButton = document.getElementById("logoutButton");
     if (logoutButton) {
         logoutButton.addEventListener("click", logoutUser);
+    }  else {
+        console.warn("⚠ Pulsante logout non trovato!");
     }
 });
+
+
