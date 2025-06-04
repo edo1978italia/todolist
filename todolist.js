@@ -1,10 +1,6 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import {
-    getAuth,
-    signOut,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import {
     getFirestore,
     collection,
@@ -26,7 +22,8 @@ let unsubscribeTasks = null;
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
-    console.log("Stato autenticazione utente:", user); // 🔥 Debug
+    document.getElementById("mainContainer").style.display = "block";
+    console.log("Stato mainContainer forzato:", document.getElementById("mainContainer").style.display);
 
     if (!user) {
         console.warn("Utente non autenticato, reindirizzamento in corso...");
@@ -37,8 +34,6 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById("userEmail").innerText = user.email;
     }
 });
-
-
 
 // 🔥 Gestione logout
 async function logoutUser() {
