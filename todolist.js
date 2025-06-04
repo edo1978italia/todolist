@@ -20,18 +20,29 @@ const db = getFirestore(app);
 // Variabile per il listener Firestore
 let unsubscribeTasks = null;
 
+// 🔥 Debug Firebase
+console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
+
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
-    document.getElementById("mainContainer").style.display = "block";
-    console.log("Stato mainContainer forzato:", document.getElementById("mainContainer").style.display);
-
     if (!user) {
         console.warn("Utente non autenticato, reindirizzamento in corso...");
         setTimeout(() => {
             window.location.replace("index.html");
-        }, 1000); // 🔥 Ritardo per evitare il blocco immediato della pagina
+        }, 1000);
+        if (unsubscribeTasks) unsubscribeTasks();
     } else {
         document.getElementById("userEmail").innerText = user.email;
+        document.getElementById("mainContainer").style.display = "block";
+
+        // 🔥 Debug Firebase per caricamento dati
+        console.log("User autenticato:", user.email);
+
+        // 🔥 Attiva listener Firebase per i task
+        unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
+            console.log("Dati ricevuti da Firebase:", snapshot.docs.map(doc => doc.data())); // 🔥 Debug
+            loadTasks(snapshot);
+        });
     }
 });
 
@@ -66,6 +77,10 @@ async function loadTasks(snapshot) {
                 </div>
             </li>`;
     });
+
+    // 🔥 Debug per confermare il caricamento della lista
+    console.log("Lista task aggiornata:", tasksHtml);
+
     document.getElementById("taskList").innerHTML = tasksHtml;
 }
 
@@ -78,18 +93,20 @@ window.addTask = async function () {
 
     if (!taskName) return alert("Inserisci un task valido!");
 
-    await addDoc(collection(db, "tasks"), { name: taskName, link: taskLink || "" });
+    await addDoc(collection(db, "tasks"), { name: taskName, link: taskLink || "", completed: false });
 
     taskInput.value = "";
     linkInput.value = "";
 };
 
+// 🔥 Eliminazione di un task
 window.deleteTask = async function (id) {
     if (confirm("Sei sicuro di voler eliminare questo task?")) {
         await deleteDoc(doc(db, "tasks", id));
     }
 };
 
+// 🔥 Completamento di un task
 window.toggleComplete = async function (id) {
     const taskRef = doc(db, "tasks", id);
     const taskSnapshot = await getDoc(taskRef);
@@ -106,7 +123,7 @@ window.toggleSidebar = function () {
     sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
 };
 
-// 🔥 Navigazione
+// 🔥 Navigazione tra le pagine
 window.navigateTo = function (page) {
     window.location.href = page;
 };
