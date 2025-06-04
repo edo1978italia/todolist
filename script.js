@@ -43,7 +43,7 @@ async function logoutUser() {
 
         setTimeout(() => {
             window.location.href = "index.html"; // 🔥 Reindirizza correttamente
-        }, 500);
+        }, 1000);
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
@@ -62,25 +62,30 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("✅ Utente autenticato:", user.email);
 
+        // 🔥 Memorizza i dati correttamente
         localStorage.setItem("userLoggedIn", "true");
         localStorage.setItem("userEmail", user.email);
 
+        // 🔥 Aggiorna interfaccia
         authContainer.style.display = "none";
         mainContainer.style.display = "block";
         welcomeMessage.style.display = "block";
 
         if (window.location.pathname === "/index.html") {
-            console.log("✅ Utente è già sulla pagina corretta, nessun reindirizzamento necessario.");
+            console.log("✅ Utente è già sulla pagina corretta, nessun reindirizzamento.");
         }
     } else {
         console.warn("⚠ Utente non autenticato.");
-
-        // 🔥 Assicura che il reindirizzamento avvenga solo se non siamo già su index.html
+        
+        // 🔥 Evita il loop controllando la pagina corrente prima di reindirizzare
         if (!localStorage.getItem("userLoggedIn") && window.location.pathname !== "/index.html") {
-            window.location.replace("index.html");
+            setTimeout(() => {
+                window.location.replace("index.html");
+            }, 1000);
         }
     }
 });
+
 
 
 
