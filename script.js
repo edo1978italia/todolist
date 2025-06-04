@@ -19,19 +19,19 @@ async function loginUser() {
         }
 
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log("Login riuscito:", userCredential.user);
+        console.log("✅ Login riuscito:", userCredential.user);
 
-        sessionStorage.setItem("userLoggedIn", "true");
-        sessionStorage.setItem("userEmail", userCredential.user.email);
-        sessionStorage.setItem("userPhoto", userCredential.user.photoURL || "https://via.placeholder.com/80");
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("userEmail", userCredential.user.email);
+        localStorage.setItem("userPhoto", userCredential.user.photoURL || "https://via.placeholder.com/80");
 
-        // 🔥 Usa `replace()` invece di `href` per evitare un doppio caricamento
         window.location.replace("index.html");
     } catch (error) {
-        console.error("Errore di login:", error);
+        console.error("❌ Errore di login:", error);
         alert("Errore di login: " + error.message);
     }
 }
+
 
 window.loginUser = loginUser;
 
@@ -39,14 +39,14 @@ window.loginUser = loginUser;
 async function logoutUser() {
     try {
         await signOut(auth);
-        sessionStorage.clear(); // 🔥 Cancella i dati di sessione
-        localStorage.clear(); // 🔥 Se usato, cancella anche i dati memorizzati localmente
-        window.location.replace("index.html"); // 🔥 Usa `replace()` per evitare il ritorno alla dashboard
+        localStorage.clear(); // 🔥 Cancella i dati di login completamente
+        window.location.replace("index.html");
     } catch (error) {
-        console.error("Errore nel logout:", error);
+        console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
     }
 }
+
 
 window.logoutUser = logoutUser;
 
@@ -92,6 +92,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const userEmailElement = document.getElementById("userEmail");
+
+    if (localStorage.getItem("userLoggedIn") && userEmailElement) {
+        userEmailElement.innerText = localStorage.getItem("userEmail");
+        console.log("✅ Email aggiornata al refresh:", localStorage.getItem("userEmail"));
+    } else {
+        console.warn("⚠ Elemento userEmail non trovato o utente non loggato!");
+    }
+});
 
 // Funzione per navigare tra le pagine
 window.navigateTo = function (page) {
