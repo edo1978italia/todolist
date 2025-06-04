@@ -110,17 +110,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // 🔥 Aggiunta gestione logout dal pulsante nel pannello laterale
 document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(() => {
-        const logoutButton = document.getElementById("logoutButton");
+    const logoutButton = document.getElementById("logoutButton");
 
-        if (logoutButton) {
-            logoutButton.addEventListener("click", logoutUser);
-            console.log("✅ Pulsante logout registrato correttamente!");
-        } else {
-            console.warn("⚠ Pulsante logout non trovato! Probabile sidebar caricata dinamicamente.");
-        }
-    }, 500); // 🔥 Attendere un po' per garantire che la sidebar sia caricata
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente su questa pagina!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato su questa pagina!");
+    }
 });
+
 
 
 // 🔥 Gestione sidebar

@@ -14,6 +14,7 @@ body {
 }
 #mainContainer {
     display: none;
+    
 }
 
 #header button {
@@ -157,6 +158,8 @@ body {
     flex-direction: column;
     align-items: center;
     margin-bottom: 5px;
+    margin-top: 55px;
+   
 }
 #extraBox {
     font-size: 12px;

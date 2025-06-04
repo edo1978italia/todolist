@@ -49,16 +49,31 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// 🔥 Gestione logout
+// 🔥 Gestione logout (versione più sicura)
 async function logoutUser() {
     try {
-        if (unsubscribeTasks) unsubscribeTasks();
+        if (unsubscribeTasks) unsubscribeTasks(); // 🔥 Disattiva listener Firestore
         await signOut(auth);
-        window.location.replace("index.html");
+        localStorage.clear();
+        console.log("✅ Logout completato, utente disconnesso!");
+
+        setTimeout(() => {
+            if (!auth.currentUser) {
+                console.log("✅ Conferma: utente disconnesso.");
+                window.location.href = "index.html"; // 🔥 Reindirizzamento dopo la disconnessione
+            } else {
+                console.warn("⚠ L'utente risulta ancora autenticato, ricarico la pagina.");
+                window.location.reload();
+            }
+        }, 1000);
     } catch (error) {
-        console.error("Errore nel logout:", error);
+        console.error("❌ Errore nel logout:", error);
+        alert("Errore nel logout: " + error.message);
     }
 }
+
+window.logoutUser = logoutUser;
+
 window.logoutUser = logoutUser;
 
 // 🔥 Caricamento delle attività
