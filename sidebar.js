@@ -10,8 +10,10 @@ window.toggleSidebar = function () {
     sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
 };
 
-window.navigateTo = function (page) {
-    console.log("Navigazione verso:", page); // 🔥 Debug
-    window.location.href = page;
-};
+document.querySelectorAll("nav button").forEach((button) => {
+    button.addEventListener("click", function () {
+        console.log("Pulsante cliccato:", button.innerText); // 🔥 Debug per verificare il click
+    });
+});
+
 
