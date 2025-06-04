@@ -60,30 +60,28 @@ onAuthStateChanged(auth, (user) => {
     const authContainer = document.getElementById("authContainer");
     const mainContainer = document.getElementById("mainContainer");
     const welcomeMessage = document.getElementById("welcomeMessage");
-    const userEmailElement = document.getElementById("userEmail");
 
     if (user) {
         console.log("✅ Utente autenticato:", user.email);
-        
-        localStorage.setItem("userLoggedIn", "true");
-        localStorage.setItem("userEmail", user.email);
 
+        // 🔥 Aggiorna interfaccia
         authContainer.style.display = "none";
         mainContainer.style.display = "block";
         welcomeMessage.style.display = "block";
 
-        if (userEmailElement) {
-            userEmailElement.innerText = localStorage.getItem("userEmail");
-        }
+        // 🔥 Memorizza i dati correttamente
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("userEmail", user.email);
     } else {
         console.warn("⚠ Utente non autenticato.");
-        
-        // 🔥 Assicurati di non reindirizzare più volte
+
+        // 🔥 Evita il loop controllando la pagina corrente
         if (window.location.pathname !== "/index.html") {
             window.location.replace("index.html");
         }
     }
 });
+
 
 
 // 🔥 Recupero email su tutte le pagine
