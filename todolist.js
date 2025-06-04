@@ -26,13 +26,18 @@ let unsubscribeTasks = null;
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
+    const userEmailElement = document.getElementById("userEmail");
+    
     if (!user) {
-        window.location.replace("index.html"); // 🔥 Reindirizza alla pagina principale se non autenticato
-        if (unsubscribeTasks) unsubscribeTasks();
-    } else {
-        document.getElementById("userEmail").innerText = user.email;
+        console.warn("Utente non autenticato, reindirizzamento in corso...");
+        setTimeout(() => {
+            window.location.replace("index.html");
+        }, 1000); // 🔥 Ritardo per evitare il blocco immediato della pagina
+    } else if (userEmailElement) {
+        userEmailElement.innerText = user.email;
     }
 });
+
 
 // 🔥 Gestione logout
 async function logoutUser() {
