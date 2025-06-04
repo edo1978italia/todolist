@@ -38,19 +38,17 @@ window.loginUser = loginUser;
 async function logoutUser() {
     try {
         await signOut(auth);
+        localStorage.clear();
         console.log("✅ Logout completato, utente disconnesso!");
 
-        // 🔥 Rimuovi tutti i dati della sessione
-        localStorage.clear();
-
-        // 🔥 Ricarica la pagina per garantire che il logout sia effettivo
-        window.location.href = "index.html";
+        setTimeout(() => {
+            window.location.href = "index.html"; // 🔥 Reindirizza correttamente
+        }, 500);
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
     }
 }
-
 
 
 window.logoutUser = logoutUser;
@@ -64,19 +62,21 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("✅ Utente autenticato:", user.email);
 
-        // 🔥 Aggiorna interfaccia
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("userEmail", user.email);
+
         authContainer.style.display = "none";
         mainContainer.style.display = "block";
         welcomeMessage.style.display = "block";
 
-        // 🔥 Memorizza i dati correttamente
-        localStorage.setItem("userLoggedIn", "true");
-        localStorage.setItem("userEmail", user.email);
+        if (window.location.pathname === "/index.html") {
+            console.log("✅ Utente è già sulla pagina corretta, nessun reindirizzamento necessario.");
+        }
     } else {
         console.warn("⚠ Utente non autenticato.");
 
-        // 🔥 Evita il loop controllando la pagina corrente
-        if (window.location.pathname !== "/index.html") {
+        // 🔥 Assicura che il reindirizzamento avvenga solo se non siamo già su index.html
+        if (!localStorage.getItem("userLoggedIn") && window.location.pathname !== "/index.html") {
             window.location.replace("index.html");
         }
     }
