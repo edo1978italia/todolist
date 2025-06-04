@@ -39,8 +39,9 @@ window.loginUser = loginUser;
 async function logoutUser() {
     try {
         await signOut(auth);
-        localStorage.clear(); // 🔥 Cancella i dati di login completamente
-        window.location.replace("index.html");
+        localStorage.clear(); // 🔥 Cancella completamente i dati memorizzati
+        console.log("✅ Logout completato, dati cancellati!");
+        window.location.replace("index.html"); // 🔥 Torna alla pagina di login
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
@@ -122,8 +123,12 @@ window.toggleSidebar = function () {
 
 // 🔥 **Aggiunta gestione logout dal pulsante nel pannello laterale**
 document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser); // 🔥 Disconnette l'utente
+    const userEmailElement = document.getElementById("userEmail");
+
+    if (localStorage.getItem("userLoggedIn") && userEmailElement) {
+        userEmailElement.innerText = localStorage.getItem("userEmail");
+        console.log("✅ Email aggiornata in index.html:", localStorage.getItem("userEmail"));
+    } else {
+        console.warn("⚠ Elemento userEmail non trovato o utente non loggato!");
     }
 });
