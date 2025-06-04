@@ -1,3 +1,4 @@
+// Importa Firebase
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
@@ -26,7 +27,7 @@ console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No")
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
     if (!user) {
-        console.warn("Utente non autenticato, reindirizzamento in corso...");
+        console.warn("⚠ Utente non autenticato, reindirizzamento in corso...");
         setTimeout(() => {
             window.location.replace("index.html");
         }, 1000);
@@ -35,15 +36,11 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById("userEmail").innerText = user.email;
         document.getElementById("mainContainer").style.display = "block";
 
-        // 🔥 Debug Firebase per caricamento dati
-        console.log("User autenticato:", user.email);
+        console.log("✅ Utente autenticato:", user.email);
 
         // 🔥 Attiva listener Firebase per i task
         unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
-            console.log(
-                "Dati ricevuti da Firebase:",
-                snapshot.docs.map((doc) => doc.data())
-            ); // 🔥 Debug
+            console.log("📌 Dati ricevuti da Firebase:", snapshot.docs.map((doc) => doc.data()));
             loadTasks(snapshot);
         });
     }
@@ -72,9 +69,21 @@ async function logoutUser() {
     }
 }
 
-window.logoutUser = logoutUser;
+// 🔥 Registra il pulsante logout al caricamento della pagina
+document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato!");
+    }
+});
 
 window.logoutUser = logoutUser;
+
+
 
 // 🔥 Caricamento delle attività
 async function loadTasks(snapshot) {
@@ -119,6 +128,17 @@ async function loadTasks(snapshot) {
             });
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato!");
+    }
+});
 
     // 🔥 Aggiungi eventi ai pulsanti dentro il menu
     document.querySelectorAll(".task-link").forEach((button) => {

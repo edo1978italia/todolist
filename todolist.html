@@ -1,54 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>TO BUY LIST EDO</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
-        <link rel="stylesheet" href="styles.css" />
-    </head>
-    <body>
-        <!-- 🔥 Sidebar inclusa dinamicamente -->
-        <div id="sidebarContainer"></div>
-        <script>
-            fetch("sidebar.html")
-                .then((response) => response.text())
-                .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
-                .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-        </script>
-        <button id="logoutButton">Logout</button>
-        <div id="mainContainer">
-            <div id="header"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TO BUY LIST EDO</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-            <div id="inputContainer">
-                <input type="text" id="taskInput" placeholder="Add a product" />
-                <input type="url" id="linkInput" placeholder="Link (optional)" />
-                <button onclick="addTask()">Add</button>
-            </div>
 
-            <div id="listContainer">
-                <ul id="taskList"></ul>
-            </div>
-
-            <div id="extraBox">
-                <p>E IO PAGO!</p>
-            </div>
+    <!-- 🔥 Sidebar inclusa dinamicamente -->
+    <div id="sidebarContainer"></div>
+    <script>
+        fetch("sidebar.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebarContainer").innerHTML = data)
+            .catch(error => console.error("Errore nel caricamento della sidebar:", error));
+    </script>
+<button id="logoutButton">Logout</button>
+    <div id="mainContainer">
+        <div id="header">
+           
         </div>
 
-        <!-- Modale di modifica -->
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeEditModal()">&times;</span>
-                <h2>Edit</h2>
-                <label for="editNameInput">Name:</label>
-                <input type="text" id="editNameInput" placeholder="Name" />
-                <label for="editLinkInput">Link (optional):</label>
-                <input type="url" id="editLinkInput" placeholder="Link (optional)" />
-                <button onclick="saveTaskChanges()">Save</button>
-            </div>
+        <div id="inputContainer">
+            <input type="text" id="taskInput" placeholder="Add a product">
+            <input type="url" id="linkInput" placeholder="Link (optional)">
+            <button onclick="addTask()">Add</button>
         </div>
 
-        <!-- Importazione del JavaScript separato -->
-        <script type="module" src="todolist.js"></script>
-    </body>
+        <div id="listContainer">
+            <ul id="taskList"></ul>
+        </div>
+
+        <div id="extraBox">
+            <p>E IO PAGO!</p>
+        </div>
+    </div>
+
+    <!-- Modale di modifica -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit</h2>
+            <label for="editNameInput">Name:</label>
+            <input type="text" id="editNameInput" placeholder="Name">
+            <label for="editLinkInput">Link (optional):</label>
+            <input type="url" id="editLinkInput" placeholder="Link (optional)">
+            <button onclick="saveTaskChanges()">Save</button>
+        </div>
+    </div>
+
+    <!-- Importazione del JavaScript separato -->
+    <script type="module" src="todolist.js"></script>
+</body>
 </html>
