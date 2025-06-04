@@ -1,72 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TO BUY LIST EDO</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div id="authContainer">
-        <div class="input-group">
-            <input type="email" id="emailInput" placeholder="Email">
-        </div>
-        <div class="input-group">
-            <input type="password" id="passwordInput" placeholder="Password">
-        </div>
-        <button onclick="loginUser()">Login</button>
-        
-    </div>
-
-    <div id="sidebar">
-    <div id="userInfo">
-        <p>Benvenuto, <span id="userEmail"></span></p>
-    </div>
-    <nav>
-        <button onclick="navigateTo('index1.html')">Pagina 1</button>
-        <button onclick="navigateTo('index2.html')">Pagina 2</button>
-        <button onclick="navigateTo('index3.html')">Pagina 3</button>
-    </nav>
-    <button id="closeSidebar" onclick="toggleSidebar()">✖ Chiudi</button>
-</div>
-<button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
-
-    
-    <div id="mainContainer">
-        <div id="header">
-            <button onclick="logoutUser()">Logout</button>
+<!doctype html>
+<html lang="it">
+    <head>
+        <title>Login & Dashboard</title>
+        <link rel="stylesheet" href="styles.css" />
+        <script type="module" defer src="script.js"></script>
+    </head>
+    <body>
+        <div id="authContainer">
+            <h2>Effettua il login</h2>
+            <input type="email" id="emailInput" placeholder="Email" />
+            <input type="password" id="passwordInput" placeholder="Password" />
+            <button onclick="loginUser()">Accedi</button>
         </div>
 
-        <div id="inputContainer">
-            <input type="text" id="taskInput" placeholder="Add a product">
-            <input type="url" id="linkInput" placeholder="Link (optional)">
-            <button onclick="addTask()">Add</button>
+        <div id="welcomeMessage" style="display: none; text-align: center; font-size: 24px; font-weight: bold">
+            Benvenuto!!
         </div>
 
-        <div id="listContainer">
-            <ul id="taskList"></ul>
+        <div id="mainContainer" style="display: none">
+            <!-- 🔥 Sidebar inclusa dinamicamente -->
+            <div id="sidebarContainer"></div>
+            <script>
+                fetch("sidebar.html") // 🔥 Rimuovi `./` per garantire il caricamento corretto
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Sidebar non trovata!");
+                        }
+                        return response.text();
+                    })
+                    .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
+                    .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+            </script>
         </div>
-
-        <div id="extraBox">
-            <p>E IO PAGO!</p>
-        </div>
-    </div>
-
-    <!-- Modale di modifica -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2>Edit</h2>
-            <label for="editNameInput">Name:</label>
-            <input type="text" id="editNameInput" placeholder="Name">
-            <label for="editLinkInput">Link (optional):</label>
-            <input type="url" id="editLinkInput" placeholder="Link (optional)">
-            <button onclick="saveTaskChanges()">Save</button>
-        </div>
-    </div>
-
-    <!-- Importazione del JavaScript separato -->
-    <script type="module" src="script.js"></script>
-</body>
+    </body>
 </html>

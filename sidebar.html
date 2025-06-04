@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <title>Sidebar</title> <!-- 🔥 Titolo necessario per evitare errori -->
+    <link rel="stylesheet" href="styles.css"> <!-- 🔥 Collegamento al CSS -->
+    <script defer src="sidebar.js"></script>
+
+</head>
+<body>
+    <div id="sidebar">
+        <div id="userInfo">
+            <img id="userPhoto" src="https://via.placeholder.com/80" alt="Foto profilo" class="user-photo"> <!-- 🔥 Immagine di default -->
+            <p>Benvenuto, <span id="userEmail"></span></p>
+        </div>
+        <nav>
+            <button onclick="navigateTo('index.html')">Home</button>
+            <button onclick="navigateTo('todolist.html')">To-Do List</button>
+
+            <button onclick="navigateTo('pagina2.html')">Pagina 2</button>
+            <button onclick="navigateTo('pagina3.html')">Pagina 3</button>
+        </nav>
+        <button id="logoutButton">🚪 Logout</button>
+        <button id="closeSidebar" onclick="toggleSidebar()">✖ Chiudi</button>
+    </div>
+    <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
+</body>
+</html>

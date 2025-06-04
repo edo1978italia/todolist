@@ -1,6 +1,6 @@
 body {
     font-family: "Poppins", sans-serif;
-    background-color: #d0d0d0;
+    background-color: #dfdfdf;
     text-align: center;
     color: #2e2e2e;
 }
@@ -274,19 +274,32 @@ input {
     cursor: pointer;
 }
 
+
+#welcomeMessage {
+    display: none; /* 🔥 Nascondi di default */
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    margin-top: 20px;
+}
+
+
+/* PANNELLO LATERALE HOME */
 #sidebar {
-    display: none; /* 🔥 Nasconde il pannello */
     position: fixed;
     top: 0;
-    left: -300px; /* Posizione iniziale fuori schermo */
+    left: -300px; /* 🔥 Posizione iniziale completamente nascosta */
     width: 250px;
     height: 100%;
     background: #2b8ae5;
     color: white;
     padding: 15px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-    transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out; /* 🔥 Assicura che il movimento sia fluido */
 }
+
+
 
 #sidebar nav button {
     display: block;
@@ -300,7 +313,7 @@ input {
 }
 
 #sidebar nav {
-    display: none; /* 🔥 Nasconde il menu di default */
+    display: block; /* 🔥 Nasconde il menu di default */
 }
 
 #sidebar nav button:hover {
@@ -308,13 +321,15 @@ input {
 }
 #openSidebar {
     position: fixed;
-    top: 8px;
-    left: 10px;
+    font-size: 25px;
+    top: 2px;
+    left: 13px;
     background: transparent;
-    color: white;
+    color: #ffffff;
     padding: 10px;
     border: none;
     cursor: pointer;
+    z-index: 500;
 }
 #closeSidebar {
     position: absolute;
@@ -334,5 +349,23 @@ input {
     font-size: 18px;
     font-weight: bold;
     color: white;
+    margin-bottom: 50px;
+}
+
+/* LOGOUT SUL PANNELLO */
+#logoutButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #ff0000;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 2px;
+}
+#logoutButton:hover {
+    background: darkred;
 }
 
