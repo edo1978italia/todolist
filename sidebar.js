@@ -1,9 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
     const logoutButton = document.getElementById("logoutButton");
     if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser); // 🔥 Permette il logout su tutte le pagine
+        logoutButton.addEventListener("click", function () {
+            console.log("Logout dal pannello laterale cliccato!"); // 🔥 Debug
+            logoutUser(); // 🔥 Chiama la funzione di logout
+        });
     }
 });
+
 
 window.toggleSidebar = function () {
     const sidebar = document.getElementById("sidebar");
@@ -15,5 +19,6 @@ document.querySelectorAll("nav button").forEach((button) => {
         console.log("Pulsante cliccato:", button.innerText); // 🔥 Debug per verificare il click
     });
 });
+
 
 
