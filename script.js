@@ -37,21 +37,20 @@ window.loginUser = loginUser;
 // 🔥 Gestione logout
 async function logoutUser() {
     try {
-        await signOut(auth); // 🔥 Disconnessione da Firebase
-        localStorage.removeItem("userLoggedIn");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userPhoto");
-
+        await signOut(auth);
         console.log("✅ Logout completato, utente disconnesso!");
 
-        setTimeout(() => {
-            window.location.replace("index.html");
-        }, 500); // 🔥 Attendi un attimo per garantire il logout
+        // 🔥 Rimuovi tutti i dati della sessione
+        localStorage.clear();
+
+        // 🔥 Ricarica la pagina per garantire che il logout sia effettivo
+        window.location.href = "index.html";
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
     }
 }
+
 
 
 window.logoutUser = logoutUser;
