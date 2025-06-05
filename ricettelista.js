@@ -10,39 +10,56 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // 🔥 Funzione per ottenere i dettagli della ricetta selezionata
-async function loadRecipe() {
+// 🔥 Funzione per caricare le ricette
+async function loadRecipes() {
     const params = new URLSearchParams(window.location.search);
-    const recipeId = params.get("id"); // Ottiene l'ID dalla URL
+    const recipeId = params.get("id");
 
-    if (!recipeId) {
-        alert("ID ricetta non trovato!");
-        return;
+    if (recipeId) {
+        // 🔍 Se l'ID è presente, carica solo la ricetta selezionata
+        const recipeRef = doc(db, "ricette", recipeId);
+        const recipeSnap = await getDoc(recipeRef);
+
+        if (!recipeSnap.exists()) {
+            alert("La ricetta non esiste!");
+            return;
+        }
+
+        const data = recipeSnap.data();
+        document.getElementById("recipeTitle").innerText = data.nome;
+        document.getElementById("recipeImage").src = data.immagineUrl || "placeholder.jpg";
+        document.getElementById("recipeCategory").innerText = data.categoria;
+        document.getElementById("recipeIngredients").innerText = data.ingredienti.join(", ");
+        document.getElementById("recipePreparationTime").innerText = data.preparazione;
+        document.getElementById("recipeCookingTime").innerText = data.cottura;
+        document.getElementById("recipeServings").innerText = data.dosi;
+        document.getElementById("recipeProcedure").innerText = data.procedura.join("\n");
+    } else {
+        // 🔍 Se non c'è un ID, carica tutte le ricette
+        const recipesContainer = document.getElementById("recipesList"); // Assicurati che `recipesList` esista in `ricettelista.html`
+        recipesContainer.innerHTML = "Caricamento...";
+
+        const querySnapshot = await getDocs(collection(db, "ricette"));
+        recipesContainer.innerHTML = ""; // Svuota il contenuto dopo il caricamento
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const recipeElement = document.createElement("div");
+            recipeElement.innerHTML = `
+                <h3>${data.nome}</h3>
+                <img src="${data.immagineUrl || "placeholder.jpg"}" width="100">
+                <p><strong>Categoria:</strong> ${data.categoria}</p>
+                <p><strong>Ingredienti:</strong> ${data.ingredienti.join(", ")}</p>
+                <p><strong>Procedura:</strong> ${data.procedura.join("\n")}</p>
+                <button onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
+            `;
+            recipesContainer.appendChild(recipeElement);
+        });
     }
-
-    const recipeRef = doc(db, "ricette", recipeId);
-    const recipeSnap = await getDoc(recipeRef);
-
-    if (!recipeSnap.exists()) {
-        alert("La ricetta non esiste!");
-        return;
-    }
-
-    const data = recipeSnap.data();
-
-    document.getElementById("recipeTitle").innerText = data.nome;
-    document.getElementById("recipeImage").src = data.immagineUrl || "placeholder.jpg";
-    document.getElementById("recipeCategory").innerText = data.categoria;
-    document.getElementById("recipeIngredients").innerText = data.ingredienti.join(", ");
-    document.getElementById("recipePreparationTime").innerText = data.preparazione;
-    document.getElementById("recipeCookingTime").innerText = data.cottura;
-    document.getElementById("recipeServings").innerText = data.dosi;
-    document.getElementById("recipeProcedure").innerText = data.procedura;
-
-    // 🔥 Modifica la ricetta
-    document.getElementById("editRecipeButton").onclick = () => {
-        window.location.href = `nuovaricetta.html?id=${recipeId}`;
-    };
 }
+
+// 🔥 Carica le ricette quando la pagina viene aperta
+document.addEventListener("DOMContentLoaded", loadRecipes);
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
