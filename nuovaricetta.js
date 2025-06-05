@@ -39,7 +39,7 @@ async function loadRecipeForEdit() {
 // 🔥 Funzione per salvare/modificare una ricetta in Firebase
 async function saveRecipe(recipeId = null) {
     const nome = document.getElementById("recipeName").value.trim();
-    const ingredienti = document.getElementById("recipeIngredients").value.split(",").map(ing => ing.trim());
+    const ingredientiRaw = document.getElementById("recipeIngredients").value.trim();
     const preparazione = document.getElementById("recipePreparationTime").value.trim();
     const cottura = document.getElementById("recipeCookingTime").value.trim();
     const dosi = document.getElementById("recipeServings").value.trim();
@@ -47,10 +47,12 @@ async function saveRecipe(recipeId = null) {
     const categoria = document.getElementById("recipeCategory").value.trim();
     const immagineUrl = document.getElementById("recipeImageUrl").value.trim();
 
-    if (!nome || !procedura) {
-        alert("Nome e procedura sono obbligatori!");
+    if (!nome || !procedura || !categoria || !ingredientiRaw || !preparazione || !cottura || !dosi) {
+        alert("⚠ Tutti i campi devono essere compilati correttamente!");
         return;
     }
+
+    const ingredienti = ingredientiRaw.split(",").map(ing => ing.trim()).filter(ing => ing.length > 0);
 
     try {
         if (recipeId) {
@@ -59,19 +61,21 @@ async function saveRecipe(recipeId = null) {
             await updateDoc(recipeRef, {
                 nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl
             });
-            alert("Ricetta modificata con successo!");
+            alert("✅ Ricetta modificata con successo!");
         } else {
             // 🔥 Aggiunta nuova ricetta
             await addDoc(collection(db, "ricette"), {
                 nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl
             });
-            alert("Ricetta aggiunta con successo!");
+            alert("✅ Ricetta aggiunta con successo!");
         }
         window.location.href = "ricettelista.html"; // 🔥 Torna alla lista delle ricette
     } catch (error) {
-        console.error("Errore nel salvataggio della ricetta:", error);
+        console.error("❌ Errore nel salvataggio della ricetta:", error);
+        alert("Errore nel salvataggio della ricetta: " + error.message);
     }
 }
+
 
 // 🔥 Rende la funzione globale per `nuovaricetta.html`
 window.saveRecipe = saveRecipe;
