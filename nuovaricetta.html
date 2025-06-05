@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aggiungi/Modifica Ricetta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1 id="pageTitle">Aggiungi una Nuova Ricetta</h1>
+
+    <div id="recipeInputContainer">
+        <input type="text" id="recipeName" placeholder="Nome della ricetta">
+        <input type="url" id="recipeImageUrl" placeholder="URL immagine">
+
+        <input type="text" id="recipeCategory" placeholder="Categoria (Primo, Dolce, ecc.)">
+        <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
+
+        <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)">
+        <input type="number" id="recipeCookingTime" placeholder="Cottura (minuti)">
+        <input type="number" id="recipeServings" placeholder="Dosi per (numero di persone)">
+
+        <textarea id="recipeProcedure" placeholder="Procedura"></textarea>
+
+        <button id="saveRecipeButton" onclick="saveRecipe()">Salva Ricetta</button>
+    </div>
+
+    <script type="module" defer src="nuovaricetta.js"></script>
+</body>
+</html>

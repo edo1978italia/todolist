@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Ricette</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>Lista delle Ricette</h1>
+
+    <!-- 🔥 Sezione di ricerca e filtri -->
+    <div id="filterContainer">
+        <input type="text" id="searchRecipe" placeholder="Cerca una ricetta..." onkeyup="filterRecipes()">
+        <select id="categoryFilter" onchange="filterRecipes()">
+            <option value="">Tutte le categorie</option>
+            <option value="Primo">Primo</option>
+            <option value="Secondo">Secondo</option>
+            <option value="Dolce">Dolce</option>
+        </select>
+    </div>
+
+    <!-- 🔥 Lista delle ricette -->
+    <div id="recipeListContainer">
+        <ul id="recipeList">
+            <li>Caricamento...</li>
+        </ul>
+    </div>
+
+    <script type="module" defer src="ricettelista.js"></script>
+</body>
+</html>
