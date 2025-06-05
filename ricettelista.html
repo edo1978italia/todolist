@@ -7,14 +7,27 @@
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
-         <!-- 🔥 Sidebar inclusa dinamicamente -->
+        <!-- 🔥 Sidebar inclusa dinamicamente -->
         <div id="sidebarContainer"></div>
         <script>
-            fetch("sidebar.html")
-                .then((response) => response.text())
-                .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
-                .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-        </script>
+    fetch("sidebar.html")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("sidebarContainer").innerHTML = data;
+
+            // 🔥 Registra gli eventi SOLO dopo aver caricato la sidebar
+            document.getElementById("logoutButton").addEventListener("click", logoutUser);
+            document.getElementById("navigateToTodolist").addEventListener("click", () => {
+                window.location.href = "todolist.html";
+            });
+            document.getElementById("navigateToRecipes").addEventListener("click", () => {
+                window.location.href = "ricettelista.html";
+            });
+        })
+        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+</script>
+
+
         <button id="logoutButton">Logout</button>
 
         <h3>Recipes</h3>
