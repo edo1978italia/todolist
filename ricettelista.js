@@ -1,5 +1,11 @@
 // Importa Firebase
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
@@ -9,6 +15,14 @@ import firebaseConfig from "./config.js";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+const params = new URLSearchParams(window.location.search);
+const recipeId = params.get("id");
+
+if (recipeId) {
+    document.body.classList.add("single-recipe"); // 🔥 Applica lo stile per la singola ricetta
+}
+
 
 // 🔥 Funzione per ottenere i dettagli della ricetta selezionata
 // 🔥 Funzione per caricare le ricette
@@ -31,22 +45,28 @@ async function loadRecipes() {
         recipeElement.classList.add("recipe-card"); // 🔥 Aggiunge il riquadro per ogni ricetta
 
         recipeElement.innerHTML = `
-            <div class="recipe-item">
-                <img class="recipe-img" src="${data.immagineUrl || "placeholder.jpg"}" alt="Ricetta">
-            <h3 class="recipe-name">${data.nome}</h3>
-            <p><strong>Categoria:</strong> ${data.categoria}</p>
-            <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
-            </div>
+             <div class="recipe-item">
+        <img class="recipe-img" 
+            src="${data.immagineUrl || 'placeholder.jpg'}"
+            srcset="${data.immagineUrl}?w=150 150w, 
+                    ${data.immagineUrl}?w=300 300w, 
+                    ${data.immagineUrl}?w=600 600w"
+            sizes="(max-width: 600px) 150px, 
+                   (max-width: 900px) 300px, 
+                   600px" 
+            alt="Ricetta">
+        <h3 class="recipe-name">${data.nome}</h3>
+        <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
+        <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
+    </div>
         `;
-        
+
         recipesContainer.appendChild(recipeElement);
     });
 }
 
-
 // 🔥 Carica le ricette quando la pagina viene aperta
 document.addEventListener("DOMContentLoaded", loadRecipes);
-
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
