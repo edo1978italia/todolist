@@ -36,7 +36,7 @@ async function loadRecipes() {
         document.getElementById("recipeProcedure").innerText = data.procedura.join("\n");
     } else {
         // 🔍 Se non c'è un ID, carica tutte le ricette
-        const recipesContainer = document.getElementById("recipesList"); // Assicurati che `recipesList` esista in `ricettelista.html`
+        const recipesContainer = document.getElementById("recipeList"); // Assicurati che `recipeList` esista in `ricettelista.html`
         recipesContainer.innerHTML = "Caricamento...";
 
         const querySnapshot = await getDocs(collection(db, "ricette"));
