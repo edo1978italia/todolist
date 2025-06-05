@@ -495,33 +495,43 @@ input {
 }
 
 /* 🔥 Stile per ogni riquadro della ricetta */
-.recipe-item {
-    margin-top: 2px;
-    font-size: 12px;
-    max-width: 600px;
-    margin: auto;
-    padding: 10px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
-    text-align: center;
-}
 
 .recipe-item:hover {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
 }
 
 /* 🔥 Stile per il contenitore principale delle ricette */
-/* 🔥 Modifica il contenitore per le ricette */
+/* 🔥 Stile per il contenitore delle ricette */
+/* 🔥 Contenitore delle ricette */
+/* 🔥 Contenitore delle ricette */
 #recipeListContainer {
     display: flex;
-    flex-direction: column; /* 🔥 Forza la disposizione in colonna */
-    align-items: center; /* 🔥 Centra ogni riquadro */
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 20px; /* 🔥 Spazio tra i riquadri */
 }
 
-/* 🔥 Stile per i riquadri delle ricette */
-.recipe-card {
-    width: 100%; /* 🔥 Occupa tutta la larghezza disponibile */
-    max-width: 600px; /* 🔥 Limita la dimensione massima per non essere troppo grande */
+/* 🔥 Stile per ogni riquadro */
+.recipe-item {
+    flex: 1; /* 🔥 Permette al riquadro di espandersi automaticamente */
+    min-width: 300px; /* 🔥 Limite minimo per mantenere la leggibilità */
+    max-width: 350px; /* 🔥 Limite massimo per evitare riquadri troppo larghi */
+    padding: 15px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+/* 🔥 Quando lo schermo è piccolo, il riquadro occupa tutta la larghezza */
+@media screen and (max-width: 600px) {
+    #recipeListContainer {
+        flex-direction: column; /* 🔥 Forza la disposizione in una colonna */
+    }
+
+    .recipe-item {
+        flex: none;
+        width: 100%; /* 🔥 Ora il riquadro occupa tutta la larghezza */
+        max-width: none; /* 🔥Rimuove il limite massimo */
+    }
 }
