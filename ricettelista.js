@@ -61,6 +61,7 @@ async function loadRecipes() {
 // 🔥 Carica le ricette quando la pagina viene aperta
 document.addEventListener("DOMContentLoaded", loadRecipes);
 
+
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -141,7 +142,3 @@ window.toggleSidebar = function () {
 window.navigateTo = function (page) {
     window.location.href = page;
 };
-
-
-// 🔥 Carica la ricetta quando la pagina viene aperta
-document.addEventListener("DOMContentLoaded", loadRecipe);
