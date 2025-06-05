@@ -531,7 +531,7 @@ input {
 /* 🔥 Stile per ogni riquadro */
 .recipe-item {
     flex: 1; /* 🔥 Permette al riquadro di espandersi automaticamente */
-    min-width: 200px; /* 🔥 Limite minimo per mantenere la leggibilità */
+    min-width: 150px; /* 🔥 Limite minimo per mantenere la leggibilità */
     max-width: 200px; /* 🔥 Limite massimo per evitare riquadri troppo larghi */
     max-height: 300px;
     padding: 10px;
