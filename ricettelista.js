@@ -109,6 +109,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
 });
 
+// 🔥 Funzione per aprire/chiudere la sidebar
+window.toggleSidebar = function () {
+    const sidebar = document.getElementById("sidebar");
+    if (!sidebar) {
+        console.warn("⚠ Sidebar non trovata!");
+        return;
+    }
+
+    sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
+    console.log("🔄 Sidebar toggled:", sidebar.style.left);
+};
 
 
 // 🔥 Carica la ricetta quando la pagina viene aperta
