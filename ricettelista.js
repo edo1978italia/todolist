@@ -33,10 +33,9 @@ async function loadRecipes() {
         recipeElement.innerHTML = `
             <div class="recipe-item">
                 <img class="recipe-img" src="${data.immagineUrl || "placeholder.jpg"}" alt="Ricetta">
-                <h3 class="recipe-name">${data.nome}</h3>
-                <p><strong>Categoria:</strong> ${data.categoria}</p>
-                <p><strong>Ingredienti:</strong> ${data.ingredienti.join(", ")}</p>
-                <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
+            <h3 class="recipe-name">${data.nome}</h3>
+            <p><strong>Categoria:</strong> ${data.categoria}</p>
+            <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
             </div>
         `;
         
