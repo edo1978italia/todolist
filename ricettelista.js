@@ -11,19 +11,19 @@ function loadRecipes() {
     const recipeList = document.getElementById("recipeList");
 
     onSnapshot(collection(db, "ricette"), (snapshot) => {
-        recipeList.innerHTML = "";
-        snapshot.docs.forEach((doc) => {
-            const data = doc.data();
-            const recipeItem = `
-                <li onclick="viewRecipe('${doc.id}')">
-                    <h3>${data.nome}</h3>
-                    <img src="${data.immagineUrl}" alt="${data.nome}" style="width: 100%; max-width: 200px;">
-                    <p><strong>Categoria:</strong> ${data.categoria}</p>
-                </li>
-            `;
-            recipeList.innerHTML += recipeItem;
-        });
+    recipeList.innerHTML = "";
+    snapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        const recipeItem = `
+            <li class="recipe-item" onclick="viewRecipe('${doc.id}')">
+                <img src="${data.immagineUrl}" alt="${data.nome}" class="recipe-img">
+                <span class="recipe-name">${data.nome}</span>
+            </li>
+        `;
+        recipeList.innerHTML += recipeItem;
     });
+});
+
 }
 
 // 🔥 Funzione per filtrare le ricette

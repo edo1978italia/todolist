@@ -40,7 +40,10 @@ onAuthStateChanged(auth, (user) => {
 
         // 🔥 Attiva listener Firebase per i task
         unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
-            console.log("📌 Dati ricevuti da Firebase:", snapshot.docs.map((doc) => doc.data()));
+            console.log(
+                "📌 Dati ricevuti da Firebase:",
+                snapshot.docs.map((doc) => doc.data())
+            );
             loadTasks(snapshot);
         });
     }
@@ -82,8 +85,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 window.logoutUser = logoutUser;
-
-
 
 // 🔥 Caricamento delle attività
 async function loadTasks(snapshot) {
@@ -130,15 +131,15 @@ async function loadTasks(snapshot) {
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
+        const logoutButton = document.getElementById("logoutButton");
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser);
-        console.log("✅ Pulsante logout registrato correttamente!");
-    } else {
-        console.warn("⚠ Pulsante logout non trovato!");
-    }
-});
+        if (logoutButton) {
+            logoutButton.addEventListener("click", logoutUser);
+            console.log("✅ Pulsante logout registrato correttamente!");
+        } else {
+            console.warn("⚠ Pulsante logout non trovato!");
+        }
+    });
 
     // 🔥 Aggiungi eventi ai pulsanti dentro il menu
     document.querySelectorAll(".task-link").forEach((button) => {
@@ -172,17 +173,17 @@ async function loadTasks(snapshot) {
             await deleteTask(id);
         });
     });
-    
-    document.querySelectorAll(".task-link, .toggle-complete, .edit-task, .delete-task").forEach((button) => {
-    button.addEventListener("click", function () {
-        console.log("Bottone nel menu cliccato:", this);
 
-        // 🔥 Chiude il menu
-        document.querySelectorAll(".menu").forEach((menu) => {
-            menu.style.display = "none";
+    document.querySelectorAll(".task-link, .toggle-complete, .edit-task, .delete-task").forEach((button) => {
+        button.addEventListener("click", function () {
+            console.log("Bottone nel menu cliccato:", this);
+
+            // 🔥 Chiude il menu
+            document.querySelectorAll(".menu").forEach((menu) => {
+                menu.style.display = "none";
+            });
         });
     });
-});
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -201,15 +202,23 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addTask = async function () {
     const taskInput = document.getElementById("taskInput");
     const linkInput = document.getElementById("linkInput");
+    const isPriorityHigh = document.getElementById("priorityHigh").checked;
     const taskName = taskInput.value.trim();
     const taskLink = linkInput.value.trim();
 
     if (!taskName) return alert("Inserisci un task valido!");
 
-    await addDoc(collection(db, "tasks"), { name: taskName, link: taskLink || "", completed: false });
+    const taskDisplayName = isPriorityHigh ? `${taskName} 🔴` : taskName; // 🔥 Aggiungiamo il pallino rosso
+
+    await addDoc(collection(db, "tasks"), {
+        name: taskDisplayName,
+        link: taskLink || "",
+        completed: false
+    });
 
     taskInput.value = "";
     linkInput.value = "";
+    document.getElementById("priorityHigh").checked = false;
 };
 
 // 🔥 Apre il popup Edit

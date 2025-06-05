@@ -40,9 +40,7 @@ body {
     gap: 10px;
 }
 #taskList {
-    padding-left: 20px;
-    width: 90%;
-    padding: 10px;
+    padding: 3px;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -146,8 +144,41 @@ body {
         transform 0.2s ease-in-out;
 }
 
-#inputContainer,
-#extraBox,
+/* 🔥TEXT INPUT ELEMENTO */
+#namePriorityContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#addButton {
+    width: auto;
+    padding: 8px 16px;
+    text-align: center;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#addButton:hover {
+    background-color: #0056b3;
+}
+
+
+
+#priorityLabel {
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    padding: 10px;
+}
+
+
+
+#extraBox, #taskInputContainer,
 #listContainer {
     max-width: 600px;
     margin: auto;
@@ -233,6 +264,7 @@ input {
 }
 
 #taskInput {
+    
     width: 100%;
     padding: 12px;
     box-sizing: border-box;
@@ -287,7 +319,7 @@ input {
     font-size: 24px;
     font-weight: bold;
     color: black;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 
@@ -387,7 +419,8 @@ input {
     padding-top: 1px;
     padding-bottom: 1px;
    /* border-bottom: 1px solid #ddd;  */
-    margin-bottom: 10px;
+    margin-bottom: 1px;
+    margin-top: 1px;
 }
 
 
@@ -404,10 +437,11 @@ input {
 
 /* 🔥 Contenitore del widget */
 #widgetContainer {
+    margin-top: 2px;
     font-size: 12px;
     max-width: 600px;
     margin: auto;
-    padding: 15px;
+    padding: 10px;
     background: white;
     border-radius: 10px;
     box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
@@ -418,14 +452,14 @@ input {
     display: flex;
     justify-content: flex-end; /* 🔥 Sposta il pulsante a destra */
     width: 100%; /* 🔥 Assicura che il contenitore occupi tutta la larghezza */
-    padding-top: 10px;
+    padding-top: 1px;
 }
 
 /* 🔥 Rimuove i pallini neri dagli elementi della lista */
 #taskPreview {
     list-style: none;  /* 🔥 Elimina i puntini neri */
     padding: 0;
-    margin: 10px 0;
+    margin: 1px 0;
 }
 
 #taskPreview li {
@@ -443,3 +477,31 @@ input {
     font-style: italic;
 }
 
+/* 🔥 INIZIO RICETTE */
+
+.recipe-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.recipe-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+.recipe-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#recipeList {
+    list-style: none; /* 🔥 Rimuove i pallini della lista */
+    padding: 0;
+    margin: 0;
+}
