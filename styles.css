@@ -376,4 +376,44 @@ input {
 }
 
 
+/* WIDGET TO DO LIST */
+#widgetContainer {
+    max-width: 400px;
+    margin: auto;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#taskPreview {
+    list-style: none;
+    padding: 0;
+}
+
+#taskPreview li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#taskPreview li:last-child {
+    border-bottom: none;
+}
+
+button {
+    background: #247fd8;
+    color: white;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
 
