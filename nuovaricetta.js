@@ -73,5 +73,8 @@ async function saveRecipe(recipeId = null) {
     }
 }
 
+// 🔥 Rende la funzione globale per `nuovaricetta.html`
+window.saveRecipe = saveRecipe;
+
 // 🔥 Carica la ricetta per la modifica se l'ID è presente
 document.addEventListener("DOMContentLoaded", loadRecipeForEdit);

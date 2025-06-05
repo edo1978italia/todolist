@@ -120,7 +120,7 @@ window.toggleSidebar = function () {
     sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
     console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
-// 🔥 Funzione per navigare tra le pagine
+// 🔥 Funzione per navigare tra le pagine dalla sidebar
 window.navigateTo = function (page) {
     window.location.href = page;
 };
