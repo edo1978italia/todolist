@@ -479,29 +479,82 @@ input {
 
 /* 🔥 INIZIO RICETTE */
 
+/* 🔥 Stile per la lista delle ricette */
+#recipeListContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
 .recipe-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    cursor: pointer;
+    width: 250px; /* 🔥 Dimensione fissa per le card */
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
 }
 
+.recipe-item:hover {
+    transform: scale(1.05); /* 🔥 Effetto hover */
+}
+
+/* 🔥 Stile per le immagini delle ricette */
 .recipe-img {
-    width: 80px;
-    height: 80px;
+    width: 100%;
+    max-width: 220px;
+    height: 150px;
     object-fit: cover;
     border-radius: 8px;
-    margin-right: 15px;
 }
 
+/* 🔥 Stile per il titolo della ricetta */
 .recipe-name {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
+    margin-top: 10px;
 }
 
-#recipeList {
-    list-style: none; /* 🔥 Rimuove i pallini della lista */
-    padding: 0;
-    margin: 0;
+/* 🔥 Pulsanti per vedere i dettagli */
+.recipe-button {
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.recipe-button:hover {
+    background: #0056b3;
+}
+
+/* 🔥 Stile per ogni riquadro della ricetta */
+.recipe-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 280px; /* 🔥 Dimensione fissa per uniformità */
+    padding: 15px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 🔥 Effetto rilievo */
+    transition: transform 0.3s ease-in-out;
+}
+
+.recipe-item:hover {
+    transform: scale(1.05); /* 🔥 Leggera espansione al passaggio del mouse */
+}
+
+/* 🔥 Stile per il contenitore principale delle ricette */
+#recipeListContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* 🔥 Spazio tra i riquadri */
 }

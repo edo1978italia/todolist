@@ -1,5 +1,6 @@
 // Importa Firebase
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import firebaseConfig from "./config.js";
@@ -12,51 +13,37 @@ const auth = getAuth(app);
 // 🔥 Funzione per ottenere i dettagli della ricetta selezionata
 // 🔥 Funzione per caricare le ricette
 async function loadRecipes() {
-    const params = new URLSearchParams(window.location.search);
-    const recipeId = params.get("id");
+    const recipesContainer = document.getElementById("recipeListContainer");
 
-    if (recipeId) {
-        // 🔍 Se l'ID è presente, carica solo la ricetta selezionata
-        const recipeRef = doc(db, "ricette", recipeId);
-        const recipeSnap = await getDoc(recipeRef);
+    if (!recipesContainer) {
+        console.warn("⚠ Elemento 'recipeListContainer' non trovato nel DOM!");
+        return;
+    }
 
-        if (!recipeSnap.exists()) {
-            alert("La ricetta non esiste!");
-            return;
-        }
+    recipesContainer.innerHTML = "Caricamento...";
 
-        const data = recipeSnap.data();
-        document.getElementById("recipeTitle").innerText = data.nome;
-        document.getElementById("recipeImage").src = data.immagineUrl || "placeholder.jpg";
-        document.getElementById("recipeCategory").innerText = data.categoria;
-        document.getElementById("recipeIngredients").innerText = data.ingredienti.join(", ");
-        document.getElementById("recipePreparationTime").innerText = data.preparazione;
-        document.getElementById("recipeCookingTime").innerText = data.cottura;
-        document.getElementById("recipeServings").innerText = data.dosi;
-        document.getElementById("recipeProcedure").innerText = data.procedura.join("\n");
-    } else {
-        // 🔍 Se non c'è un ID, carica tutte le ricette
-        const recipesContainer = document.getElementById("recipeList"); // Assicurati che `recipeList` esista in `ricettelista.html`
-        recipesContainer.innerHTML = "Caricamento...";
+    const querySnapshot = await getDocs(collection(db, "ricette"));
+    recipesContainer.innerHTML = ""; // Svuota il contenuto dopo il caricamento
 
-        const querySnapshot = await getDocs(collection(db, "ricette"));
-        recipesContainer.innerHTML = ""; // Svuota il contenuto dopo il caricamento
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const recipeElement = document.createElement("div");
+        recipeElement.classList.add("recipe-card"); // 🔥 Aggiunge il riquadro per ogni ricetta
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const recipeElement = document.createElement("div");
-            recipeElement.innerHTML = `
-                <h3>${data.nome}</h3>
-                <img src="${data.immagineUrl || "placeholder.jpg"}" width="100">
+        recipeElement.innerHTML = `
+            <div class="recipe-item">
+                <img class="recipe-img" src="${data.immagineUrl || "placeholder.jpg"}" alt="Ricetta">
+                <h3 class="recipe-name">${data.nome}</h3>
                 <p><strong>Categoria:</strong> ${data.categoria}</p>
                 <p><strong>Ingredienti:</strong> ${data.ingredienti.join(", ")}</p>
-                <p><strong>Procedura:</strong> ${data.procedura.join("\n")}</p>
-                <button onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
-            `;
-            recipesContainer.appendChild(recipeElement);
-        });
-    }
+                <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
+            </div>
+        `;
+        
+        recipesContainer.appendChild(recipeElement);
+    });
 }
+
 
 // 🔥 Carica le ricette quando la pagina viene aperta
 document.addEventListener("DOMContentLoaded", loadRecipes);
