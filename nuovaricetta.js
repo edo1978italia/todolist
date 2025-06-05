@@ -8,6 +8,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// 🔥 Funzione per verificare autenticazione prima di caricare la pagina
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        alert("⚠ Devi essere autenticato per accedere a questa pagina!");
+        window.location.href = "index.html"; // 🔥 Reindirizza alla pagina di login
+    }
+});
+
 // 🔥 Funzione per caricare i dettagli di una ricetta in caso di modifica
 async function loadRecipeForEdit() {
     const params = new URLSearchParams(window.location.search);
@@ -64,6 +72,7 @@ async function saveRecipe(recipeId = null) {
     const procedura = proceduraRaw.split("\n").map(step => step.trim()).filter(step => step.length > 0);
 
     try {
+        let newRecipeId = recipeId;
         if (recipeId) {
             // 🔥 Modifica ricetta esistente
             const recipeRef = doc(db, "ricette", recipeId);
@@ -73,12 +82,13 @@ async function saveRecipe(recipeId = null) {
             alert("✅ Ricetta modificata con successo!");
         } else {
             // 🔥 Aggiunta nuova ricetta
-            await addDoc(collection(db, "ricette"), {
+            const docRef = await addDoc(collection(db, "ricette"), {
                 nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl
             });
+            newRecipeId = docRef.id;
             alert("✅ Ricetta aggiunta con successo!");
         }
-        window.location.href = "ricettelista.html"; // 🔥 Torna alla lista delle ricette
+        window.location.href = `ricettelista.html?id=${newRecipeId}`; // 🔥 Torna alla lista delle ricette con ID
     } catch (error) {
         console.error("❌ Errore nel salvataggio della ricetta:", error);
         alert("Errore nel salvataggio della ricetta: " + error.message);
@@ -89,5 +99,9 @@ async function saveRecipe(recipeId = null) {
 window.saveRecipe = saveRecipe;
 
 // 🔥 Carica la ricetta per la modifica se l'ID è presente
-document.addEventListener("DOMContentLoaded", loadRecipeForEdit);
-
+document.addEventListener("DOMContentLoaded", () => {
+    loadRecipeForEdit();
+    
+    // 🔥 Aggancia l'evento click al pulsante di salvataggio
+    document.getElementById("saveRecipeButton").addEventListener("click", () => saveRecipe());
+});
