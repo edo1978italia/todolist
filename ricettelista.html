@@ -3,11 +3,21 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Lista Ricette</title>
+        <title>Recipes</title>
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
-        <h1>Lista delle Ricette</h1>
+         <!-- 🔥 Sidebar inclusa dinamicamente -->
+        <div id="sidebarContainer"></div>
+        <script>
+            fetch("sidebar.html")
+                .then((response) => response.text())
+                .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
+                .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+        </script>
+        <button id="logoutButton">Logout</button>
+
+        <h3>Recipes</h3>
 
         <!-- 🔥 Sezione di ricerca e filtri -->
         <div id="filterContainer">
