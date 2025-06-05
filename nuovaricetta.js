@@ -21,18 +21,17 @@ async function saveRecipe(recipeId = null) {
     const preparazione = document.getElementById("recipePreparationTime").value.trim();
     const cottura = document.getElementById("recipeCookingTime").value.trim();
     const dosi = document.getElementById("recipeServings").value.trim();
-    const proceduraRaw = document.getElementById("recipeProcedure").value.trim();
+    const procedura = document.getElementById("recipeProcedure").value.trim();
     const categoria = document.getElementById("recipeCategory").value;
+
     const immagineUrl = document.getElementById("recipeImageUrl").value.trim();
 
-    if (!nome || !proceduraRaw || !categoria || !ingredientiRaw || !preparazione || !cottura || !dosi) {
+    if (!nome || !procedura || !categoria || !ingredientiRaw || !preparazione || !cottura || !dosi) {
         alert("⚠ Tutti i campi devono essere compilati correttamente!");
         return;
     }
 
-    // 🔥 Corretta gestione dei campi multi-riga
-    const ingredienti = ingredientiRaw.split("\n").map(ing => ing.trim()).filter(ing => ing.length > 0);
-    const procedura = proceduraRaw.split("\n").map(step => step.trim()).filter(step => step.length > 0);
+    const ingredienti = ingredientiRaw.split(",").map(ing => ing.trim()).filter(ing => ing.length > 0);
 
     try {
         if (recipeId) {
@@ -61,4 +60,5 @@ window.saveRecipe = saveRecipe;
 
 // 🔥 Carica la ricetta per la modifica se l'ID è presente
 document.addEventListener("DOMContentLoaded", loadRecipeForEdit);
+
 

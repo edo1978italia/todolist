@@ -21,12 +21,13 @@
             <option value="Dolce">Dolce</option>
         </select>
 
-        <input type="text" id="recipeIngredients" placeholder="Ingredienti (separati da invio)">
-        <input type="text" id="recipeProcedure" placeholder="Procedura (multi-riga con Invio)">
+        <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
 
         <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)">
         <input type="number" id="recipeCookingTime" placeholder="Cottura (minuti)">
         <input type="number" id="recipeServings" placeholder="Dosi per (numero di persone)">
+
+        <textarea id="recipeProcedure" placeholder="Procedura"></textarea>
 
         <button id="saveRecipeButton">Salva Ricetta</button>
     </div>
@@ -34,4 +35,3 @@
     <script type="module" defer src="nuovaricetta.js"></script>
 </body>
 </html>
-
