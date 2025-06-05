@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TO BUY LIST EDO</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div id="authContainer" style="display: none">
+            <h2>Login</h2>
+            <input type="email" id="emailInput" placeholder="Email" />
+            <input type="password" id="passwordInput" placeholder="Password" />
+            <button onclick="loginUser()">Enter</button>
+        </div>
+
+        <div id="welcomeMessage" style="display: none; text-align: center; font-size: 24px; font-weight: bold">
+            Welcome!!
+        </div>
+
+        <div id="mainContainer" style="display: none">
+            <button id="logoutButton">Logout</button>
+            <!-- 🔥 Sidebar inclusa dinamicamente -->
+            <div id="sidebarContainer"></div>
+            <script>
+                fetch("sidebar.html")
+                    .then((response) => response.text())
+                    .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
+                    .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+            </script>
+        </div>
+        <!-- Importazione del JavaScript separato -->
+        <script type="module" defer src="script.js"></script>
+    </body>
+</html>
