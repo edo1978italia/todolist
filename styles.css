@@ -15,7 +15,6 @@ body {
 #mainContainer {
     display: none;
     margin-top: 50px;
-    
 }
 
 #header button {
@@ -79,7 +78,6 @@ body {
     flex-direction: column;
     z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
     min-width: 80px;
-    
 }
 
 /* Modifica: assicura che il menu venga reso visibile */
@@ -105,8 +103,6 @@ body {
     flex-direction: column;
     z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
     min-width: 75px;
-    
-    
 }
 
 .menu button:hover {
@@ -167,8 +163,6 @@ body {
     background-color: #0056b3;
 }
 
-
-
 #priorityLabel {
     display: flex;
     align-items: center;
@@ -176,9 +170,8 @@ body {
     padding: 10px;
 }
 
-
-
-#extraBox, #taskInputContainer,
+#extraBox,
+#taskInputContainer,
 #listContainer {
     max-width: 600px;
     margin: auto;
@@ -190,10 +183,7 @@ body {
     flex-direction: column;
     align-items: center;
     margin-bottom: 5px;
-    
-   
 }
-
 
 #extraBox {
     font-size: 12px;
@@ -264,7 +254,6 @@ input {
 }
 
 #taskInput {
-    
     width: 100%;
     padding: 12px;
     box-sizing: border-box;
@@ -312,7 +301,6 @@ input {
     cursor: pointer;
 }
 
-
 #welcomeMessage {
     display: none; /* 🔥 Nascondi di default */
     text-align: center;
@@ -321,7 +309,6 @@ input {
     color: black;
     margin-top: 10px;
 }
-
 
 /* PANNELLO LATERALE HOME */
 #sidebar {
@@ -336,8 +323,6 @@ input {
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     transition: left 0.3s ease-in-out; /* 🔥 Assicura che il movimento sia fluido */
 }
-
-
 
 #sidebar nav button {
     display: block;
@@ -407,7 +392,6 @@ input {
     background: darkred;
 }
 
-
 /* 🔥 WIDGET TO BUY LIST HOME */
 
 /* 🔥 Stile per il titolo "List Preview" */
@@ -418,14 +402,13 @@ input {
     text-align: left;
     padding-top: 1px;
     padding-bottom: 1px;
-   /* border-bottom: 1px solid #ddd;  */
+    /* border-bottom: 1px solid #ddd;  */
     margin-bottom: 1px;
     margin-top: 1px;
 }
 
-
 .widget-button {
-    background: #2b8ae5; 
+    background: #2b8ae5;
     font-weight: bold;
 }
 
@@ -433,7 +416,6 @@ input {
     background: #f1f1f1; /* 🔥 Cambia colore quando ci passi sopra */
     color: #007bff; /* 🔥 Cambia il colore del testo */
 }
-
 
 /* 🔥 Contenitore del widget */
 #widgetContainer {
@@ -457,7 +439,7 @@ input {
 
 /* 🔥 Rimuove i pallini neri dagli elementi della lista */
 #taskPreview {
-    list-style: none;  /* 🔥 Elimina i puntini neri */
+    list-style: none; /* 🔥 Elimina i puntini neri */
     padding: 0;
     margin: 1px 0;
 }
@@ -479,29 +461,7 @@ input {
 
 /* 🔥 INIZIO RICETTE */
 
-/* 🔥 Stile per la lista delle ricette */
-#recipeListContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-}
 
-.recipe-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 250px; /* 🔥 Dimensione fissa per le card */
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease-in-out;
-}
-
-.recipe-item:hover {
-    transform: scale(1.05); /* 🔥 Effetto hover */
-}
 
 /* 🔥 Stile per le immagini delle ricette */
 .recipe-img {
@@ -536,25 +496,32 @@ input {
 
 /* 🔥 Stile per ogni riquadro della ricetta */
 .recipe-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 280px; /* 🔥 Dimensione fissa per uniformità */
-    padding: 15px;
-    border-radius: 10px;
+    margin-top: 2px;
+    font-size: 12px;
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
     background: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 🔥 Effetto rilievo */
-    transition: transform 0.3s ease-in-out;
+    border-radius: 10px;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
+    text-align: center;
 }
 
 .recipe-item:hover {
-    transform: scale(1.05); /* 🔥 Leggera espansione al passaggio del mouse */
+    transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
 }
 
 /* 🔥 Stile per il contenitore principale delle ricette */
+/* 🔥 Modifica il contenitore per le ricette */
 #recipeListContainer {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column; /* 🔥 Forza la disposizione in colonna */
+    align-items: center; /* 🔥 Centra ogni riquadro */
     gap: 20px; /* 🔥 Spazio tra i riquadri */
+}
+
+/* 🔥 Stile per i riquadri delle ricette */
+.recipe-card {
+    width: 100%; /* 🔥 Occupa tutta la larghezza disponibile */
+    max-width: 600px; /* 🔥 Limita la dimensione massima per non essere troppo grande */
 }
