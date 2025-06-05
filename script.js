@@ -40,40 +40,40 @@ async function loginUser() {
 window.loginUser = loginUser;
 
 // 🔥 Controllo login e aggiornamento interfaccia
-onAuthStateChanged(auth, (user) => {
+document.addEventListener("DOMContentLoaded", function () {
     const authContainer = document.getElementById("authContainer");
     const mainContainer = document.getElementById("mainContainer");
     const welcomeMessage = document.getElementById("welcomeMessage");
 
-    if (user) {
-        console.log("✅ Utente autenticato:", user.email);
-
-        localStorage.setItem("userLoggedIn", "true");
-        localStorage.setItem("userEmail", user.email);
-
+    // 🔥 Se l'utente è già loggato, evita il login
+    if (localStorage.getItem("userLoggedIn") === "true") {
+        console.log("✅ Utente già loggato, bypasso il login!");
         authContainer.style.display = "none";
         mainContainer.style.display = "block";
         welcomeMessage.style.display = "block";
-
-        // 🔥 Se l'utente arriva da un'altra pagina, NON reindirizzare
-        if (window.location.pathname === "/index.html") {
-            console.log("✅ L'utente è già sulla pagina corretta, nessun reindirizzamento.");
-        }
-    } else {
-        console.warn("⚠ Utente non autenticato.");
-
-        // 🔥 Evita il reindirizzamento se è già su index.html
-        if (window.location.pathname !== "/index.html") {
-            setTimeout(() => {
-                if (!window.location.pathname.includes("index.html")) {
-                    window.location.replace("index.html");
-                } else {
-                    console.log("✅ Utente già su index.html, nessun reindirizzamento necessario.");
-                }
-            }, 1000);
-        }
+        return;
     }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("✅ Utente autenticato:", user.email);
+
+            localStorage.setItem("userLoggedIn", "true");
+            localStorage.setItem("userEmail", user.email);
+
+            authContainer.style.display = "none";
+            mainContainer.style.display = "block";
+            welcomeMessage.style.display = "block";
+        } else {
+            console.warn("⚠ Utente non autenticato.");
+            authContainer.style.display = "block";
+            mainContainer.style.display = "none";
+            welcomeMessage.style.display = "none";
+        }
+    });
 });
+
+
 
 // 🔥 Gestione logout
 async function logoutUser() {
