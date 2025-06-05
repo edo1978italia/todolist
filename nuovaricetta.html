@@ -14,7 +14,13 @@
         <input type="text" id="recipeName" placeholder="Nome della ricetta">
         <input type="url" id="recipeImageUrl" placeholder="URL immagine">
 
-        <input type="text" id="recipeCategory" placeholder="Categoria (Primo, Dolce, ecc.)">
+        <label for="recipeCategory">Categoria:</label>
+        <select id="recipeCategory">
+            <option value="Primo">Primo</option>
+            <option value="Secondo">Secondo</option>
+            <option value="Dolce">Dolce</option>
+        </select>
+
         <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
 
         <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)">
@@ -23,7 +29,7 @@
 
         <textarea id="recipeProcedure" placeholder="Procedura"></textarea>
 
-        <button id="saveRecipeButton" onclick="saveRecipe()">Salva Ricetta</button>
+        <button id="saveRecipeButton">Salva Ricetta</button>
     </div>
 
     <script type="module" defer src="nuovaricetta.js"></script>
