@@ -46,6 +46,7 @@ async function loadRecipeForEdit() {
 
 // 🔥 Verifica che l'utente sia loggato prima di salvare la ricetta
 async function saveRecipe(recipeId = null) {
+   // ✅ INCOLLA QUI la verifica dell'autenticazione
     const user = auth.currentUser;
     if (!user) {
         alert("⚠ Devi essere autenticato per salvare una ricetta!");
