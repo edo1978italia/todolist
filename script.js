@@ -5,12 +5,14 @@ import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 
-// Inizializza Firebase
+// 🔥 Inizializza Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // 🔥 Gestione login
 async function loginUser() {
@@ -45,7 +47,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const mainContainer = document.getElementById("mainContainer");
     const welcomeMessage = document.getElementById("welcomeMessage");
 
-    // 🔥 Se l'utente è già loggato, evita il login
     if (localStorage.getItem("userLoggedIn") === "true") {
         console.log("✅ Utente già loggato, bypasso il login!");
         authContainer.style.display = "none";
@@ -57,7 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             console.log("✅ Utente autenticato:", user.email);
-
             localStorage.setItem("userLoggedIn", "true");
             localStorage.setItem("userEmail", user.email);
 
@@ -73,24 +73,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
-
 // 🔥 Gestione logout
 async function logoutUser() {
     try {
         await signOut(auth);
         localStorage.clear();
         console.log("✅ Logout completato, utente disconnesso!");
-
-        setTimeout(() => {
-            if (!auth.currentUser) {
-                console.log("✅ Conferma: utente disconnesso.");
-                window.location.href = "index.html";
-            } else {
-                console.warn("⚠ L'utente risulta ancora autenticato, ricarico la pagina.");
-                window.location.reload();
-            }
-        }, 1000);
+        window.location.href = "index.html";
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
         alert("Errore nel logout: " + error.message);
@@ -133,3 +122,18 @@ window.toggleSidebar = function () {
 window.navigateTo = function (page) {
     window.location.href = page;
 };
+
+// 🔥 Recupero dati da Firebase per il widget della lista To-Do
+document.addEventListener("DOMContentLoaded", function () {
+    const taskPreview = document.getElementById("taskPreview");
+
+    onSnapshot(collection(db, "tasks"), (snapshot) => {
+        let tasksArray = snapshot.docs.map(doc => doc.data());
+
+        if (tasksArray.length === 0) {
+            taskPreview.innerHTML = "<li>❌ Nessun prodotto nella lista!</li>";
+        } else {
+            taskPreview.innerHTML = tasksArray.slice(0, 3).map(task => `<li>${task.name}</li>`).join("");
+        }
+    });
+});
