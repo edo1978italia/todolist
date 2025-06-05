@@ -6,7 +6,6 @@
         <title>TO BUY LIST EDO</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
         <link rel="stylesheet" href="styles.css" />
-        
     </head>
     <body>
         <div id="authContainer">
@@ -25,13 +24,8 @@
             <!-- 🔥 Sidebar inclusa dinamicamente -->
             <div id="sidebarContainer"></div>
             <script>
-                fetch("sidebar.html") // 🔥 Rimuovi `./` per garantire il caricamento corretto
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error("Sidebar non trovata!");
-                        }
-                        return response.text();
-                    })
+                fetch("sidebar.html")
+                    .then((response) => response.text())
                     .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
                     .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
             </script>
