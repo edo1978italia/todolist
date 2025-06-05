@@ -61,3 +61,4 @@ window.saveRecipe = saveRecipe;
 
 // 🔥 Carica la ricetta per la modifica se l'ID è presente
 document.addEventListener("DOMContentLoaded", loadRecipeForEdit);
+
