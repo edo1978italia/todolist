@@ -375,3 +375,15 @@ input {
     background: darkred;
 }
 
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 80%;
+        left: -80%;
+    }
+
+    #openSidebar {
+        font-size: 20px;
+    }
+}
+
