@@ -16,7 +16,7 @@
         </div>
 
         <div id="welcomeMessage" style="display: none; text-align: center; font-size: 24px; font-weight: bold">
-            Welcome!!
+            Ciao!!
         </div>
 
         <div id="mainContainer" style="display: none">
@@ -33,16 +33,15 @@
 
             <!-- 🔥 Widget anteprima della lista To-Do -->
             <div id="widgetContainer">
-                <h3>Ultimi 3 prodotti nella tua lista</h3>
+                <h3 class="widget-title">List Preview</h3>
                 <ul id="taskPreview">
                     <li>Caricamento...</li>
-                    <!-- 🔥 Qui verranno inseriti i dati dinamicamente -->
                 </ul>
-                <button class="widget-button" onclick="navigateTo('todolist.html')">Vedi tutta la lista</button>
+                <div class="widget-button-container">
+                    <button class="widget-button" onclick="navigateTo('todolist.html')">Check the list</button>
+                </div>
             </div>
         </div>
-
-       
 
         <script type="module" defer src="script.js"></script>
     </body>

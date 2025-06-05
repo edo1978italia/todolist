@@ -377,6 +377,20 @@ input {
 
 
 /* 🔥 WIDGET TO BUY LIST HOME */
+
+/* 🔥 Stile per il titolo "List Preview" */
+.widget-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #8d8d8d;
+    text-align: left;
+    padding-top: 1px;
+    padding-bottom: 1px;
+   /* border-bottom: 1px solid #ddd;  */
+    margin-bottom: 10px;
+}
+
+
 .widget-button {
     background: #2b8ae5; 
     font-weight: bold;
@@ -398,6 +412,13 @@ input {
     border-radius: 10px;
     box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
     text-align: center;
+}
+
+.widget-button-container {
+    display: flex;
+    justify-content: flex-end; /* 🔥 Sposta il pulsante a destra */
+    width: 100%; /* 🔥 Assicura che il contenitore occupi tutta la larghezza */
+    padding-top: 10px;
 }
 
 /* 🔥 Rimuove i pallini neri dagli elementi della lista */
