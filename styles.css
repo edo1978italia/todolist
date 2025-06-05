@@ -376,44 +376,49 @@ input {
 }
 
 
-/* WIDGET TO DO LIST */
+/* 🔥 WIDGET TO BUY LIST HOME */
+.widget-button {
+    background: #2b8ae5; 
+    font-weight: bold;
+}
+
+.widget-button:hover {
+    background: #f1f1f1; /* 🔥 Cambia colore quando ci passi sopra */
+    color: #007bff; /* 🔥 Cambia il colore del testo */
+}
+
+
+/* 🔥 Contenitore del widget */
 #widgetContainer {
-    max-width: 400px;
+    font-size: 12px;
+    max-width: 600px;
     margin: auto;
     padding: 15px;
     background: white;
     border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
     text-align: center;
 }
 
+/* 🔥 Rimuove i pallini neri dagli elementi della lista */
 #taskPreview {
-    list-style: none;
+    list-style: none;  /* 🔥 Elimina i puntini neri */
     padding: 0;
+    margin: 10px 0;
 }
 
 #taskPreview li {
-    padding: 10px;
+    padding: 5px;
     border-bottom: 1px solid #ddd;
 }
 
 #taskPreview li:last-child {
     border-bottom: none;
 }
-
-button {
-    background: #247fd8;
-    color: white;
-    padding: 8px 12px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
+/* 🔥 Stile per gli elementi completati */
+.checked {
+    color: red;
+    text-decoration: line-through;
+    font-style: italic;
 }
-
-button:hover {
-    transform: scale(1.05);
-}
-
 

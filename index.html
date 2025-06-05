@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
-        <div id="authContainer" style="display: none;">
+        <div id="authContainer" style="display: none">
             <h2>Login</h2>
             <input type="email" id="emailInput" placeholder="Email" />
             <input type="password" id="passwordInput" placeholder="Password" />
@@ -19,7 +19,7 @@
             Welcome!!
         </div>
 
-        <div id="mainContainer" style="display: none;">
+        <div id="mainContainer" style="display: none">
             <button id="logoutButton">Logout</button>
 
             <!-- 🔥 Sidebar inclusa dinamicamente -->
@@ -33,28 +33,16 @@
 
             <!-- 🔥 Widget anteprima della lista To-Do -->
             <div id="widgetContainer">
-                <h4>Ultimi 3 prodotti nella tua lista</h4>
+                <h3>Ultimi 3 prodotti nella tua lista</h3>
                 <ul id="taskPreview">
-                    <li>Caricamento...</li> <!-- 🔥 Qui verranno inseriti i dati dinamicamente -->
+                    <li>Caricamento...</li>
+                    <!-- 🔥 Qui verranno inseriti i dati dinamicamente -->
                 </ul>
-                <button onclick="navigateTo('todolist.html')">Vedi tutta la lista</button>
+                <button class="widget-button" onclick="navigateTo('todolist.html')">Vedi tutta la lista</button>
             </div>
         </div>
 
-        <!-- 🔥 Script per aggiornare dinamicamente il widget -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const taskPreview = document.getElementById("taskPreview");
-
-                let savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
-                if (savedTasks.length === 0) {
-                    taskPreview.innerHTML = "<li>❌ Nessun prodotto nella lista!</li>";
-                } else {
-                    taskPreview.innerHTML = savedTasks.slice(0, 3).map(task => `<li>${task.name}</li>`).join("");
-                }
-            });
-        </script>
+       
 
         <script type="module" defer src="script.js"></script>
     </body>

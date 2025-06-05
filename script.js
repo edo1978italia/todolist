@@ -128,12 +128,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const taskPreview = document.getElementById("taskPreview");
 
     onSnapshot(collection(db, "tasks"), (snapshot) => {
-        let tasksArray = snapshot.docs.map(doc => doc.data());
+        let tasksArray = snapshot.docs.map((doc) => doc.data());
 
         if (tasksArray.length === 0) {
             taskPreview.innerHTML = "<li>❌ Nessun prodotto nella lista!</li>";
         } else {
-            taskPreview.innerHTML = tasksArray.slice(0, 3).map(task => `<li>${task.name}</li>`).join("");
+            taskPreview.innerHTML = tasksArray
+                .slice(0, 3)
+                .map((task) => {
+                    const isCompleted = task.completed ? "checked" : "";
+                    return `<li class="${isCompleted}">${task.name}</li>`;
+                })
+                .join("");
         }
     });
 });
