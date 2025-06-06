@@ -1,4 +1,11 @@
-import { getFirestore, collection, doc, addDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import {
+    getFirestore,
+    collection,
+    doc,
+    addDoc,
+    updateDoc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import firebaseConfig from "./config.js";
@@ -44,24 +51,23 @@ async function loadRecipeForEdit() {
     document.getElementById("recipeProcedure").value = data.procedura.join("\n");
     document.getElementById("recipeDifficulty").value = data.difficolta;
 
-    // 🔥 Imposta dinamicamente l'icona difficoltà
+    // 🔥 Imposta dinamicamente l'icona difficoltà SOLO con Google Drive
     const icon = document.getElementById("difficultyIcon");
-    if (data.difficolta === "facile") {
-        icon.src = "img/facile.png";
+    if (!data.difficolta || data.difficolta === "facile") {
+        icon.src = "https://drive.google.com/uc?id=1QaskvLOSBZMHsxyDBiJfrC8M4T7qoO5b";
     } else if (data.difficolta === "medio") {
-        icon.src = "img/medio.png";
+        icon.src = "https://drive.google.com/uc?id=1OBH9TvIIFTGpv2V2HW6spChBBy4U9DD6";
     } else {
-        icon.src = "img/difficile.png";
+        icon.src = "https://drive.google.com/uc?id=1LVNRKXP11buk9YNA-b6JPAHbmuyKY6mu";
     }
 }
-
 
 // 🔥 Gestione del cambio icona difficoltà
 function updateDifficultyIcon() {
     const difficulty = document.getElementById("recipeDifficulty").value;
     const icon = document.getElementById("difficultyIcon");
 
-    if (difficulty === "facile") {
+    if (!difficulty || difficulty === "facile") {
         icon.src = "https://drive.google.com/uc?id=1QaskvLOSBZMHsxyDBiJfrC8M4T7qoO5b";
     } else if (difficulty === "medio") {
         icon.src = "https://drive.google.com/uc?id=1OBH9TvIIFTGpv2V2HW6spChBBy4U9DD6";
@@ -73,7 +79,6 @@ function updateDifficultyIcon() {
 
 // 🔥 Aggancia l'evento di cambio della difficoltà
 document.getElementById("recipeDifficulty").addEventListener("change", updateDifficultyIcon);
-
 
 // 🔥 Verifica che l'utente sia loggato prima di salvare la ricetta
 async function saveRecipe(recipeId = null) {
@@ -99,17 +104,43 @@ async function saveRecipe(recipeId = null) {
         return;
     }
 
-    const ingredienti = ingredientiRaw.split("\n").map(ing => ing.trim()).filter(ing => ing.length > 0);
-    const procedura = proceduraRaw.split("\n").map(step => step.trim()).filter(step => step.length > 0);
+    const ingredienti = ingredientiRaw
+        .split("\n")
+        .map((ing) => ing.trim())
+        .filter((ing) => ing.length > 0);
+    const procedura = proceduraRaw
+        .split("\n")
+        .map((step) => step.trim())
+        .filter((step) => step.length > 0);
 
     try {
         let newRecipeId = recipeId;
         if (recipeId) {
             const recipeRef = doc(db, "ricette", recipeId);
-            await updateDoc(recipeRef, { nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl, difficolta });
+            await updateDoc(recipeRef, {
+                nome,
+                ingredienti,
+                preparazione,
+                cottura,
+                dosi,
+                procedura,
+                categoria,
+                immagineUrl,
+                difficolta
+            });
             alert("✅ Ricetta modificata con successo!");
         } else {
-            const docRef = await addDoc(collection(db, "ricette"), { nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl, difficolta });
+            const docRef = await addDoc(collection(db, "ricette"), {
+                nome,
+                ingredienti,
+                preparazione,
+                cottura,
+                dosi,
+                procedura,
+                categoria,
+                immagineUrl,
+                difficolta
+            });
             newRecipeId = docRef.id;
             alert("✅ Ricetta aggiunta con successo!");
         }
@@ -126,7 +157,7 @@ window.saveRecipe = saveRecipe;
 // 🔥 Carica la ricetta per la modifica se l'ID è presente
 document.addEventListener("DOMContentLoaded", () => {
     loadRecipeForEdit();
-    
+
     // 🔥 Aggancia l'evento click al pulsante di salvataggio
     document.getElementById("saveRecipeButton").addEventListener("click", () => saveRecipe());
 });
