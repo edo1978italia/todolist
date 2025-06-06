@@ -465,7 +465,7 @@ input {
 #recipeListContainer {
     display: flex;
     flex-direction: column; /* 🔥 Mantiene le ricette disposte verticalmente */
-    align-items: stretch; /* 🔥 Assicura che gli elementi riempiano la larghezza */
+    align-items: cente; /* 🔥 Assicura che gli elementi riempiano la larghezza */
     width: 100%;
 }
 
@@ -485,8 +485,8 @@ input {
 
 /* 🔥 Stile per l'immagine */
 .recipe-img {
-    width: 160px; /* 🔥 Dimensione regolabile */
-    height: 130px; /* 🔥 Mantiene proporzioni uniformi */
+    width: 140px; /* 🔥 Dimensione regolabile */
+    height: 120px; /* 🔥 Mantiene proporzioni uniformi */
     object-fit: cover;
     border-radius: 5px;
 }
@@ -521,10 +521,10 @@ input {
 /* 🔥 Pulsanti per vedere i dettagli */
 /* 🔥 Pulsanti per vedere i dettagli */
 .recipe-button {
-    height: 40px; /* 🔥 Imposta un'altezza fissa */
+    height: 30px; /* 🔥 Imposta un'altezza fissa */
     background: #007bff;
     color: white;
-    padding: 10px 15px;
+    padding: 1px 5px;
     border: none;
     cursor: pointer;
     border-radius: 5px;
@@ -545,7 +545,7 @@ input {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
 }
 
-/* 🔥 ADD/EDIT Recipe */
+/* 🔥 ADD/EDIT Recipe NUOVA RICETTA*/
 
 /* 🔥 Migliora la larghezza delle textarea */
 textarea {
@@ -559,6 +559,13 @@ textarea {
     border-radius: 5px;
     resize: vertical; /* 🔥 Permette di ridimensionare solo in altezza */
 }
+
+#difficultyIcon {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+}
+
 
 /* 🔥 Contenitore principale per gli input */
 #recipeInputContainer {
@@ -607,6 +614,30 @@ textarea {
 
 /* 🔥 Stile per le opzioni all'interno del menu */
 #recipeCategory option {
+    padding: 5px;
+    font-size: 16px;
+}
+
+
+/* 🔥 Stile per il menu a tendina */
+#recipeDifficulty {
+    width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
+    max-width: 300px; /* 🔥 Espande la larghezza predefinita */
+    padding: 10px;
+    font-size: 13px; /* 🔥 Testo più leggibile */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* 🔥 Migliora la grafica al passaggio del mouse */
+#rrecipeDifficulty:hover {
+    border-color: #007bff;
+}
+
+/* 🔥 Stile per le opzioni all'interno del menu */
+#recipeDifficulty option {
     padding: 5px;
     font-size: 16px;
 }

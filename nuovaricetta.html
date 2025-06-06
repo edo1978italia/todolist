@@ -1,37 +1,46 @@
 <!doctype html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aggiungi/Modifica Ricetta</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Add/Edit Recipe</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <h1 id="pageTitle">Add/Edit Recipe</h1>
 
-    <h1 id="pageTitle">Aggiungi una Nuova Ricetta</h1>
+        <div id="recipeInputContainer">
+            <input type="text" id="recipeName" placeholder="Nome della ricetta" />
+            <input type="url" id="recipeImageUrl" placeholder="URL immagine" />
 
-    <div id="recipeInputContainer">
-        <input type="text" id="recipeName" placeholder="Nome della ricetta">
-        <input type="url" id="recipeImageUrl" placeholder="URL immagine">
+            <label for="recipeCategory">Category:</label>
+            <select id="recipeCategory">
+                <option value="Appetizers">Appetizers</option>
+                <option value="Pasta">Pasta</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Altro">Other</option>
+            </select>
 
-        <label for="recipeCategory">Categoria:</label>
-        <select id="recipeCategory">
-            <option value="Primo">Primo</option>
-            <option value="Secondo">Secondo</option>
-            <option value="Dolce">Dolce</option>
-        </select>
+            <label for="recipeDifficulty">Difficoltà:</label>
+            <select id="recipeDifficulty" onchange="updateDifficultyIcon()">
+                <option value="facile">Easy</option>
+                <option value="medio">Intermediate</option>
+                <option value="difficile">Difficult</option>
+            </select>
 
-        <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
+            <img id="difficultyIcon" src="default.png" alt="Difficoltà" />
 
-        <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)">
-        <input type="number" id="recipeCookingTime" placeholder="Cottura (minuti)">
-        <input type="number" id="recipeServings" placeholder="Dosi per (numero di persone)">
+            <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
 
-        <textarea id="recipeProcedure" placeholder="Procedura"></textarea>
+            <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)" />
+            <input type="number" id="recipeCookingTime" placeholder="Cottura (minuti)" />
+            <input type="number" id="recipeServings" placeholder="Dosi per (numero di persone)" />
 
-        <button id="saveRecipeButton">Salva Ricetta</button>
-    </div>
+            <textarea id="recipeProcedure" placeholder="Procedura"></textarea>
 
-    <script type="module" defer src="nuovaricetta.js"></script>
-</body>
+            <button id="saveRecipeButton">Save</button>
+        </div>
+
+        <script type="module" defer src="nuovaricetta.js"></script>
+    </body>
 </html>

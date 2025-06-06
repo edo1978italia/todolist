@@ -19,9 +19,9 @@ onAuthStateChanged(auth, (user) => {
 // 🔥 Funzione per caricare i dettagli di una ricetta in caso di modifica
 async function loadRecipeForEdit() {
     const params = new URLSearchParams(window.location.search);
-    const recipeId = params.get("id"); // Ottiene l'ID dalla URL
+    const recipeId = params.get("id");
 
-    if (!recipeId) return; // Se non c'è ID, si tratta di una nuova ricetta
+    if (!recipeId) return;
 
     document.getElementById("pageTitle").innerText = "Modifica Ricetta";
 
@@ -42,15 +42,44 @@ async function loadRecipeForEdit() {
     document.getElementById("recipeCookingTime").value = data.cottura;
     document.getElementById("recipeServings").value = data.dosi;
     document.getElementById("recipeProcedure").value = data.procedura.join("\n");
+    document.getElementById("recipeDifficulty").value = data.difficolta;
+
+    // 🔥 Imposta dinamicamente l'icona difficoltà
+    const icon = document.getElementById("difficultyIcon");
+    if (data.difficolta === "facile") {
+        icon.src = "img/facile.png";
+    } else if (data.difficolta === "medio") {
+        icon.src = "img/medio.png";
+    } else {
+        icon.src = "img/difficile.png";
+    }
 }
+
+
+// 🔥 Gestione del cambio icona difficoltà
+function updateDifficultyIcon() {
+    const difficulty = document.getElementById("recipeDifficulty").value;
+    const icon = document.getElementById("difficultyIcon");
+
+    if (difficulty === "facile") {
+        icon.src = "facile.png";
+    } else if (difficulty === "medio") {
+        icon.src = "medio.png";
+    } else {
+        icon.src = "difficile.png";
+    }
+}
+
+// 🔥 Aggancia l'evento di cambio della difficoltà
+document.getElementById("recipeDifficulty").addEventListener("change", updateDifficultyIcon);
+
 
 // 🔥 Verifica che l'utente sia loggato prima di salvare la ricetta
 async function saveRecipe(recipeId = null) {
-   // ✅ INCOLLA QUI la verifica dell'autenticazione
     const user = auth.currentUser;
     if (!user) {
         alert("⚠ Devi essere autenticato per salvare una ricetta!");
-        window.location.href = "index.html"; // 🔥 Reindirizza alla pagina di login
+        window.location.href = "index.html";
         return;
     }
 
@@ -62,34 +91,28 @@ async function saveRecipe(recipeId = null) {
     const proceduraRaw = document.getElementById("recipeProcedure").value.trim();
     const categoria = document.getElementById("recipeCategory").value;
     const immagineUrl = document.getElementById("recipeImageUrl").value.trim();
+    const difficolta = document.getElementById("recipeDifficulty").value; // 🔥 **Aggiunto per il salvataggio della difficoltà**
 
-    if (!nome || !proceduraRaw || !categoria || !ingredientiRaw || !preparazione || !cottura || !dosi) {
+    if (!nome || !proceduraRaw || !categoria || !ingredientiRaw || !preparazione || !cottura || !dosi || !difficolta) {
         alert("⚠ Tutti i campi devono essere compilati correttamente!");
         return;
     }
 
-    // 🔥 Corretta gestione dei campi multi-riga
     const ingredienti = ingredientiRaw.split("\n").map(ing => ing.trim()).filter(ing => ing.length > 0);
     const procedura = proceduraRaw.split("\n").map(step => step.trim()).filter(step => step.length > 0);
 
     try {
         let newRecipeId = recipeId;
         if (recipeId) {
-            // 🔥 Modifica ricetta esistente
             const recipeRef = doc(db, "ricette", recipeId);
-            await updateDoc(recipeRef, {
-                nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl
-            });
+            await updateDoc(recipeRef, { nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl, difficolta });
             alert("✅ Ricetta modificata con successo!");
         } else {
-            // 🔥 Aggiunta nuova ricetta
-            const docRef = await addDoc(collection(db, "ricette"), {
-                nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl
-            });
+            const docRef = await addDoc(collection(db, "ricette"), { nome, ingredienti, preparazione, cottura, dosi, procedura, categoria, immagineUrl, difficolta });
             newRecipeId = docRef.id;
             alert("✅ Ricetta aggiunta con successo!");
         }
-        window.location.href = `ricettelista.html?id=${newRecipeId}`; // 🔥 Torna alla lista delle ricette con ID
+        window.location.href = `ricettelista.html?id=${newRecipeId}`;
     } catch (error) {
         console.error("❌ Errore nel salvataggio della ricetta:", error);
         alert("Errore nel salvataggio della ricetta: " + error.message);
