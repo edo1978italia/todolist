@@ -63,11 +63,11 @@ async function loadRecipeForEdit() {
 }
 
 // 🔥 Gestione del cambio icona difficoltà
-function updateDifficultyIcon() {
+export function updateDifficultyIcon() {
     const difficulty = document.getElementById("recipeDifficulty").value;
     const icon = document.getElementById("difficultyIcon");
 
-    if (!difficulty || difficulty === "facile") {
+    if (difficulty === "facile") {
         icon.src = "https://drive.google.com/uc?id=1QaskvLOSBZMHsxyDBiJfrC8M4T7qoO5b";
     } else if (difficulty === "medio") {
         icon.src = "https://drive.google.com/uc?id=1OBH9TvIIFTGpv2V2HW6spChBBy4U9DD6";

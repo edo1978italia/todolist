@@ -22,14 +22,13 @@
             </select>
 
             <label for="recipeDifficulty">Difficoltà:</label>
-            <select id="recipeDifficulty" onchange="updateDifficultyIcon()">
+            <select id="recipeDifficulty">
                 <option value="facile">Easy</option>
                 <option value="medio">Intermediate</option>
                 <option value="difficile">Difficult</option>
             </select>
 
             <img id="difficultyIcon" src="https://drive.google.com/uc?id=1QaskvLOSBZMHsxyDBiJfrC8M4T7qoO5b" alt="Difficoltà" />
-
 
             <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
 
@@ -42,6 +41,9 @@
             <button id="saveRecipeButton">Save</button>
         </div>
 
-        <script type="module" defer src="nuovaricetta.js"></script>
+        <script type="module">
+            import { updateDifficultyIcon } from "./nuovaricetta.js";
+            document.getElementById("recipeDifficulty").addEventListener("change", updateDifficultyIcon);
+        </script>
     </body>
 </html>
