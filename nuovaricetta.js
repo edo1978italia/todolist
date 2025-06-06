@@ -62,13 +62,14 @@ function updateDifficultyIcon() {
     const icon = document.getElementById("difficultyIcon");
 
     if (difficulty === "facile") {
-        icon.src = "facile.png";
+        icon.src = "https://drive.google.com/uc?id=1QaskvLOSBZMHsxyDBiJfrC8M4T7qoO5b";
     } else if (difficulty === "medio") {
-        icon.src = "medio.png";
+        icon.src = "https://drive.google.com/uc?id=1OBH9TvIIFTGpv2V2HW6spChBBy4U9DD6";
     } else {
-        icon.src = "difficile.png";
+        icon.src = "https://drive.google.com/uc?id=1LVNRKXP11buk9YNA-b6JPAHbmuyKY6mu";
     }
 }
+
 
 // 🔥 Aggancia l'evento di cambio della difficoltà
 document.getElementById("recipeDifficulty").addEventListener("change", updateDifficultyIcon);
