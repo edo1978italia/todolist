@@ -467,7 +467,7 @@ input {
 /* 🔥 Stile uniforme per le immagini nella lista */
 .recipe-img {
     width: 100%;
-    max-width: 250px; /* 🔥 Limita la larghezza massima */
+    max-width: 350px; /* 🔥 Limita la larghezza massima */
     height: 130px; /* 🔥 Imposta un'altezza fissa per evitare discrepanze */
     object-fit: cover; /* 🔥 Mantiene proporzioni corrette e riempie lo spazio */
     border-radius: 8px;
@@ -486,6 +486,7 @@ input {
 .recipe-name {
     font-size: 12px;
     font-weight: bold;
+    margin-bottom: 5px;
     margin-top: 5px;
 }
 /* 🔥 Stile per la categoria della ricetta */
@@ -532,7 +533,7 @@ input {
 /* 🔥 Stile per ogni riquadro */
 .recipe-item {
     flex: 1; /* 🔥 Permette al riquadro di espandersi automaticamente */
-    min-width: 150px; /* 🔥 Limite minimo per mantenere la leggibilità */
+    min-width: 200px; /* 🔥 Limite minimo per mantenere la leggibilità */
     max-width: 150px; /* 🔥 Limite massimo per evitare riquadri troppo larghi */
     max-height: 300px;
     padding: 10px;
@@ -543,7 +544,7 @@ input {
 }
 
 /* 🔥 Quando lo schermo è piccolo, il riquadro occupa tutta la larghezza */
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 500px) {
     #recipeListContainer {
         flex-direction: column; /* 🔥 Forza la disposizione in una colonna */
     }
