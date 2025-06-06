@@ -28,8 +28,6 @@
                 <option value="difficile">Difficult</option>
             </select>
 
-            <img id="difficultyIcon" src="https://drive.google.com/uc?id=1QaskvLOSBZMHsxyDBiJfrC8M4T7qoO5b" alt="Difficoltà" />
-
             <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
 
             <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)" />
@@ -41,9 +39,6 @@
             <button id="saveRecipeButton">Save</button>
         </div>
 
-        <script type="module">
-            import { updateDifficultyIcon } from "./nuovaricetta.js";
-            document.getElementById("recipeDifficulty").addEventListener("change", updateDifficultyIcon);
-        </script>
+        <script type="module" defer src="nuovaricetta.js"></script>
     </body>
 </html>
