@@ -461,57 +461,83 @@ input {
 
 /* 🔥 INIZIO RICETTE */
 
-
-
-/* 🔥 Stile per le immagini della lista */
-/* 🔥 Stile uniforme per le immagini nella lista */
-.recipe-img {
+/* 🔥 Stile per il contenitore delle ricette */
+#recipeListContainer {
+    display: flex;
+    flex-direction: column; /* 🔥 Mantiene le ricette disposte verticalmente */
+    align-items: stretch; /* 🔥 Assicura che gli elementi riempiano la larghezza */
     width: 100%;
-    max-width: 350px; /* 🔥 Limita la larghezza massima */
-    height: 130px; /* 🔥 Imposta un'altezza fissa per evitare discrepanze */
-    object-fit: cover; /* 🔥 Mantiene proporzioni corrette e riempie lo spazio */
-    border-radius: 8px;
 }
 
-
-/* 🔥 Quando si visualizza una singola ricetta */
-.single-recipe .recipe-img {
-    max-width: 600px; /* 🔥 La foto sarà più grande nella singola ricetta */
-    display: block; /* 🔥 Assicura che non ci siano problemi di layout */
-    margin: 20px auto; /* 🔥 Centra l'immagine */
+/* 🔥 Contenitore della ricetta */
+.recipe-item {
+    max-width: 600px;
+    display: flex; /* 🔥 Disposizione orizzontale */
+    margin-left: auto; /* 🔥 Spinge il bottone verso destra */
+    align-self: flex-end; /* 🔥 Lo allinea in basso */
+    gap: 10px; /* 🔥 Spazio tra l'immagine e il testo */
+    padding: 0;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
 }
 
+/* 🔥 Stile per l'immagine */
+.recipe-img {
+    width: 160px; /* 🔥 Dimensione regolabile */
+    height: 130px; /* 🔥 Mantiene proporzioni uniformi */
+    object-fit: cover;
+    border-radius: 5px;
+}
 
-/* 🔥 Stile per il titolo della ricetta */
+/* 🔥 Contenitore del testo */
+.recipe-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start; /* 🔥 Assicura che gli elementi si posizionino in alto */
+    min-height: 120px;
+    flex-grow: 1;
+}
+
+/* 🔥 Stile per il titolo */
 .recipe-name {
-    font-size: 12px;
+    font-size: 15px;
     font-weight: bold;
-    margin-bottom: 5px;
-    margin-top: 5px;
+    text-align: left;
+    align-self: flex-start; /* 🔥 Lo sposta in alto nel contenitore */
+    margin-bottom: 5px; /* 🔥 Distanziamento dalla categoria */
 }
-/* 🔥 Stile per la categoria della ricetta */
+
+/* 🔥 Stile per la categoria */
 .recipe-category {
-    font-size: 11px; /* 🔥 Puoi cambiare la dimensione qui */
-    font-style: italic; /* 🔥 Aggiunge un effetto visivo */
-    color: #555; /* 🔥 Cambia il colore se vuoi */
-    margin-top: 3px;
+    font-size: 13px;
+    color: #555;
+    font-style: italic;
+    text-align: left; /* 🔥 Assicura l'allineamento a sinistra */
 }
 
 /* 🔥 Pulsanti per vedere i dettagli */
+/* 🔥 Pulsanti per vedere i dettagli */
 .recipe-button {
-    size: 80%;
+    height: 40px; /* 🔥 Imposta un'altezza fissa */
     background: #007bff;
     color: white;
     padding: 10px 15px;
     border: none;
     cursor: pointer;
-    margin-top: 3px;
     border-radius: 5px;
+    align-self: flex-end; /* 🔥 Posiziona il bottone in basso */
+    margin-left: auto; /* 🔥 Lo spinge verso destra */
+    margin-right: 3px;
+    margin-bottom: 3px;
 }
 
 .recipe-button:hover {
     background: #0056b3;
 }
+
 
 /* 🔥 Stile per ogni riquadro della ricetta */
 
@@ -519,39 +545,68 @@ input {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
 }
 
-/* 🔥 Stile per il contenitore principale delle ricette */
-/* 🔥 Stile per il contenitore delle ricette */
-/* 🔥 Contenitore delle ricette */
-/* 🔥 Contenitore delle ricette */
-#recipeListContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px; /* 🔥 Spazio tra i riquadri */
-}
+/* 🔥 ADD/EDIT Recipe */
 
-/* 🔥 Stile per ogni riquadro */
-.recipe-item {
-    flex: 1; /* 🔥 Permette al riquadro di espandersi automaticamente */
-    min-width: 200px; /* 🔥 Limite minimo per mantenere la leggibilità */
-    max-width: 150px; /* 🔥 Limite massimo per evitare riquadri troppo larghi */
-    max-height: 300px;
+/* 🔥 Migliora la larghezza delle textarea */
+textarea {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 93%; /* 🔥 Occupa tutta la larghezza disponibile */
+    max-width: 800px; /* 🔥 Evita che sia troppo larga su schermi grandi */
+    min-height: 150px; /* 🔥 Altezza predefinita più comoda */
     padding: 10px;
-    border-radius: 10px;
-    background: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical; /* 🔥 Permette di ridimensionare solo in altezza */
 }
 
-/* 🔥 Quando lo schermo è piccolo, il riquadro occupa tutta la larghezza */
-@media screen and (max-width: 500px) {
-    #recipeListContainer {
-        flex-direction: column; /* 🔥 Forza la disposizione in una colonna */
-    }
+/* 🔥 Contenitore principale per gli input */
+#recipeInputContainer {
+    display: flex;
+    flex-direction: column; /* 🔥 Disposizione verticale degli elementi */
+    align-items: center; /* 🔥 Centra gli elementi */
+    gap: 15px; /* 🔥 Spazio tra gli input */
+    max-width: 600px;
+    margin: 0 auto; /* 🔥 Centra il contenitore nella pagina */
+}
 
-    .recipe-item {
-        flex: none;
-        width: 100%; /* 🔥 Ora il riquadro occupa tutta la larghezza */
-        max-width: none; /* 🔥Rimuove il limite massimo */
-    }
+/* 🔥 Stile per il pulsante */
+#saveRecipeButton {
+    width: 200px; /* 🔥 Dimensione ottimale */
+    padding: 10px;
+    font-size: 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px; /* 🔥 Distanzia il pulsante dagli altri elementi */
+    text-align: center;
+}
+
+#saveRecipeButton:hover {
+    background-color: #0056b3;
+}
+
+/* 🔥 Stile per il menu a tendina */
+#recipeCategory {
+    width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
+    max-width: 300px; /* 🔥 Espande la larghezza predefinita */
+    padding: 10px;
+    font-size: 13px; /* 🔥 Testo più leggibile */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* 🔥 Migliora la grafica al passaggio del mouse */
+#recipeCategory:hover {
+    border-color: #007bff;
+}
+
+/* 🔥 Stile per le opzioni all'interno del menu */
+#recipeCategory option {
+    padding: 5px;
+    font-size: 16px;
 }

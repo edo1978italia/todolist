@@ -45,21 +45,18 @@ async function loadRecipes() {
         recipeElement.classList.add("recipe-card"); // 🔥 Aggiunge il riquadro per ogni ricetta
 
         recipeElement.innerHTML = `
-             <div class="recipe-item">
+    <div class="recipe-item">
         <img class="recipe-img" 
             src="${data.immagineUrl || 'placeholder.jpg'}"
-            srcset="${data.immagineUrl}?w=150 150w, 
-                    ${data.immagineUrl}?w=300 300w, 
-                    ${data.immagineUrl}?w=600 600w"
-            sizes="(max-width: 600px) 150px, 
-                   (max-width: 900px) 300px, 
-                   600px" 
             alt="Ricetta">
-        <h3 class="recipe-name">${data.nome}</h3>
-        <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
-        <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">Dettagli</button>
+        <div class="recipe-info">
+            <h3 class="recipe-name">${data.nome}</h3>
+            <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
+        </div>
+        <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">READ</button>
     </div>
-        `;
+`;
+
 
         recipesContainer.appendChild(recipeElement);
     });
