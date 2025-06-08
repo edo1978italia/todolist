@@ -60,13 +60,14 @@ function loadRecipes() {
     });
 }
 
-function openRecipe(recipeId) {
+window.openRecipe = function(recipeId) {
     if (!recipeId) {
         alert("Errore: ID ricetta non trovato!");
         return;
     }
     window.location.href = `ricetta.html?id=${recipeId}`;
-}
+};
+
 
 document.addEventListener("DOMContentLoaded", loadRecipes);
 
