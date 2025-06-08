@@ -53,7 +53,8 @@ async function loadRecipes() {
             <h3 class="recipe-name">${data.nome}</h3>
             <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
         </div>
-        <button class="recipe-button" onclick="window.location.href='ricettelista.html?id=${doc.id}'">READ</button>
+        <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
+
     </div>
 `;
 

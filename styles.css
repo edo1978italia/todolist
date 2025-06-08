@@ -473,14 +473,17 @@ input {
 .recipe-item {
     max-width: 600px;
     display: flex; /* 🔥 Disposizione orizzontale */
-    margin-left: auto; /* 🔥 Spinge il bottone verso destra */
-    align-self: flex-end; /* 🔥 Lo allinea in basso */
     gap: 10px; /* 🔥 Spazio tra l'immagine e il testo */
-    padding: 0;
+    padding: 10;
     border-radius: 5px;
     background: white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    margin-bottom: 15px;
+    margin-bottom: 30px;
+    margin: auto;
+    align-items: center;
+
+    margin-left: auto; /* 🔥 Spinge il bottone verso destra */
+    align-self: flex-end; /* 🔥 Lo allinea in basso */
 }
 
 /* 🔥 Stile per l'immagine */
@@ -543,6 +546,7 @@ input {
 
 .recipe-item:hover {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
+    margin-bottom: 5px;
 }
 
 /* 🔥 ADD/EDIT Recipe NUOVA RICETTA*/
