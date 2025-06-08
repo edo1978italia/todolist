@@ -10,18 +10,6 @@ const auth = getAuth(app);
 const params = new URLSearchParams(window.location.search);
 const recipeId = params.get("id");
 
-// 🔥 Inizializza Quill per ingredienti e procedura
-var ingredientsQuill = new Quill('#ingredientsEditor', {
-    theme: 'snow',
-    readOnly: true,
-    modules: { toolbar: false }
-});
-var procedureQuill = new Quill('#procedureEditor', {
-    theme: 'snow',
-    readOnly: true,
-    modules: { toolbar: false }
-});
-
 async function loadRecipeDetails() {
     if (!recipeId) {
         alert("Errore: ID ricetta non trovato!");
@@ -46,7 +34,7 @@ async function loadRecipeDetails() {
         document.getElementById("recipeCookingTime").innerText = data.cottura;
         document.getElementById("recipeServings").innerText = data.dosi;
 
-        // 🔥 Correggi la visualizzazione di ingredienti e procedura per Quill
+        // 🔥 Ora gestiamo Froala per ingredienti e procedura
         document.getElementById("ingredientsEditor").innerHTML = data.ingredienti || "<p>Nessun ingrediente disponibile</p>";
         document.getElementById("procedureEditor").innerHTML = data.procedura || "<p>Nessuna procedura disponibile</p>";
 
@@ -55,7 +43,6 @@ async function loadRecipeDetails() {
         alert("Errore nel caricamento della ricetta. Controlla le autorizzazioni.");
     }
 }
-
 
 // 🔥 Controlla se l'utente è autenticato prima di caricare la ricetta
 onAuthStateChanged(auth, (user) => {
@@ -74,4 +61,3 @@ window.editRecipe = function() {
     }
     window.location.href = `nuovaricetta.html?id=${recipeId}`;
 };
-
