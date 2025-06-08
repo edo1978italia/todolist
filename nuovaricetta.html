@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Add/Edit Recipe</title>
         <link rel="stylesheet" href="styles.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.12/css/froala_editor.pkgd.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.12/css/froala_style.min.css" />
     </head>
     <body>
         <h1 id="pageTitle">Add/Edit Recipe</h1>
@@ -13,7 +15,7 @@
             <input type="text" id="recipeName" placeholder="Nome della ricetta" />
             <input type="url" id="recipeImageUrl" placeholder="URL immagine" />
 
-            <label for="recipeCategory">Category:</label>
+            <label for="recipeCategory">Categoria:</label>
             <select id="recipeCategory">
                 <option value="Appetizers">Appetizers</option>
                 <option value="Pasta">Pasta</option>
@@ -28,17 +30,20 @@
                 <option value="difficile">Difficult</option>
             </select>
 
-            <textarea id="recipeIngredients" placeholder="Ingredienti (separati da virgola)"></textarea>
+            <h3>Ingredienti</h3>
+            <div id="ingredientsEditor"></div>
 
-            <input type="number" id="recipePreparationTime" placeholder="Preparazione (minuti)" />
-            <input type="number" id="recipeCookingTime" placeholder="Cottura (minuti)" />
-            <input type="number" id="recipeServings" placeholder="Dosi per (numero di persone)" />
+            <input type="number" id="recipePreparationTime" class="small-input" placeholder="Preparazione (minuti)" />
+            <input type="number" id="recipeCookingTime" class="small-input" placeholder="Cottura (minuti)" />
+            <input type="number" id="recipeServings" class="small-input" placeholder="Dosi per (numero di persone)" />
 
-            <textarea id="recipeProcedure" placeholder="Procedura"></textarea>
+            <h3>Procedura</h3>
+            <div id="procedureEditor"></div>
 
             <button id="saveRecipeButton">Save</button>
         </div>
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.12/js/froala_editor.pkgd.min.js"></script>
         <script type="module" defer src="nuovaricetta.js"></script>
     </body>
 </html>

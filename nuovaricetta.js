@@ -23,6 +23,23 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// 🔥 Inizializza Froala per ingredienti e procedura EDITABILI
+document.addEventListener("DOMContentLoaded", () => {
+    window.ingredientsEditor = new FroalaEditor('#ingredientsEditor', {
+        toolbarInline: false,
+        placeholderText: "Inserisci gli ingredienti...",
+        charCounterCount: false
+    });
+
+    window.procedureEditor = new FroalaEditor('#procedureEditor', {
+        toolbarInline: false,
+        placeholderText: "Inserisci la procedura...",
+        charCounterCount: false
+    });
+
+    loadRecipeForEdit();
+});
+
 // 🔥 Funzione per caricare i dettagli di una ricetta in caso di modifica
 async function loadRecipeForEdit() {
     const params = new URLSearchParams(window.location.search);
@@ -44,16 +61,18 @@ async function loadRecipeForEdit() {
     document.getElementById("recipeName").value = data.nome;
     document.getElementById("recipeImageUrl").value = data.immagineUrl;
     document.getElementById("recipeCategory").value = data.categoria;
-    document.getElementById("recipeIngredients").value = data.ingredienti.join("\n");
     document.getElementById("recipePreparationTime").value = data.preparazione;
     document.getElementById("recipeCookingTime").value = data.cottura;
     document.getElementById("recipeServings").value = data.dosi;
-    document.getElementById("recipeProcedure").value = data.procedura.join("\n");
     document.getElementById("recipeDifficulty").value = data.difficolta;
+
+    // 🔥 Assicura che Froala carichi il contenuto formattato
+    ingredientsEditor.html.set(data.ingredienti || ""); 
+    procedureEditor.html.set(data.procedura || "");
 }
 
-// 🔥 Funzione per salvare una ricetta
-async function saveRecipe(recipeId = null) {
+// 🔥 Funzione per salvare una ricetta con Froala
+async function saveRecipe() {
     const user = auth.currentUser;
     if (!user) {
         alert("⚠ Devi essere autenticato per salvare una ricetta!");
@@ -61,73 +80,47 @@ async function saveRecipe(recipeId = null) {
         return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get("id");
+
     const nome = document.getElementById("recipeName").value.trim();
-    const ingredientiRaw = document.getElementById("recipeIngredients").value.trim();
-    const preparazione = document.getElementById("recipePreparationTime").value.trim();
-    const cottura = document.getElementById("recipeCookingTime").value.trim();
-    const dosi = document.getElementById("recipeServings").value.trim();
-    const proceduraRaw = document.getElementById("recipeProcedure").value.trim();
     const categoria = document.getElementById("recipeCategory").value;
     const immagineUrl = document.getElementById("recipeImageUrl").value.trim();
     const difficolta = document.getElementById("recipeDifficulty").value;
+    const ingredienti = ingredientsEditor.html.get(); // 🔥 Salva il contenuto formattato
+    const procedura = procedureEditor.html.get(); // 🔥 Salva il contenuto formattato
+    const preparazione = document.getElementById("recipePreparationTime").value.trim();
+    const cottura = document.getElementById("recipeCookingTime").value.trim();
+    const dosi = document.getElementById("recipeServings").value.trim();
 
-    if (!nome || !proceduraRaw || !categoria || !ingredientiRaw || !preparazione || !cottura || !dosi || !difficolta) {
+    if (!nome || !procedura || !categoria || !ingredienti || !preparazione || !cottura || !dosi || !difficolta) {
         alert("⚠ Tutti i campi devono essere compilati correttamente!");
         return;
     }
 
-    const ingredienti = ingredientiRaw
-        .split("\n")
-        .map((ing) => ing.trim())
-        .filter((ing) => ing.length > 0);
-    const procedura = proceduraRaw
-        .split("\n")
-        .map((step) => step.trim())
-        .filter((step) => step.length > 0);
-
     try {
-        let newRecipeId = recipeId;
         if (recipeId) {
+            // 🔥 Modifica una ricetta esistente invece di crearne una nuova
             const recipeRef = doc(db, "ricette", recipeId);
-            await updateDoc(recipeRef, {
-                nome,
-                ingredienti,
-                preparazione,
-                cottura,
-                dosi,
-                procedura,
-                categoria,
-                immagineUrl,
-                difficolta
+            await updateDoc(recipeRef, { 
+                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
             });
             alert("✅ Ricetta modificata con successo!");
         } else {
-            const docRef = await addDoc(collection(db, "ricette"), {
-                nome,
-                ingredienti,
-                preparazione,
-                cottura,
-                dosi,
-                procedura,
-                categoria,
-                immagineUrl,
-                difficolta
+            // 🔥 Creazione di una nuova ricetta
+            const docRef = await addDoc(collection(db, "ricette"), { 
+                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
             });
-            newRecipeId = docRef.id;
             alert("✅ Ricetta aggiunta con successo!");
         }
-        window.location.href = `ricettelista.html?id=${newRecipeId}`;
+
+        window.location.href = "ricettelista.html"; // 🔥 Ritorna alla lista dopo il salvataggio
+
     } catch (error) {
         console.error("❌ Errore nel salvataggio della ricetta:", error);
         alert("Errore nel salvataggio della ricetta: " + error.message);
     }
 }
 
-// 🔥 Rende la funzione globale per `nuovaricetta.html`
-window.saveRecipe = saveRecipe;
-
-// 🔥 Carica la ricetta per la modifica se l'ID è presente
-document.addEventListener("DOMContentLoaded", () => {
-    loadRecipeForEdit();
-    document.getElementById("saveRecipeButton").addEventListener("click", () => saveRecipe());
-});
+// 🔥 Assicura che il pulsante salvi la ricetta correttamente
+document.getElementById("saveRecipeButton").addEventListener("click", () => saveRecipe());
