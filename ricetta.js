@@ -10,9 +10,10 @@ const recipeId = params.get("id");
 
 async function loadRecipeDetails() {
     if (!recipeId) {
-        alert("Errore: ID ricetta non trovato!");
-        return;
-    }
+    alert("Errore: ID ricetta non trovato!");
+    console.error("ID Ricetta mancante!");
+    return;
+}
 
     const recipeRef = doc(db, "ricette", recipeId);
     const recipeSnap = await getDoc(recipeRef);

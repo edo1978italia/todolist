@@ -465,7 +465,7 @@ input {
 #recipeListContainer {
     display: flex;
     flex-direction: column; /* 🔥 Mantiene le ricette disposte verticalmente */
-    align-items: cente; /* 🔥 Assicura che gli elementi riempiano la larghezza */
+
     width: 100%;
 }
 
@@ -478,7 +478,7 @@ input {
     border-radius: 5px;
     background: white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     margin: auto;
     align-items: center;
 
@@ -546,7 +546,7 @@ input {
 
 .recipe-item:hover {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
-    margin-bottom: 5px;
+    
 }
 
 /* 🔥 ADD/EDIT Recipe NUOVA RICETTA*/

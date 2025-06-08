@@ -26,7 +26,7 @@ if (recipeId) {
 
 // 🔥 Funzione per ottenere i dettagli della ricetta selezionata
 // 🔥 Funzione per caricare le ricette
-async function loadRecipes() {
+function loadRecipes() {
     const recipesContainer = document.getElementById("recipeListContainer");
 
     if (!recipesContainer) {
@@ -36,35 +36,40 @@ async function loadRecipes() {
 
     recipesContainer.innerHTML = "Caricamento...";
 
-    const querySnapshot = await getDocs(collection(db, "ricette"));
-    recipesContainer.innerHTML = ""; // Svuota il contenuto dopo il caricamento
+    getDocs(collection(db, "ricette")).then((querySnapshot) => {
+        recipesContainer.innerHTML = ""; 
 
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const recipeElement = document.createElement("div");
-        recipeElement.classList.add("recipe-card"); // 🔥 Aggiunge il riquadro per ogni ricetta
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const recipeElement = document.createElement("div");
+            recipeElement.classList.add("recipe-card");
 
-        recipeElement.innerHTML = `
-    <div class="recipe-item">
-        <img class="recipe-img" 
-            src="${data.immagineUrl || 'placeholder.jpg'}"
-            alt="Ricetta">
-        <div class="recipe-info">
-            <h3 class="recipe-name">${data.nome}</h3>
-            <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
-        </div>
-        <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
+            recipeElement.innerHTML = `
+                <div class="recipe-item">
+                    <img class="recipe-img" src="${data.immagineUrl || 'placeholder.jpg'}" alt="${data.nome}">
+                    <div class="recipe-info">
+                        <h3 class="recipe-name">${data.nome}</h3>
+                        <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
+                    </div>
+                    <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
 
-    </div>
-`;
-
-
-        recipesContainer.appendChild(recipeElement);
+                </div>
+            `;
+            recipesContainer.appendChild(recipeElement);
+        });
     });
 }
 
-// 🔥 Carica le ricette quando la pagina viene aperta
+function openRecipe(recipeId) {
+    if (!recipeId) {
+        alert("Errore: ID ricetta non trovato!");
+        return;
+    }
+    window.location.href = `ricetta.html?id=${recipeId}`;
+}
+
 document.addEventListener("DOMContentLoaded", loadRecipes);
+
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, (user) => {
