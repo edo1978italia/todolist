@@ -4,7 +4,8 @@ import {
     doc,
     addDoc,
     updateDoc,
-    getDoc
+    getDoc,
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
@@ -122,5 +123,35 @@ async function saveRecipe() {
     }
 }
 
-// 🔥 Assicura che il pulsante salvi la ricetta correttamente
-document.getElementById("saveRecipeButton").addEventListener("click", () => saveRecipe());
+// 🔥 Funzione per cancellare una ricetta
+async function deleteRecipe() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("⚠ Devi essere autenticato per cancellare una ricetta!");
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get("id");
+
+    if (!recipeId) {
+        alert("Errore: ID ricetta non trovato!");
+        return;
+    }
+
+    const confirmDelete = confirm("❌ Sei sicuro di voler cancellare questa ricetta? L'operazione è irreversibile.");
+    if (!confirmDelete) return;
+
+    try {
+        await deleteDoc(doc(db, "ricette", recipeId));
+        alert("✅ Ricetta cancellata con successo!");
+        window.location.href = "ricettelista.html"; // 🔥 Torna alla lista delle ricette
+    } catch (error) {
+        console.error("❌ Errore nella cancellazione:", error);
+        alert("Errore nella cancellazione della ricetta.");
+    }
+}
+
+// 🔥 Assicura che i pulsanti funzionino correttamente
+document.getElementById("saveRecipeButton").addEventListener("click", saveRecipe);
+document.getElementById("deleteRecipeButton").addEventListener("click", deleteRecipe);

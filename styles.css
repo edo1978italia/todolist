@@ -645,3 +645,48 @@ textarea {
     padding: 5px;
     font-size: 16px;
 }
+
+
+/* 🔥 RICETTA.HTML */
+#recipeImage {
+    max-width: 1080px; /* 🔥 Larghezza massima */
+    width: 100%; /* 🔥 Adatta l'immagine alla dimensione dello schermo */
+    height: auto; /* 🔥 Mantiene le proporzioni senza distorsioni */
+    display: block;
+    margin: 0 auto; /* 🔥 Centra l'immagine */
+}
+
+.recipe-info-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 600px; /* 🔥 Regola la larghezza */
+    margin: 0 auto;
+}
+
+.recipe-column {
+    width: 48%; /* 🔥 Divide in due colonne */
+}
+
+/* 🔥 TRE BOX INFO< INGREDIENTI< PROCEDURA */
+.recipe-info-box, .ingredients-box, .procedure-box {
+    max-width: 100%;
+    margin: auto;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.recipe-info-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.recipe-column {
+    width: 48%;
+}

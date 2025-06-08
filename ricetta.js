@@ -33,6 +33,7 @@ async function loadRecipeDetails() {
         document.getElementById("recipePreparationTime").innerText = data.preparazione;
         document.getElementById("recipeCookingTime").innerText = data.cottura;
         document.getElementById("recipeServings").innerText = data.dosi;
+        document.getElementById("recipeDifficulty").innerText = data.difficolta || "Non specificata"; // 🔥 Aggiunto il campo "Difficoltà"
 
         // 🔥 Ora gestiamo Froala per ingredienti e procedura
         document.getElementById("ingredientsEditor").innerHTML = data.ingredienti || "<p>Nessun ingrediente disponibile</p>";
@@ -53,6 +54,11 @@ onAuthStateChanged(auth, (user) => {
         loadRecipeDetails(); // 🔥 Carica la ricetta solo se l'utente è autenticato
     }
 });
+
+window.goBack = function() {
+    window.location.href = "ricettelista.html";
+};
+
 
 window.editRecipe = function() {
     if (!recipeId) {
