@@ -24,18 +24,34 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// 🔥 Inizializza Froala per ingredienti e procedura EDITABILI
+// 🔥 Inizializza Froala per ingredienti e procedura con supporto immagini
 document.addEventListener("DOMContentLoaded", () => {
-    window.ingredientsEditor = new FroalaEditor('#ingredientsEditor', {
+    window.ingredientsEditor = new FroalaEditor("#ingredientsEditor", {
         toolbarInline: false,
         placeholderText: "Inserisci gli ingredienti...",
-        charCounterCount: false
+        charCounterCount: false,
+        imageUpload: true,
+        imageUploadURL: "https://postimages.org/json/rr",
+        events: {
+            "image.uploaded": function (response) {
+                const data = JSON.parse(response);
+                console.log("✅ Immagine caricata (Ingredienti):", data.url);
+            }
+        }
     });
 
-    window.procedureEditor = new FroalaEditor('#procedureEditor', {
+    window.procedureEditor = new FroalaEditor("#procedureEditor", {
         toolbarInline: false,
         placeholderText: "Inserisci la procedura...",
-        charCounterCount: false
+        charCounterCount: false,
+        imageUpload: true,
+        imageUploadURL: "https://postimages.org/json/rr",
+        events: {
+            "image.uploaded": function (response) {
+                const data = JSON.parse(response);
+                console.log("✅ Immagine caricata (Procedura):", data.url);
+            }
+        }
     });
 
     loadRecipeForEdit();
@@ -120,35 +136,6 @@ async function saveRecipe() {
     } catch (error) {
         console.error("❌ Errore nel salvataggio della ricetta:", error);
         alert("Errore nel salvataggio della ricetta: " + error.message);
-    }
-}
-
-// 🔥 Funzione per cancellare una ricetta
-async function deleteRecipe() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert("⚠ Devi essere autenticato per cancellare una ricetta!");
-        return;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const recipeId = params.get("id");
-
-    if (!recipeId) {
-        alert("Errore: ID ricetta non trovato!");
-        return;
-    }
-
-    const confirmDelete = confirm("❌ Sei sicuro di voler cancellare questa ricetta? L'operazione è irreversibile.");
-    if (!confirmDelete) return;
-
-    try {
-        await deleteDoc(doc(db, "ricette", recipeId));
-        alert("✅ Ricetta cancellata con successo!");
-        window.location.href = "ricettelista.html"; // 🔥 Torna alla lista delle ricette
-    } catch (error) {
-        console.error("❌ Errore nella cancellazione:", error);
-        alert("Errore nella cancellazione della ricetta.");
     }
 }
 
