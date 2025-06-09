@@ -74,8 +74,16 @@ function filterRecipes() {
     const recipes = document.querySelectorAll(".recipe-card");
 
     recipes.forEach(recipe => {
-        const recipeName = recipe.querySelector(".recipe-name").innerText.toLowerCase();
-        const recipeCategory = recipe.querySelector(".recipe-category").innerText.toLowerCase();
+        const recipeNameElement = recipe.querySelector(".recipe-name");
+        const recipeCategoryElement = recipe.querySelector(".recipe-category");
+
+        if (!recipeNameElement || !recipeCategoryElement) {
+            console.warn("⚠ Elemento mancante in:", recipe);
+            return;
+        }
+
+        const recipeName = recipeNameElement.innerText.toLowerCase();
+        const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim().toLowerCase(); // 🔥 Rimuove "Categoria:" dal testo
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
         const matchesCategory = selectedCategory ? recipeCategory.includes(selectedCategory.toLowerCase()) : true;
