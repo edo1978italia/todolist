@@ -23,8 +23,6 @@ if (recipeId) {
     document.body.classList.add("single-recipe"); // 🔥 Applica lo stile per la singola ricetta
 }
 
-
-// 🔥 Funzione per ottenere i dettagli della ricetta selezionata
 // 🔥 Funzione per caricare le ricette
 function loadRecipes() {
     const recipesContainer = document.getElementById("recipeListContainer");
@@ -52,7 +50,6 @@ function loadRecipes() {
                         <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
                     </div>
                     <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
-
                 </div>
             `;
             recipesContainer.appendChild(recipeElement);
@@ -68,23 +65,9 @@ window.openRecipe = function(recipeId) {
     window.location.href = `ricetta.html?id=${recipeId}`;
 };
 
-
 document.addEventListener("DOMContentLoaded", loadRecipes);
 
-
-// 🔥 Verifica sessione utente e aggiorna l'interfaccia
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        console.warn("⚠ Utente non autenticato, reindirizzamento in corso...");
-        setTimeout(() => {
-            window.location.replace("index.html");
-        }, 1000);
-    } else {
-        console.log("✅ Utente autenticato:", user.email);
-    }
-});
-
-// 🔥 Gestione logout (versione più sicura)
+// 🔥 Gestione logout
 async function logoutUser() {
     try {
         await signOut(auth);
@@ -92,13 +75,7 @@ async function logoutUser() {
         console.log("✅ Logout completato, utente disconnesso!");
 
         setTimeout(() => {
-            if (!auth.currentUser) {
-                console.log("✅ Conferma: utente disconnesso.");
-                window.location.href = "index.html"; // 🔥 Reindirizzamento dopo la disconnessione
-            } else {
-                console.warn("⚠ L'utente risulta ancora autenticato, ricarico la pagina.");
-                window.location.reload();
-            }
+            window.location.href = "index.html";
         }, 1000);
     } catch (error) {
         console.error("❌ Errore nel logout:", error);
@@ -106,7 +83,6 @@ async function logoutUser() {
     }
 }
 
-// 🔥 Registra il pulsante logout al caricamento della pagina
 document.addEventListener("DOMContentLoaded", function () {
     const logoutButton = document.getElementById("logoutButton");
 
@@ -120,22 +96,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
 window.logoutUser = logoutUser;
 
-// 🔥 Gestione della sidebar
+// 🔥 Gestione della sidebar con caricamento email utente
 document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(() => {
-        const sidebarToggle = document.getElementById("sidebarToggle");
-        const sidebar = document.getElementById("sidebar");
-
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener("click", () => {
-                sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
-                console.log("🔄 Sidebar toggle:", sidebar.style.left);
-            });
-        } else {
-            console.warn("⚠ Sidebar o pulsante toggle non trovati!");
-        }
-    }, 500);
+    fetch("sidebar.html")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("sidebarContainer").innerHTML = data;
+            updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
+        })
+        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
 });
+
+function updateUserInfo() {
+    const userEmailElement = document.getElementById("userEmail");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato!");
+        return;
+    }
+    
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userEmailElement.innerText = user.email;
+        } else {
+            userEmailElement.innerText = "Non autenticato";
+        }
+    });
+}
 
 // 🔥 Funzione per aprire/chiudere la sidebar
 window.toggleSidebar = function () {
@@ -148,6 +134,7 @@ window.toggleSidebar = function () {
     sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
     console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
+
 // 🔥 Funzione per navigare tra le pagine dalla sidebar
 window.navigateTo = function (page) {
     window.location.href = page;

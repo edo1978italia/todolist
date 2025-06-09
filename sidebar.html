@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <title>Sidebar</title> <!-- 🔥 Titolo necessario per evitare errori -->
-    <link rel="stylesheet" href="styles.css"> <!-- 🔥 Collegamento al CSS -->
-    
-
+    <title>Sidebar</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="sidebar">
         <div id="userInfo">
-            <img id="userPhoto" src="https://via.placeholder.com/80" alt="Foto profilo" class="user-photo"> <!-- 🔥 Immagine di default -->
+            <img id="userPhoto" src="https://via.placeholder.com/80" alt="Foto profilo" class="user-photo">
             <p>Welcome, <span id="userEmail"></span></p>
         </div>
         <nav>
-            <button onclick="navigateTo('index.html')">Home</button>
-            <button onclick="navigateTo('todolist.html')">To-Do List</button>
-            <button onclick="navigateTo('ricettelista.html')">Recipes</button>
-            <button onclick="navigateTo('index.html')">Page 3</button>
+            <button onclick="navigateTo('index.html')">HOME</button>
+            <button onclick="navigateTo('todolist.html')">TO-BUY LIST</button>
+            <button onclick="navigateTo('ricettelista.html')">RECIPES</button>
+            <button onclick="navigateTo('index.html')">PAGE 3</button>
         </nav>
         
         <button id="closeSidebar" onclick="toggleSidebar()">✖ Close</button>
     </div>
     <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
-    <!-- Importazione del JavaScript separato -->
+    
     <script defer src="sidebar.js"></script>
 </body>
 </html>

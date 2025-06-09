@@ -310,7 +310,7 @@ input {
     margin-top: 10px;
 }
 
-/* PANNELLO LATERALE HOME */
+/* 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥PANNELLO LATERALE SIDE BAR */
 #sidebar {
     position: fixed;
     top: 0;
@@ -327,20 +327,26 @@ input {
 #sidebar nav button {
     display: block;
     width: 100%;
-    margin: 20px 0;
+    margin: 5px 0;
     padding: 10px;
     background: white;
     color: #2b8ae5;
     border: none;
     cursor: pointer;
+    text-align: left; /* 🔥 Allinea il testo a sinistra */
+    padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
 }
 
 #sidebar nav {
     display: block; /* 🔥 Nasconde il menu di default */
+    
 }
 
 #sidebar nav button:hover {
     background: #f1f1f1;
+    text-align: left; /* 🔥 Allinea il testo a sinistra */
+    padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
+    transform: none; /* 🔥 Rimuove l'ingrandimento */
 }
 #openSidebar {
     position: fixed;
