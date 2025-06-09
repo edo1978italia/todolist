@@ -322,6 +322,8 @@ input {
     padding: 15px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     transition: left 0.3s ease-in-out; /* 🔥 Assicura che il movimento sia fluido */
+    z-index: 9999;
+    
 }
 
 #sidebar nav button {
@@ -335,10 +337,12 @@ input {
     cursor: pointer;
     text-align: left; /* 🔥 Allinea il testo a sinistra */
     padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
+    
 }
 
 #sidebar nav {
     display: block; /* 🔥 Nasconde il menu di default */
+    
     
 }
 
@@ -347,6 +351,7 @@ input {
     text-align: left; /* 🔥 Allinea il testo a sinistra */
     padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
     transform: none; /* 🔥 Rimuove l'ingrandimento */
+    
 }
 #openSidebar {
     position: fixed;
@@ -358,7 +363,7 @@ input {
     padding: 10px;
     border: none;
     cursor: pointer;
-    z-index: 500;
+    z-index: 10000;
 }
 #closeSidebar {
     position: absolute;
@@ -487,7 +492,7 @@ input {
     margin-bottom: 10px;
     margin: auto;
     align-items: center;
-
+    margin-top: 15px;
     margin-left: auto; /* 🔥 Spinge il bottone verso destra */
     align-self: flex-end; /* 🔥 Lo allinea in basso */
 }
@@ -622,7 +627,7 @@ textarea {
 }
 
 /* 🔥 Stile per il menu a tendina */
-#recipeCategory {
+#recipeCategory, #categoryFilter  {
     width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
     max-width: 300px; /* 🔥 Espande la larghezza predefinita */
     padding: 10px;
@@ -639,7 +644,7 @@ textarea {
 }
 
 /* 🔥 Stile per le opzioni all'interno del menu */
-#recipeCategory option {
+#recipeCategory, #categoryFilter option {
     padding: 5px;
     font-size: 16px;
 }
