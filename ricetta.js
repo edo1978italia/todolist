@@ -11,6 +11,9 @@ const params = new URLSearchParams(window.location.search);
 const recipeId = params.get("id");
 
 async function loadRecipeDetails() {
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get("id");
+
     if (!recipeId) {
         alert("Errore: ID ricetta non trovato!");
         console.error("ID Ricetta mancante!");
@@ -33,11 +36,17 @@ async function loadRecipeDetails() {
         document.getElementById("recipePreparationTime").innerText = data.preparazione;
         document.getElementById("recipeCookingTime").innerText = data.cottura;
         document.getElementById("recipeServings").innerText = data.dosi;
-        document.getElementById("recipeDifficulty").innerText = data.difficolta || "Non specificata"; // 🔥 Aggiunto il campo "Difficoltà"
+        document.getElementById("recipeDifficulty").innerText = data.difficolta || "Non specificata";
 
         // 🔥 Ora gestiamo Froala per ingredienti e procedura
         document.getElementById("ingredientsEditor").innerHTML = data.ingredienti || "<p>Nessun ingrediente disponibile</p>";
         document.getElementById("procedureEditor").innerHTML = data.procedura || "<p>Nessuna procedura disponibile</p>";
+
+        // 🔥 Adatta tutte le immagini nel blocco Preparazione
+        const procedureEditor = document.getElementById("procedureEditor");
+        procedureEditor.querySelectorAll("img").forEach(img => {
+            img.classList.add("procedure-image");
+        });
 
     } catch (error) {
         console.error("❌ Errore nel caricamento della ricetta:", error);
@@ -58,7 +67,6 @@ onAuthStateChanged(auth, (user) => {
 window.goBack = function() {
     window.location.href = "ricettelista.html";
 };
-
 
 window.editRecipe = function() {
     if (!recipeId) {

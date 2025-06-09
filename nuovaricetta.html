@@ -42,18 +42,25 @@
             <input type="number" id="recipeServings" class="small-input" placeholder="Dosi per (numero di persone)" />
 
             <h3>Procedura</h3>
-            <div id="procedureEditor"></div>
+
+<!-- 🔥 Pulsante per aprire Postimages -->
+<button id="uploadImageButton">📷 Carica Immagine su Postimages</button>
+
+<div id="procedureEditor">
+    <!-- 🔥 Campo per incollare il link diretto dell'immagine -->
+    <input type="url" id="procedureImageUrl" placeholder="Inserisci URL immagine">
+
+    <!-- 🔥 Editor Froala senza modifiche -->
+    <div id="froalaProcedure"></div>
+</div>
+
 
             <button id="saveRecipeButton">Save</button>
             <button id="deleteRecipeButton">Cancella Ricetta</button>
-            <button id="uploadImageButton">📷 Carica Immagine</button>
-            
-
             <!-- 🔥 Nuovo pulsante -->
         </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.12/js/froala_editor.pkgd.min.js"></script>
         <script type="module" defer src="nuovaricetta.js"></script>
-        <script src="https://postimages.org/plugin.js"></script>
     </body>
 </html>
