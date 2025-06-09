@@ -88,11 +88,12 @@ function filterRecipes() {
         console.log(`🧩 Ricetta: ${recipeName} | Categoria: ${recipeCategory}`); // 🔥 Debug per controllo
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
-        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory : true;
+        const matchesCategory = selectedCategory ? recipeCategory.includes(selectedCategory) : true;
 
         recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
     });
 }
+
 
 window.filterRecipes = filterRecipes; // 🔥 Rende la funzione accessibile dall'HTML
 
