@@ -175,6 +175,10 @@ async function deleteRecipe() {
         alert("Errore nella cancellazione della ricetta.");
     }
 }
+document.getElementById("uploadImageButton").addEventListener("click", () => {
+    window.open("https://postimages.org/upload", "_blank");
+});
+
 
 // 🔥 Assicura che il pulsante di eliminazione chiami la funzione
 document.getElementById("deleteRecipeButton").addEventListener("click", deleteRecipe);
