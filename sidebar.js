@@ -9,33 +9,50 @@ const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", function () {
     const userEmailElement = document.getElementById("userEmail");
-    const userPhotoElement = document.getElementById("userPhoto"); // 🔥 Recupera l'elemento foto profilo
+    const userPhotoElement = document.getElementById("userPhoto");
 
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            userEmailElement.innerText = user.email;
+    if (user) {
+        userEmailElement.innerText = user.email;
 
-            // 🔥 Recupera la foto profilo da Firebase Firestore
+        try {
             const userRef = doc(db, "utenti", user.uid);
             const userSnap = await getDoc(userRef);
 
             if (userSnap.exists()) {
                 const data = userSnap.data();
+                console.log("📌 Dati utente Firestore:", data); // 🔥 Debug
+
                 if (data.fotoProfilo) {
-                    userPhotoElement.src = data.fotoProfilo; // 🔥 Assicura che l'immagine venga aggiornata
+                    console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
+                    userPhotoElement.src = data.fotoProfilo; // 🔥 Aggiorna correttamente la foto
                 } else {
-                    console.warn("⚠ Nessun link foto profilo trovato!");
+                    console.warn("⚠ Foto profilo non impostata.");
+                    userPhotoElement.src = "https://via.placeholder.com/80";
                 }
             } else {
-                console.warn("⚠ Nessun documento utente trovato in Firestore!");
+                console.warn("⚠ Documento utente non trovato.");
+                userPhotoElement.src = "https://via.placeholder.com/80";
             }
-        } else {
-            userEmailElement.innerText = "Non autenticato";
-            userPhotoElement.src = "https://via.placeholder.com/80"; // 🔥 Usa immagine di default
+        } catch (error) {
+            console.error("❌ Errore nel recupero della foto profilo:", error);
+            userPhotoElement.src = "https://via.placeholder.com/80";
         }
-    });
+    } else {
+        userEmailElement.innerText = "Non autenticato";
+        userPhotoElement.src = "https://via.placeholder.com/80";
+    }
 });
 
+
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function () {
+            console.log("Logout dal pannello laterale cliccato!");
+            logoutUser();
+        });
+    }
+});
 
 // 🔥 Verifica che il codice venga eseguito quando `sidebar.html` è aperto direttamente
 document.addEventListener("DOMContentLoaded", function () {
