@@ -67,6 +67,7 @@ window.openRecipe = function(recipeId) {
 
 document.addEventListener("DOMContentLoaded", loadRecipes);
 
+
 // 🔥 Gestione logout
 async function logoutUser() {
     try {

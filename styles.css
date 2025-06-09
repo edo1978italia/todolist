@@ -604,8 +604,8 @@ textarea {
 }
 
 /* 🔥 Stile per il pulsante */
-#saveRecipeButton {
-    width: 200px; /* 🔥 Dimensione ottimale */
+#saveRecipeButton, #deleteRecipeButton, #backButton, #editRecipeButton {
+    width: 150px; /* 🔥 Dimensione ottimale */
     padding: 10px;
     font-size: 18px;
     background-color: #007bff;
@@ -613,7 +613,7 @@ textarea {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px; /* 🔥 Distanzia il pulsante dagli altri elementi */
+    margin-top: 10px; /* 🔥 Distanzia il pulsante dagli altri elementi */
     text-align: center;
 }
 
@@ -670,6 +670,17 @@ textarea {
 
 
 /* 🔥 RICETTA.HTML */
+
+.recipe-title {
+    font-size: 8px; /* 🔥 Titolo più grande */
+    font-weight: bold;
+    text-align: center;
+    color: #d35400; /* 🔥 Colore accattivante */
+    margin-top: 20px;
+    padding: 10px;
+    border-bottom: 2px solid #d35400; /* 🔥 Sottolineatura elegante */
+}
+
 #recipeImage {
     max-width: 1080px; /* 🔥 Larghezza massima */
     width: 100%; /* 🔥 Adatta l'immagine alla dimensione dello schermo */
