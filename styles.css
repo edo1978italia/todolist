@@ -570,6 +570,22 @@ textarea {
     resize: vertical; /* 🔥 Permette di ridimensionare solo in altezza */
 }
 
+/* 🔥 immagine procedura 1 */
+.procedure-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.recipe-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+
 #difficultyIcon {
     width: 30px;
     height: 30px;
@@ -695,4 +711,11 @@ textarea {
 
 .recipe-column {
     width: 48%;
+}
+
+.procedure-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
