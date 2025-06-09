@@ -1,6 +1,9 @@
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import firebaseConfig from "./config.js"; // Assicurati che `config.js` contenga la configurazione di Firebase
 
-const auth = getAuth();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app); // 🔥 Ora Firebase è inizializzato correttamente
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const userEmailElement = document.getElementById("userEmail");
