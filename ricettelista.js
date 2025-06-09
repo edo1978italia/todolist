@@ -83,10 +83,10 @@ function filterRecipes() {
         }
 
         const recipeName = recipeNameElement.innerText.toLowerCase();
-        const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim().toLowerCase(); // 🔥 Rimuove "Categoria:" dal testo
+        const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim().toLowerCase();
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
-        const matchesCategory = selectedCategory ? recipeCategory.includes(selectedCategory.toLowerCase()) : true;
+        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory.toLowerCase() : true;
 
         recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
     });
