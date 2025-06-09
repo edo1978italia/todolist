@@ -20,15 +20,17 @@
 
         <!-- 🔥 Sezione di ricerca e filtri -->
         <div id="filterContainer">
-            <input type="text" id="searchRecipe" placeholder="Cerca una ricetta..." onkeyup="filterRecipes()" />
-            <select id="categoryFilter" onchange="filterRecipes()">
-                <option value="">All category</option>
-                <option value="Appetizer">Appetizer</option>
-                <option value="Primo">Pasta</option>
-                <option value="Dolce">Dessert</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
+    <input type="text" id="searchRecipe" placeholder="Cerca una ricetta..." />
+    <button onclick="filterRecipes()">Cerca</button> <!-- 🔥 Nuovo pulsante -->
+    <select id="categoryFilter" onchange="filterRecipes()">
+        <option value="">All category</option>
+        <option value="Appetizer">Appetizer</option>
+        <option value="Primo">Pasta</option>
+        <option value="Dolce">Dessert</option>
+        <option value="Other">Other</option>
+    </select>
+</div>
+
 
         <!-- 🔥 Contenitore delle ricette (ora supporta riquadri separati) -->
         <div id="recipeListContainer">
@@ -37,7 +39,7 @@
         <button id="logoutButton">Logout</button>
 
         <script type="module" defer src="ricettelista.js"></script>
-        <img src="https://i.postimg.cc/K8h2TfVP/difficile.png" alt="Immagine di test">
+        
 
     </body>
 </html>

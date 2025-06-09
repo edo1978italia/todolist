@@ -67,6 +67,24 @@ window.openRecipe = function(recipeId) {
 
 document.addEventListener("DOMContentLoaded", loadRecipes);
 
+// 🔥 Funzione Filtro
+function filterRecipes() {
+    const searchTerm = document.getElementById("searchRecipe").value.toLowerCase().trim();
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    const recipes = document.querySelectorAll(".recipe-card");
+
+    recipes.forEach(recipe => {
+        const recipeName = recipe.querySelector(".recipe-name").innerText.toLowerCase();
+        const recipeCategory = recipe.querySelector(".recipe-category").innerText.toLowerCase();
+
+        const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
+        const matchesCategory = selectedCategory ? recipeCategory.includes(selectedCategory.toLowerCase()) : true;
+
+        recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
+    });
+}
+
+
 
 // 🔥 Gestione logout
 async function logoutUser() {
