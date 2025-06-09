@@ -41,18 +41,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.procedureEditor = new FroalaEditor("#procedureEditor", {
-        toolbarInline: false,
-        placeholderText: "Inserisci la procedura...",
-        charCounterCount: false,
-        imageUpload: true,
-        imageUploadURL: "https://postimages.org/json/rr",
-        events: {
-            "image.uploaded": function (response) {
+    toolbarInline: false,
+    placeholderText: "Inserisci la procedura...",
+    charCounterCount: false,
+    imageUpload: true,
+    imageUploadURL: "https://api.postimages.org/upload",
+    events: {
+        "image.uploaded": function (response) {
+            try {
                 const data = JSON.parse(response);
-                console.log("✅ Immagine caricata (Procedura):", data.url);
+                const imageUrl = data.url;
+                console.log("✅ Immagine caricata su Postimages:", imageUrl);
+            } catch (error) {
+                console.error("❌ Errore nella gestione della risposta:", error);
             }
+        },
+        "image.beforeUpload": function (files) {
+            console.log("🚀 Uploading image:", files[0]);
         }
-    });
+    }
+});
+
 
     loadRecipeForEdit();
 });
