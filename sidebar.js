@@ -23,10 +23,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// 🔥 Funzione per aprire/chiudere la sidebar (codice originale mantenuto)
+// 🔥 Verifica che il codice venga eseguito quando `sidebar.html` è aperto direttamente
+document.addEventListener("DOMContentLoaded", function () {
+    const openSidebarButton = document.getElementById("openSidebar");
+    if (openSidebarButton) {
+        openSidebarButton.addEventListener("click", toggleSidebar);
+    }
+});
+
+// 🔥 Funzione per aprire/chiudere la sidebar (correzione implementata)
 window.toggleSidebar = function () {
     const sidebar = document.getElementById("sidebar");
+    if (!sidebar) {
+        console.warn("⚠ Sidebar non trovata!");
+        return;
+    }
     sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
+    console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
 
 // 🔥 Debug: Logga i pulsanti cliccati (codice originale mantenuto)
