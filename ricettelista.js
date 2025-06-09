@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", loadRecipes);
 // 🔥 Funzione Filtro
 function filterRecipes() {
     const searchTerm = document.getElementById("searchRecipe").value.toLowerCase().trim();
-    const selectedCategory = document.getElementById("categoryFilter").value;
+    const selectedCategory = document.getElementById("categoryFilter").value.toLowerCase();
     const recipes = document.querySelectorAll(".recipe-card");
 
     recipes.forEach(recipe => {
@@ -85,12 +85,16 @@ function filterRecipes() {
         const recipeName = recipeNameElement.innerText.toLowerCase();
         const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim().toLowerCase();
 
+        console.log(`🧩 Ricetta: ${recipeName} | Categoria: ${recipeCategory}`); // 🔥 Debug per controllo
+
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
-        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory.toLowerCase() : true;
+        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory : true;
 
         recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
     });
 }
+
+window.filterRecipes = filterRecipes; // 🔥 Rende la funzione accessibile dall'HTML
 
 
 
