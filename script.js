@@ -143,3 +143,29 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+// 🔥 Recupero dati da Firebase per il widget delle ricette
+import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const latestRecipesList = document.getElementById("latestRecipesList");
+
+    try {
+        const recipesQuery = query(collection(db, "ricette"), orderBy("timestamp", "desc"), limit(3));
+        const querySnapshot = await getDocs(recipesQuery);
+
+        let recipesArray = querySnapshot.docs.map(doc => doc.data());
+
+        if (recipesArray.length === 0) {
+            latestRecipesList.innerHTML = "<li>❌ No recipes available!</li>";
+        } else {
+            latestRecipesList.innerHTML = recipesArray
+                .map(recipe => `<li>${recipe.nome}</li>`)
+                .join("");
+        }
+    } catch (error) {
+        console.error("❌ Error fetching latest recipes:", error);
+        latestRecipesList.innerHTML = "<li>Error loading recipes.</li>";
+    }
+});
+
