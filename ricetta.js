@@ -54,6 +54,8 @@ async function loadRecipeDetails() {
     }
 }
 
+
+
 // 🔥 Controlla se l'utente è autenticato prima di caricare la ricetta
 onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -75,3 +77,58 @@ window.editRecipe = function() {
     }
     window.location.href = `nuovaricetta.html?id=${recipeId}`;
 };
+
+// 🔥 Gestione sidebar
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("sidebar.html")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("sidebar-container").innerHTML = data;
+            updateUserInfo(); // 🔥 Aggiorna l'email dell'utente dopo il caricamento della sidebar
+        })
+        .catch((error) => console.error("❌ Errore nel caricamento della sidebar:", error));
+});
+
+function updateUserInfo() {
+    const userEmailElement = document.getElementById("userEmail");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato!");
+        return;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userEmailElement.innerText = user.email;
+        } else {
+            userEmailElement.innerText = "Non autenticato";
+        }
+    });
+}
+
+// 🔥 Gestione logout
+document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato!");
+    }
+});
+
+window.logoutUser = async function () {
+    try {
+        await signOut(auth);
+        localStorage.clear();
+        console.log("✅ Logout completato!");
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1000);
+    } catch (error) {
+        console.error("❌ Errore nel logout:", error);
+        alert("Errore nel logout: " + error.message);
+    }
+};
+
