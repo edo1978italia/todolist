@@ -14,7 +14,7 @@
             <input type="password" id="passwordInput" placeholder="Password" />
             <button onclick="loginUser()">Enter</button>
         </div>
-<div id="sidebarContainer"></div>
+        <div id="sidebarContainer"></div>
 
         <div id="welcomeMessage" style="display: none; text-align: center; font-size: 24px; font-weight: bold">
             Ciao!!
@@ -25,22 +25,31 @@
 
             <!-- 🔥 Sidebar inclusa dinamicamente -->
             <script>
-                fetch("sidebar.html")
-                    .then((response) => response.text())
-                    .then((data) => {
-                        document.getElementById("sidebarContainer").innerHTML = data;
+fetch("sidebar.html")
+    .then(response => response.text())
+    .then(data => {
+        const sidebarContainer = document.getElementById("sidebarContainer");
+        if (!sidebarContainer) {
+            console.error("❌ Elemento sidebarContainer non trovato nel DOM!");
+            return;
+        }
+        sidebarContainer.innerHTML = data;
+        console.log("✅ Sidebar caricata con successo!");
 
-                        // 🔥 Carica sidebar.js solo dopo il caricamento della sidebar
-                        const script = document.createElement("script");
-                        script.type = "module";
-                        script.src = "sidebar.js";
-                        document.body.appendChild(script);
+        // 🔄 Associa il pulsante dopo aver caricato la sidebar
+        setTimeout(() => {
+            const openSidebarButton = document.getElementById("openSidebar");
+            if (openSidebarButton) {
+                openSidebarButton.addEventListener("click", toggleSidebar);
+                console.log("✅ Pulsante sidebar associato!");
+            } else {
+                console.warn("⚠ Pulsante 'openSidebar' non trovato nella sidebar!");
+            }
+        }, 500);
+    })
+    .catch(error => console.error("❌ Errore nel caricamento della sidebar:", error));
+</script>
 
-                        // 🔥 Associa il toggle della sidebar
-                        document.getElementById("openSidebar")?.addEventListener("click", toggleSidebar);
-                    })
-                    .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-            </script>
 
             <!-- 🔥 Widget anteprima della lista To-Do -->
             <div id="widgetContainer">
