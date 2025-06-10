@@ -79,6 +79,7 @@ window.toggleSidebar = function () {
     console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
 
+
 // 🔥 Debug: Logga i pulsanti cliccati
 document.querySelectorAll("nav button").forEach((button) => {
     button.addEventListener("click", function () {
