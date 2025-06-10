@@ -9,47 +9,47 @@ const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", async function () {
     const userPhotoContainer = document.getElementById("userPhotoContainer");
+    const userEmailElement = document.getElementById("userEmail");
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            const userRef = doc(db, "utenti", user.uid);
-            const userSnap = await getDoc(userRef);
+            userEmailElement.innerText = user.email;
 
-            if (userSnap.exists()) {
-                const data = userSnap.data();
+            try {
+                const userRef = doc(db, "utenti", user.uid);
+                const userSnap = await getDoc(userRef);
 
-                if (data.fotoProfilo) {
-                    console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    console.log("📌 Dati utente Firestore:", data);
 
-                    const imgElement = document.createElement("img");
-                    imgElement.src = data.fotoProfilo;
-                    imgElement.alt = "Foto profilo";
-                    imgElement.classList.add("user-photo");
+                    if (data.fotoProfilo) {
+                        console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
 
-                    userPhotoContainer.innerHTML = ""; // 🔥 Pulisce eventuali contenuti precedenti
-                    userPhotoContainer.appendChild(imgElement); // 🔥 Posiziona la foto sopra "Welcome"
+                        const imgElement = document.createElement("img");
+                        imgElement.src = data.fotoProfilo;
+                        imgElement.alt = "Foto profilo";
+                        imgElement.classList.add("user-photo");
+
+                        userPhotoContainer.innerHTML = ""; // 🔥 Pulisce eventuali contenuti precedenti
+                        userPhotoContainer.appendChild(imgElement); // 🔥 Inserisce la foto
+                    } else {
+                        console.warn("⚠ Foto profilo non impostata.");
+                    }
                 } else {
-                    console.warn("⚠ Foto profilo non impostata.");
+                    console.warn("⚠ Documento utente non trovato.");
                 }
-            } else {
-                console.warn("⚠ Documento utente non trovato.");
+            } catch (error) {
+                console.error("❌ Errore nel recupero della foto profilo:", error);
             }
         } else {
             console.warn("⚠ Utente non autenticato!");
+            userEmailElement.innerText = "Non autenticato";
         }
     });
 });
 
 
-
-    const logoutButton = document.getElementById("logoutButton");
-    if (logoutButton) {
-        logoutButton.addEventListener("click", function () {
-            console.log("Logout dal pannello laterale cliccato!");
-            logoutUser();
-        });
-    }
-});
 
 // 🔥 Verifica che il codice venga eseguito quando `sidebar.html` è aperto direttamente
 document.addEventListener("DOMContentLoaded", function () {
