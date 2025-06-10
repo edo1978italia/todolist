@@ -25,12 +25,12 @@
 
             <!-- 🔥 Sidebar inclusa dinamicamente -->
             <script>
-fetch("sidebar.html")
+                fetch("sidebar.html")
     .then(response => response.text())
     .then(data => {
         const sidebarContainer = document.getElementById("sidebarContainer");
         if (!sidebarContainer) {
-            console.error("❌ Elemento sidebarContainer non trovato nel DOM!");
+            console.error("❌ Elemento sidebarContainer non trovato!");
             return;
         }
         sidebarContainer.innerHTML = data;
@@ -40,16 +40,18 @@ fetch("sidebar.html")
         setTimeout(() => {
             const openSidebarButton = document.getElementById("openSidebar");
             if (openSidebarButton) {
-                openSidebarButton.addEventListener("click", toggleSidebar);
-                console.log("✅ Pulsante sidebar associato!");
+                openSidebarButton.addEventListener("click", () => {
+                    toggleSidebar();
+                    console.log("✅ Click rilevato e sidebar aperta!");
+                });
             } else {
                 console.warn("⚠ Pulsante 'openSidebar' non trovato nella sidebar!");
             }
         }, 500);
     })
     .catch(error => console.error("❌ Errore nel caricamento della sidebar:", error));
-</script>
 
+            </script>
 
             <!-- 🔥 Widget anteprima della lista To-Do -->
             <div id="widgetContainer">
