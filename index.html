@@ -23,11 +23,21 @@
             <button id="logoutButton">Logout</button>
 
             <!-- 🔥 Sidebar inclusa dinamicamente -->
-            <div id="sidebarContainer"></div>
             <script>
                 fetch("sidebar.html")
                     .then((response) => response.text())
-                    .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
+                    .then((data) => {
+                        document.getElementById("sidebarContainer").innerHTML = data;
+
+                        // 🔥 Carica sidebar.js solo dopo il caricamento della sidebar
+                        const script = document.createElement("script");
+                        script.type = "module";
+                        script.src = "sidebar.js";
+                        document.body.appendChild(script);
+
+                        // 🔥 Associa il toggle della sidebar
+                        document.getElementById("openSidebar")?.addEventListener("click", toggleSidebar);
+                    })
                     .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
             </script>
 
@@ -53,7 +63,5 @@
         </div>
 
         <script type="module" defer src="script.js"></script>
-        
-        
     </body>
 </html>
