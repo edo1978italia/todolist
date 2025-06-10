@@ -480,6 +480,9 @@ input {
     width: 100%;
 }
 
+#searchRecipe {
+    max-width: 238px;
+}
 /* 🔥 Contenitore della ricetta */
 .recipe-item {
     max-width: 600px;
