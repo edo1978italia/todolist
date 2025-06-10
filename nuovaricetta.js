@@ -92,6 +92,7 @@ async function loadRecipeForEdit() {
     window.procedureEditor.html.set(data.procedura || "");
 }
 
+
 // 🔥 Funzione per salvare le modifiche alla ricetta
 async function saveRecipe() {
     const user = auth.currentUser;
