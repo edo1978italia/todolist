@@ -7,42 +7,39 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-document.addEventListener("DOMContentLoaded", function () {
-    const userEmailElement = document.getElementById("userEmail");
-    const userPhotoElement = document.getElementById("userPhoto");
+document.addEventListener("DOMContentLoaded", async function () {
+    const userPhotoContainer = document.getElementById("userPhotoContainer");
 
     onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        userEmailElement.innerText = user.email;
-
-        try {
+        if (user) {
             const userRef = doc(db, "utenti", user.uid);
             const userSnap = await getDoc(userRef);
 
             if (userSnap.exists()) {
                 const data = userSnap.data();
-                console.log("📌 Dati utente Firestore:", data); // 🔥 Debug
 
                 if (data.fotoProfilo) {
                     console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
-                    userPhotoElement.src = data.fotoProfilo; // 🔥 Aggiorna correttamente la foto
+
+                    const imgElement = document.createElement("img");
+                    imgElement.src = data.fotoProfilo;
+                    imgElement.alt = "Foto profilo";
+                    imgElement.classList.add("user-photo");
+
+                    userPhotoContainer.innerHTML = ""; // 🔥 Pulisce eventuali contenuti precedenti
+                    userPhotoContainer.appendChild(imgElement); // 🔥 Posiziona la foto sopra "Welcome"
                 } else {
                     console.warn("⚠ Foto profilo non impostata.");
-                    userPhotoElement.src = "https://via.placeholder.com/80";
                 }
             } else {
                 console.warn("⚠ Documento utente non trovato.");
-                userPhotoElement.src = "https://via.placeholder.com/80";
             }
-        } catch (error) {
-            console.error("❌ Errore nel recupero della foto profilo:", error);
-            userPhotoElement.src = "https://via.placeholder.com/80";
+        } else {
+            console.warn("⚠ Utente non autenticato!");
         }
-    } else {
-        userEmailElement.innerText = "Non autenticato";
-        userPhotoElement.src = "https://via.placeholder.com/80";
-    }
+    });
 });
+
 
 
     const logoutButton = document.getElementById("logoutButton");
