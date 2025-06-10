@@ -7,6 +7,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// 🔥 FOTO PROFILO
 document.addEventListener("DOMContentLoaded", async function () {
     const userPhotoContainer = document.getElementById("userPhotoContainer");
     const userEmailElement = document.getElementById("userEmail");
@@ -47,6 +48,28 @@ document.addEventListener("DOMContentLoaded", async function () {
             userEmailElement.innerText = "Non autenticato";
         }
     });
+});
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const userRef = doc(db, "utenti", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            console.log("📌 Dati utente Firestore:", JSON.stringify(data, null, 2)); // 🔥 Stampa i dati in formato leggibile
+
+            if (data.fotoProfilo) {
+                console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
+            } else {
+                console.warn("⚠ Foto profilo non impostata!");
+            }
+        } else {
+            console.warn("⚠ Documento utente non trovato.");
+        }
+    } else {
+        console.warn("⚠ Utente non autenticato!");
+    }
 });
 
 
