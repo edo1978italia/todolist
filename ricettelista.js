@@ -45,10 +45,11 @@ function loadRecipes() {
 
             recipeElement.innerHTML = `
         <div class="recipe-item">
-            <img class="recipe-img" src="${data.immagineUrl || "placeholder.jpg"}" alt="${data.nome}">
+            <img class="recipe-img" src="${data.immagineUrl || 'placeholder.jpg'}" alt="${data.nome}">
             <div class="recipe-info">
                 <h3 class="recipe-name">${data.nome}</h3>
-                <p class="recipe-category"><strong>Category:</strong> ${data.categoria}</p> <!-- 🔥 Ora in inglese -->
+                <p class="recipe-category"><strong>Category:</strong> ${data.categoria}</p>
+                <p class="recipe-difficulty"><strong>Difficulty:</strong> ${data.difficolta}</p> <!-- 🔥 Ora mostra la difficoltà -->
             </div>
             <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
         </div>
