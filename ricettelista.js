@@ -41,14 +41,14 @@ function loadRecipes() {
             const data = doc.data();
             const recipeElement = document.createElement("div");
             recipeElement.classList.add("recipe-card");
-            recipeElement.dataset.category = data.categoria.toLowerCase(); // 🔥 Salva la categoria nel dataset
+            recipeElement.dataset.category = data.categoria; // 🔥 Mantiene la categoria esattamente come salvata
 
             recipeElement.innerHTML = `
         <div class="recipe-item">
             <img class="recipe-img" src="${data.immagineUrl || "placeholder.jpg"}" alt="${data.nome}">
             <div class="recipe-info">
                 <h3 class="recipe-name">${data.nome}</h3>
-                <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
+                <p class="recipe-category"><strong>Category:</strong> ${data.categoria}</p> <!-- 🔥 Ora in inglese -->
             </div>
             <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
         </div>
@@ -71,23 +71,16 @@ document.addEventListener("DOMContentLoaded", loadRecipes);
 // 🔥 Funzione Filtro
 function filterRecipes() {
     const searchTerm = document.getElementById("searchRecipe").value.toLowerCase().trim();
-    const selectedCategory = document.getElementById("categoryFilter").value.toLowerCase();
+    const selectedCategory = document.getElementById("categoryFilter").value.trim().toLowerCase();
     const recipes = document.querySelectorAll(".recipe-card");
 
-    console.log(`🔍 Categoria selezionata: ${selectedCategory}`); // 🔥 Debug per conferma
+    console.log(`🔍 Categoria selezionata: '${selectedCategory}'`); // 🔥 Debug
 
     recipes.forEach(recipe => {
         const recipeName = recipe.querySelector(".recipe-name").innerText.toLowerCase();
-        const recipeCategoryElement = recipe.querySelector(".recipe-category");
+        const recipeCategory = recipe.dataset.category?.trim().toLowerCase();
 
-        if (!recipeCategoryElement) {
-            console.warn("⚠ Categoria non trovata per:", recipeName);
-            return;
-        }
-
-        const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim().toLowerCase();
-
-        console.log(`🧩 Ricetta: ${recipeName} | Categoria salvata: ${recipeCategory}`); // 🔥 Debug per conferma
+        console.log(`🧩 Ricetta: '${recipeName}' | Categoria salvata: '${recipeCategory}'`); // 🔥 Debug
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
         const matchesCategory = selectedCategory ? recipeCategory === selectedCategory : true;
