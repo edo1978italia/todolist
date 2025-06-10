@@ -62,8 +62,8 @@ async function loadRecipeForEdit() {
     const recipeId = params.get("id");
 
     if (!recipeId) {
-        console.error("⚠ Nessun ID ricetta trovato!");
-        return;
+        console.warn("⚠ Nessun ID ricetta trovato! Creazione di una nuova ricetta.");
+        return; // 🔥 Ora il codice non blocca la pagina se si sta creando una nuova ricetta
     }
 
     console.log("🔍 Caricamento ricetta con ID:", recipeId);
@@ -91,6 +91,7 @@ async function loadRecipeForEdit() {
     window.ingredientsEditor.html.set(data.ingredienti || ""); 
     window.procedureEditor.html.set(data.procedura || "");
 }
+
 
 
 // 🔥 Funzione per salvare le modifiche alla ricetta
