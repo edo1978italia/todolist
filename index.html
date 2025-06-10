@@ -14,7 +14,6 @@
             <input type="password" id="passwordInput" placeholder="Password" />
             <button onclick="loginUser()">Enter</button>
         </div>
-        <div id="sidebarContainer"></div>
 
         <div id="welcomeMessage" style="display: none; text-align: center; font-size: 24px; font-weight: bold">
             Ciao!!
@@ -24,33 +23,12 @@
             <button id="logoutButton">Logout</button>
 
             <!-- 🔥 Sidebar inclusa dinamicamente -->
+            <div id="sidebarContainer"></div>
             <script>
                 fetch("sidebar.html")
-    .then(response => response.text())
-    .then(data => {
-        const sidebarContainer = document.getElementById("sidebarContainer");
-        if (!sidebarContainer) {
-            console.error("❌ Elemento sidebarContainer non trovato!");
-            return;
-        }
-        sidebarContainer.innerHTML = data;
-        console.log("✅ Sidebar caricata con successo!");
-
-        // 🔄 Associa il pulsante dopo aver caricato la sidebar
-        setTimeout(() => {
-            const openSidebarButton = document.getElementById("openSidebar");
-            if (openSidebarButton) {
-                openSidebarButton.addEventListener("click", () => {
-                    toggleSidebar();
-                    console.log("✅ Click rilevato e sidebar aperta!");
-                });
-            } else {
-                console.warn("⚠ Pulsante 'openSidebar' non trovato nella sidebar!");
-            }
-        }, 500);
-    })
-    .catch(error => console.error("❌ Errore nel caricamento della sidebar:", error));
-
+                    .then((response) => response.text())
+                    .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
+                    .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
             </script>
 
             <!-- 🔥 Widget anteprima della lista To-Do -->
