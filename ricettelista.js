@@ -35,29 +35,30 @@ function loadRecipes() {
     recipesContainer.innerHTML = "Caricamento...";
 
     getDocs(collection(db, "ricette")).then((querySnapshot) => {
-        recipesContainer.innerHTML = ""; 
+        recipesContainer.innerHTML = "";
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const recipeElement = document.createElement("div");
             recipeElement.classList.add("recipe-card");
+            recipeElement.dataset.category = data.categoria.toLowerCase(); // 🔥 Salva la categoria nel dataset
 
             recipeElement.innerHTML = `
-                <div class="recipe-item">
-                    <img class="recipe-img" src="${data.immagineUrl || 'placeholder.jpg'}" alt="${data.nome}">
-                    <div class="recipe-info">
-                        <h3 class="recipe-name">${data.nome}</h3>
-                        <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
-                    </div>
-                    <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
-                </div>
-            `;
+        <div class="recipe-item">
+            <img class="recipe-img" src="${data.immagineUrl || "placeholder.jpg"}" alt="${data.nome}">
+            <div class="recipe-info">
+                <h3 class="recipe-name">${data.nome}</h3>
+                <p class="recipe-category"><strong>Categoria:</strong> ${data.categoria}</p>
+            </div>
+            <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
+        </div>
+    `;
             recipesContainer.appendChild(recipeElement);
         });
     });
 }
 
-window.openRecipe = function(recipeId) {
+window.openRecipe = function (recipeId) {
     if (!recipeId) {
         alert("Errore: ID ricetta non trovato!");
         return;
@@ -70,31 +71,24 @@ document.addEventListener("DOMContentLoaded", loadRecipes);
 // 🔥 Funzione Filtro
 function filterRecipes() {
     const searchTerm = document.getElementById("searchRecipe").value.toLowerCase().trim();
-    const selectedCategory = document.getElementById("categoryFilter").value.trim();
+    const selectedCategory = document.getElementById("categoryFilter").value.toLowerCase();
     const recipes = document.querySelectorAll(".recipe-card");
-
-    console.log(`🔍 Categoria selezionata: ${selectedCategory}`); // 🔥 Debug per conferma
 
     recipes.forEach(recipe => {
         const recipeName = recipe.querySelector(".recipe-name").innerText.toLowerCase();
-        const recipeCategory = recipe.dataset.category?.toLowerCase().trim(); // 🔥 Legge la categoria dal dataset
+        const recipeCategory = recipe.dataset.category; // 🔥 Legge la categoria dal dataset
 
-        console.log(`🧩 Ricetta: ${recipeName} | Categoria salvata: ${recipeCategory}`); // 🔥 Debug per conferma
+        console.log(`🧩 Ricetta: ${recipeName} | Categoria salvata: ${recipeCategory}`); // 🔥 Debug
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
-        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory.toLowerCase() : true;
+        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory : true;
 
         recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
     });
 }
 
 
-
-
-
 window.filterRecipes = filterRecipes; // 🔥 Rende la funzione accessibile dall'HTML
-
-
 
 // 🔥 Gestione logout
 async function logoutUser() {
@@ -142,7 +136,7 @@ function updateUserInfo() {
         console.warn("⚠ Elemento userEmail non trovato!");
         return;
     }
-    
+
     onAuthStateChanged(auth, (user) => {
         if (user) {
             userEmailElement.innerText = user.email;
