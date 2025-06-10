@@ -74,11 +74,20 @@ function filterRecipes() {
     const selectedCategory = document.getElementById("categoryFilter").value.toLowerCase();
     const recipes = document.querySelectorAll(".recipe-card");
 
+    console.log(`🔍 Categoria selezionata: ${selectedCategory}`); // 🔥 Debug per conferma
+
     recipes.forEach(recipe => {
         const recipeName = recipe.querySelector(".recipe-name").innerText.toLowerCase();
-        const recipeCategory = recipe.dataset.category; // 🔥 Legge la categoria dal dataset
+        const recipeCategoryElement = recipe.querySelector(".recipe-category");
 
-        console.log(`🧩 Ricetta: ${recipeName} | Categoria salvata: ${recipeCategory}`); // 🔥 Debug
+        if (!recipeCategoryElement) {
+            console.warn("⚠ Categoria non trovata per:", recipeName);
+            return;
+        }
+
+        const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim().toLowerCase();
+
+        console.log(`🧩 Ricetta: ${recipeName} | Categoria salvata: ${recipeCategory}`); // 🔥 Debug per conferma
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
         const matchesCategory = selectedCategory ? recipeCategory === selectedCategory : true;
@@ -86,6 +95,7 @@ function filterRecipes() {
         recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
     });
 }
+
 
 
 window.filterRecipes = filterRecipes; // 🔥 Rende la funzione accessibile dall'HTML
