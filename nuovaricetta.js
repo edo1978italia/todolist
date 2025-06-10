@@ -66,7 +66,7 @@ async function loadRecipeForEdit() {
 
     if (!recipeId) {
         console.warn("⚠ Nessun ID ricetta trovato! Creazione di una nuova ricetta.");
-        return; // 🔥 Ora il codice non blocca la pagina se si sta creando una nuova ricetta
+        return;
     }
 
     console.log("🔍 Caricamento ricetta con ID:", recipeId);
@@ -89,10 +89,14 @@ async function loadRecipeForEdit() {
     document.getElementById("recipeCookingTime").value = data.cottura || "";
     document.getElementById("recipeServings").value = data.dosi || "";
     document.getElementById("recipeDifficulty").value = data.difficolta || "";
-    document.getElementById("procedureImageUrl").value = data.procedureImageUrl || "";
+    document.getElementById("procedureImageUrl").value = data.procedureImageUrl || ""; // 🔥 Verifica caricamento URL immagine
 
     window.ingredientsEditor.html.set(data.ingredienti || ""); 
-    window.procedureEditor.html.set(data.procedura || "");
+    window.procedureEditor.html.set(`
+        ${data.procedura || ""}
+        <br>
+        <img src="${data.procedureImageUrl || ""}" alt="Immagine della procedura" style="max-width: 100%;">
+    `); // 🔥 Mostra l'immagine se presente
 }
 
 
@@ -106,25 +110,36 @@ async function saveRecipe() {
         return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    let recipeId = params.get("id");
-
     const nome = document.getElementById("recipeName").value.trim();
     const categoria = document.getElementById("recipeCategory").value;
     const immagineUrl = document.getElementById("recipeImageUrl").value.trim();
     const difficolta = document.getElementById("recipeDifficulty").value;
     const ingredienti = ingredientsEditor.html.get(); 
-    const procedura = procedureEditor.html.get();
+    let procedura = procedureEditor.html.get();
     const preparazione = document.getElementById("recipePreparationTime").value.trim();
     const cottura = document.getElementById("recipeCookingTime").value.trim();
     const dosi = document.getElementById("recipeServings").value.trim();
+    let procedureImageUrl = document.getElementById("procedureImageUrl").value.trim(); // 🔥 Link immagine da Postimages
+
+    // 🔥 Controllo sui campi obbligatori
+    if (!nome || !procedura || !ingredienti || !immagineUrl) {
+        alert("⚠ Tutti i campi obbligatori devono essere compilati!");
+        return;
+    }
+
+    // 🔥 Inserisci l'immagine direttamente nella procedura per evitare che sia invisibile
+    if (procedureImageUrl) {
+        procedura += `<br><img src="${procedureImageUrl}" alt="Procedura" style="max-width: 100%;">`;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    let recipeId = params.get("id");
 
     if (!recipeId) {
-        console.log("🔍 Creazione di una nuova ricetta...");
         try {
             const docRef = await addDoc(collection(db, "ricette"), { 
                 nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi,
-                timestamp: serverTimestamp() // 🔥 Aggiunge il timestamp
+                timestamp: serverTimestamp()
             });
             recipeId = docRef.id;
             console.log("✅ Nuova ricetta salvata con ID:", recipeId);
@@ -137,7 +152,7 @@ async function saveRecipe() {
         try {
             await updateDoc(doc(db, "ricette", recipeId), { 
                 nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi,
-                timestamp: serverTimestamp() // 🔥 Aggiorna il timestamp
+                timestamp: serverTimestamp()
             });
             console.log("✅ Ricetta aggiornata con successo!");
         } catch (error) {
@@ -147,9 +162,15 @@ async function saveRecipe() {
         }
     }
 
+    // 🔥 Svuota il campo URL dell'immagine per evitare duplicazioni
+    document.getElementById("procedureImageUrl").value = "";
+
     alert("✅ Ricetta salvata con successo!");
     window.location.href = "ricettelista.html";
 }
+
+
+
 
 
 async function deleteRecipe() {
