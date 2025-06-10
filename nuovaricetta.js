@@ -10,6 +10,9 @@ import {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import firebaseConfig from "./config.js";
+import { serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+
 
 // Configura Firebase
 const app = initializeApp(firebaseConfig);
