@@ -88,41 +88,51 @@ async function logoutUser() {
 
 window.logoutUser = logoutUser;
 
-// 🔥 Funzione di riduzione delle immagini con Canvas
-function riduciImmagine(url, callback) {
-    const img = new Image();
-    img.crossOrigin = "Anonymous"; // 🔥 Evita problemi di CORS
-    img.src = url;
-    img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+// 🔥 Recupero email su tutte le pagine
+document.addEventListener("DOMContentLoaded", () => {
+    function aggiornaEmail() {
+        const userEmailElement = document.getElementById("userEmail");
 
-        // Imposta una nuova dimensione (50% più piccola)
-        canvas.width = img.width * 0.5;
-        canvas.height = img.height * 0.5;
+        if (!userEmailElement) {
+            console.warn("⚠ Elemento userEmail non trovato nel DOM. Attendo il caricamento...");
+            return;
+        }
 
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Converti l'immagine in un formato compresso (JPEG con qualità ridotta)
-        const nuovaImmagine = canvas.toDataURL("image/jpeg", 0.6);
-
-        callback(nuovaImmagine);
-    };
-}
-
-// 🔄 Applica la riduzione alle immagini nel widget delle ricette
-document.addEventListener("DOMContentLoaded", async () => {
-    setTimeout(() => {
-        const immaginiRicette = document.querySelectorAll(".recipe-widget-img");
-
-        immaginiRicette.forEach((img) => {
-            riduciImmagine(img.src, (immagineRidotta) => {
-                img.src = immagineRidotta;
-                console.log("✅ Immagine ottimizzata:", img.src);
-            });
+        // 🔥 Aspetta Firebase Authentication e aggiorna email
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userEmailElement.textContent = user.email;
+                console.log("✅ Email aggiornata correttamente:", user.email);
+            } else {
+                console.warn("⚠ Utente non autenticato.");
+            }
         });
-    }, 500); // 🔥 Attendi il caricamento prima di ridurre le immagini
+    }
+
+    // 🔄 Aspetta il caricamento della sidebar PRIMA di aggiornare l'email
+    fetch("sidebar.html")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("sidebarContainer").innerHTML = data;
+
+            // 🔥 Aspetta che gli elementi della sidebar siano presenti
+            setTimeout(() => {
+                const userEmailElement = document.getElementById("userEmail");
+                if (userEmailElement) {
+                    aggiornaEmail(); // ✅ Ora aggiorna l'email
+                } else {
+                    console.error("❌ Elemento 'userEmail' ancora non trovato!");
+                }
+            }, 500);
+
+            console.log("✅ Sidebar caricata e email aggiornata!");
+        })
+        .catch((error) => console.error("❌ Errore nel caricamento della sidebar:", error));
 });
+
+
+
+
 
 // 🔥 Gestione sidebar
 window.toggleSidebar = function () {
@@ -155,3 +165,40 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+// 🔥 Recupero dati da Firebase per il widget delle ricette
+import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const latestRecipesList = document.getElementById("latestRecipesList");
+
+    if (!latestRecipesList) {
+        console.error("❌ Elemento 'latestRecipesList' non trovato nel DOM!");
+        return;
+    }
+
+    try {
+        const recipesQuery = query(collection(db, "ricette"), orderBy("timestamp", "desc"), limit(3)); // 🔥 Ordina per timestamp
+        const querySnapshot = await getDocs(recipesQuery);
+
+        let recipesArray = querySnapshot.docs.map(doc => doc.data());
+
+        if (recipesArray.length === 0) {
+            latestRecipesList.innerHTML = "<p>❌ Nessuna ricetta disponibile!</p>";
+        } else {
+            latestRecipesList.innerHTML = recipesArray
+                .map(recipe => `
+                    <div class="recipe-widget-item">
+                        <img src="${recipe.immagineUrl || 'placeholder.jpg'}" alt="${recipe.nome}" class="recipe-widget-img">
+                        <p class="recipe-widget-name">${recipe.nome}</p>
+                    </div>
+                `)
+                .join("");
+        }
+    } catch (error) {
+        console.error("❌ Errore nel recupero delle ricette:", error);
+        latestRecipesList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
+    }
+});
+
