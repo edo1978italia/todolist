@@ -23,8 +23,11 @@ if (recipeId) {
     document.body.classList.add("single-recipe"); // 🔥 Applica lo stile per la singola ricetta
 }
 
+
 // 🔥 Funzione per caricare le ricette
-function loadRecipes() {
+import { query, orderBy } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+async function loadRecipes() {
     const recipesContainer = document.getElementById("recipeListContainer");
 
     if (!recipesContainer) {
@@ -34,30 +37,44 @@ function loadRecipes() {
 
     recipesContainer.innerHTML = "Caricamento...";
 
-    getDocs(collection(db, "ricette")).then((querySnapshot) => {
+    try {
+        const recipesQuery = query(collection(db, "ricette"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(recipesQuery);
+
         recipesContainer.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            recipesContainer.innerHTML = "<p>❌ Nessuna ricetta disponibile!</p>";
+            return;
+        }
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const recipeElement = document.createElement("div");
             recipeElement.classList.add("recipe-card");
-            recipeElement.dataset.category = data.categoria; // 🔥 Mantiene la categoria esattamente come salvata
+            recipeElement.dataset.category = data.categoria;
 
             recipeElement.innerHTML = `
-        <div class="recipe-item">
-            <img class="recipe-img" src="${data.immagineUrl || 'placeholder.jpg'}" alt="${data.nome}">
-            <div class="recipe-info">
-                <h3 class="recipe-name">${data.nome}</h3>
-                <p class="recipe-category"><strong>Category:</strong> ${data.categoria}</p>
-                <p class="recipe-difficulty"><strong>Difficulty:</strong> ${data.difficolta}</p> <!-- 🔥 Ora mostra la difficoltà -->
-            </div>
-            <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
-        </div>
-    `;
+                <div class="recipe-item">
+                    <img class="recipe-img" src="${data.immagineUrl || 'placeholder.jpg'}" alt="${data.nome}">
+                    <div class="recipe-info">
+                        <h3 class="recipe-name">${data.nome}</h3>
+                        <p class="recipe-category"><strong>Category:</strong> ${data.categoria}</p>
+                        <p class="recipe-difficulty"><strong>Difficulty:</strong> ${data.difficolta}</p>
+                    </div>
+                    <button class="recipe-button" onclick="openRecipe('${doc.id}')">READ</button>
+                </div>
+            `;
             recipesContainer.appendChild(recipeElement);
         });
-    });
+    } catch (error) {
+        console.error("❌ Errore nel caricamento delle ricette:", error);
+        recipesContainer.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
+    }
 }
+
+document.addEventListener("DOMContentLoaded", loadRecipes);
+
 
 window.openRecipe = function (recipeId) {
     if (!recipeId) {

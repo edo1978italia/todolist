@@ -104,7 +104,7 @@ async function saveRecipe() {
     }
 
     const params = new URLSearchParams(window.location.search);
-    let recipeId = params.get("id"); // 🔥 Ora gestiamo il caso in cui sia `null`
+    let recipeId = params.get("id");
 
     const nome = document.getElementById("recipeName").value.trim();
     const categoria = document.getElementById("recipeCategory").value;
@@ -120,9 +120,10 @@ async function saveRecipe() {
         console.log("🔍 Creazione di una nuova ricetta...");
         try {
             const docRef = await addDoc(collection(db, "ricette"), { 
-                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
+                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi,
+                timestamp: serverTimestamp() // 🔥 Aggiunge il timestamp
             });
-            recipeId = docRef.id; // 🔥 Assegna l'ID generato
+            recipeId = docRef.id;
             console.log("✅ Nuova ricetta salvata con ID:", recipeId);
         } catch (error) {
             console.error("❌ Errore nella creazione della ricetta:", error);
@@ -132,7 +133,8 @@ async function saveRecipe() {
     } else {
         try {
             await updateDoc(doc(db, "ricette", recipeId), { 
-                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
+                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi,
+                timestamp: serverTimestamp() // 🔥 Aggiorna il timestamp
             });
             console.log("✅ Ricetta aggiornata con successo!");
         } catch (error) {
@@ -143,8 +145,9 @@ async function saveRecipe() {
     }
 
     alert("✅ Ricetta salvata con successo!");
-    window.location.href = "ricettelista.html"; // 🔥 Ora reindirizza alla lista ricette dopo il salvataggio
+    window.location.href = "ricettelista.html";
 }
+
 
 async function deleteRecipe() {
     const params = new URLSearchParams(window.location.search);
