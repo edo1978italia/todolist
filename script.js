@@ -147,7 +147,6 @@ document.addEventListener("DOMContentLoaded", function () {
 // 🔥 Recupero dati da Firebase per il widget delle ricette
 import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-
 document.addEventListener("DOMContentLoaded", async function () {
     const latestRecipesList = document.getElementById("latestRecipesList");
 
@@ -157,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     try {
-        const recipesQuery = query(collection(db, "ricette"), orderBy("timestamp", "desc"), limit(3)); // 🔥 Ordina per timestamp
+        const recipesQuery = query(collection(db, "ricette"), orderBy("nome", "desc"), limit(3));
         const querySnapshot = await getDocs(recipesQuery);
 
         let recipesArray = querySnapshot.docs.map(doc => doc.data());
@@ -179,4 +178,5 @@ document.addEventListener("DOMContentLoaded", async function () {
         latestRecipesList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
     }
 });
+
 
