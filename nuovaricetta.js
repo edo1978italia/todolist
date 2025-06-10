@@ -103,41 +103,48 @@ async function saveRecipe() {
     }
 
     const params = new URLSearchParams(window.location.search);
-    const recipeId = params.get("id");
+    let recipeId = params.get("id"); // 🔥 Ora gestiamo il caso in cui sia `null`
 
     const nome = document.getElementById("recipeName").value.trim();
     const categoria = document.getElementById("recipeCategory").value;
     const immagineUrl = document.getElementById("recipeImageUrl").value.trim();
     const difficolta = document.getElementById("recipeDifficulty").value;
     const ingredienti = ingredientsEditor.html.get(); 
-    const proceduraTesto = procedureEditor.html.get(); 
-    const procedureImageUrl = document.getElementById("procedureImageUrl").value.trim();
-
-    // 🔥 Converte il link immagine in un tag <img> con una classe responsiva
-    const procedura = procedureImageUrl 
-        ? `<img src="${procedureImageUrl}" alt="Immagine Ricetta" class="procedure-image"><br>${proceduraTesto}` 
-        : proceduraTesto;
-
+    const procedura = procedureEditor.html.get();
     const preparazione = document.getElementById("recipePreparationTime").value.trim();
     const cottura = document.getElementById("recipeCookingTime").value.trim();
     const dosi = document.getElementById("recipeServings").value.trim();
 
     if (!recipeId) {
-        alert("❌ Errore: ID ricetta non trovato!");
-        return;
+        console.log("🔍 Creazione di una nuova ricetta...");
+        try {
+            const docRef = await addDoc(collection(db, "ricette"), { 
+                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
+            });
+            recipeId = docRef.id; // 🔥 Assegna l'ID generato
+            console.log("✅ Nuova ricetta salvata con ID:", recipeId);
+        } catch (error) {
+            console.error("❌ Errore nella creazione della ricetta:", error);
+            alert("Errore nel salvataggio della nuova ricetta.");
+            return;
+        }
+    } else {
+        try {
+            await updateDoc(doc(db, "ricette", recipeId), { 
+                nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
+            });
+            console.log("✅ Ricetta aggiornata con successo!");
+        } catch (error) {
+            console.error("❌ Errore nell'aggiornamento della ricetta:", error);
+            alert("Errore nel salvataggio della ricetta.");
+            return;
+        }
     }
 
-    try {
-        await updateDoc(doc(db, "ricette", recipeId), { 
-            nome, categoria, immagineUrl, difficolta, ingredienti, procedura, preparazione, cottura, dosi 
-        });
-        alert("✅ Ricetta modificata con successo!");
-        window.location.href = "ricettelista.html"; // 🔥 Ora reindirizza alla lista ricette dopo il salvataggio
-    } catch (error) {
-        console.error("❌ Errore nel salvataggio:", error);
-        alert("Errore nel salvataggio della ricetta.");
-    }
+    alert("✅ Ricetta salvata con successo!");
+    window.location.href = "ricettelista.html"; // 🔥 Ora reindirizza alla lista ricette dopo il salvataggio
 }
+
 
 
 // 🔥 Assicura che i pulsanti funzionino correttamente
