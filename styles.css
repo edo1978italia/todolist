@@ -1,0 +1,737 @@
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #dfdfdf;
+    text-align: center;
+    color: #2e2e2e;
+}
+#authContainer {
+    margin: 20px auto;
+    max-width: 400px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+#mainContainer {
+    display: none;
+    margin-top: 50px;
+}
+
+#header button {
+    background: rgb(181, 3, 3); /* Rosso per distinguere il logout */
+    color: white;
+    border-radius: 5px;
+    padding: 10px 34px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+#header button:hover {
+    background: rgb(181, 3, 3);
+}
+
+#header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+#taskList {
+    padding: 3px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-container {
+    position: relative;
+    display: inline-block;
+    border-radius: 5px;
+    background: transparent;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #8f8f8f; /* Mantiene i tre puntini bianchi di default */
+}
+
+/* ✅ Se il task ha un link, i tre puntini diventano rossi */
+.task-item.has-link .menu-button {
+    color: red; /* Cambia solo il colore dei tre puntini */
+}
+
+.menu {
+    display: none; /* Nasconde il menu inizialmente */
+    position: absolute;
+    top: 0;
+    right: 28px;
+    background: #2b8ae5;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    border-radius: 5px;
+    flex-direction: column;
+    z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
+    min-width: 80px;
+}
+
+/* Modifica: assicura che il menu venga reso visibile */
+.menu.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+    transition:
+        opacity 0.2s ease-in-out,
+        transform 0.2s ease-in-out;
+}
+
+.menu {
+    display: none; /* Nasconde il menu inizialmente */
+    position: absolute;
+    top: 0;
+    right: 28px;
+    background: #2b8ae5;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    border-radius: 5px;
+    flex-direction: column;
+    z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
+    min-width: 75px;
+}
+
+.menu button:hover {
+    background: #f1f1f1; /* 🔥 Cambia colore quando ci passi sopra */
+    color: #007bff; /* 🔥 Cambia il colore del testo */
+}
+
+/* Modifica: assicura che il menu venga reso visibile */
+.menu.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+    transition:
+        opacity 0.2s ease-in-out,
+        transform 0.2s ease-in-out;
+}
+
+/* Stile per i pulsanti nel menu */
+.menu button {
+    display: block;
+    width: 97%;
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+/* Aggiunge un'animazione di apertura */
+.menu.active {
+    opacity: 1;
+    transform: scale(1);
+    transition:
+        opacity 0.3s ease-in-out,
+        transform 0.2s ease-in-out;
+}
+
+/* 🔥TEXT INPUT ELEMENTO */
+#namePriorityContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#addButton {
+    width: auto;
+    padding: 8px 16px;
+    text-align: center;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#addButton:hover {
+    background-color: #0056b3;
+}
+
+#priorityLabel {
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    padding: 10px;
+}
+
+#extraBox,
+#taskInputContainer,
+#listContainer {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+#extraBox {
+    font-size: 12px;
+}
+button {
+    background: #247fd8;
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /*box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);*/
+}
+button:hover {
+    /*background: #247fd8;*/
+    transform: scale(1.05);
+}
+.completed {
+    text-decoration: line-through;
+    font-style: italic;
+    color: #ff0000;
+}
+.task-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.task-item:nth-child(odd) {
+    background: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+.task-item:nth-child(even) {
+    background: #f0f0f0;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+.task-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+    border-radius: 5px;
+    width: 96%;
+}
+.input-group {
+    margin-bottom: 10px; /* Aggiunge spazio tra i campi */
+    display: block; /* Garantisce che ogni campo sia su una riga separata */
+}
+
+.link-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+#taskInput {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+.task-text {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(20, 20, 20, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: #fafafa;
+    border-radius: 10px;
+    box-shadow: 15px 17px 15px rgba(0, 0, 0, 0.2);
+
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+    position: absolute;
+    top: 25%;
+
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#welcomeMessage {
+    display: none; /* 🔥 Nascondi di default */
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    margin-top: 10px;
+}
+
+/* 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥PANNELLO LATERALE SIDE BAR */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px; /* 🔥 Posizione iniziale completamente nascosta */
+    width: 250px;
+    height: 100%;
+    background: #2b8ae5;
+    color: white;
+    padding: 15px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease-in-out; /* 🔥 Assicura che il movimento sia fluido */
+    z-index: 9999;
+    
+}
+
+#sidebar nav button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    background: white;
+    color: #2b8ae5;
+    border: none;
+    cursor: pointer;
+    text-align: left; /* 🔥 Allinea il testo a sinistra */
+    padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
+    
+}
+
+#sidebar nav {
+    display: block; /* 🔥 Nasconde il menu di default */
+    
+    
+}
+
+#sidebar nav button:hover {
+    background: #f1f1f1;
+    text-align: left; /* 🔥 Allinea il testo a sinistra */
+    padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
+    transform: none; /* 🔥 Rimuove l'ingrandimento */
+    
+}
+#openSidebar {
+    position: fixed;
+    font-size: 25px;
+    top: 2px;
+    left: 13px;
+    background: transparent;
+    color: #ffffff;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 10000;
+}
+#closeSidebar {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+#userInfo {
+    margin-top: 80px; /* 🔥 Sposta il testo più in basso */
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 50px;
+}
+
+/* LOGOUT SUL PANNELLO */
+#logoutButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #ff0000;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 2px;
+}
+#logoutButton:hover {
+    background: darkred;
+}
+
+/* 🔥 WIDGET TO BUY LIST HOME */
+
+/* 🔥 Stile per il titolo "List Preview" */
+.widget-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #8d8d8d;
+    text-align: left;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    /* border-bottom: 1px solid #ddd;  */
+    margin-bottom: 1px;
+    margin-top: 1px;
+}
+
+.widget-button {
+    background: #2b8ae5;
+    font-weight: bold;
+}
+
+.widget-button:hover {
+    background: #f1f1f1; /* 🔥 Cambia colore quando ci passi sopra */
+    color: #007bff; /* 🔥 Cambia il colore del testo */
+}
+
+/* 🔥 Contenitore del widget */
+#widgetContainer {
+    margin-top: 2px;
+    font-size: 12px;
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.widget-button-container {
+    display: flex;
+    justify-content: flex-end; /* 🔥 Sposta il pulsante a destra */
+    width: 100%; /* 🔥 Assicura che il contenitore occupi tutta la larghezza */
+    padding-top: 1px;
+}
+
+/* 🔥 Rimuove i pallini neri dagli elementi della lista */
+#taskPreview {
+    list-style: none; /* 🔥 Elimina i puntini neri */
+    padding: 0;
+    margin: 1px 0;
+}
+
+#taskPreview li {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+#taskPreview li:last-child {
+    border-bottom: none;
+}
+/* 🔥 Stile per gli elementi completati */
+.checked {
+    color: red;
+    text-decoration: line-through;
+    font-style: italic;
+}
+
+/* 🔥 INIZIO RICETTE LISTA*/
+
+/* 🔥 Stile per il contenitore delle ricette */
+#recipeListContainer {
+    display: flex;
+    flex-direction: column; /* 🔥 Mantiene le ricette disposte verticalmente */
+
+    width: 100%;
+}
+
+/* 🔥 Contenitore della ricetta */
+.recipe-item {
+    max-width: 600px;
+    display: flex; /* 🔥 Disposizione orizzontale */
+    gap: 10px; /* 🔥 Spazio tra l'immagine e il testo */
+    padding: 10;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+    margin: auto;
+    align-items: center;
+    margin-top: 15px;
+    margin-left: auto; /* 🔥 Spinge il bottone verso destra */
+    align-self: flex-end; /* 🔥 Lo allinea in basso */
+}
+
+/* 🔥 Stile per l'immagine */
+.recipe-img {
+    width: 140px; /* 🔥 Dimensione regolabile */
+    height: 120px; /* 🔥 Mantiene proporzioni uniformi */
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* 🔥 Contenitore del testo */
+.recipe-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start; /* 🔥 Assicura che gli elementi si posizionino in alto */
+    min-height: 120px;
+    flex-grow: 1;
+}
+
+/* 🔥 Stile per il titolo */
+.recipe-name {
+    font-size: 15px;
+    font-weight: bold;
+    text-align: left;
+    align-self: flex-start; /* 🔥 Lo sposta in alto nel contenitore */
+    margin-bottom: 5px; /* 🔥 Distanziamento dalla categoria */
+}
+
+/* 🔥 Stile per la categoria */
+.recipe-category {
+    font-size: 13px;
+    color: #555;
+    font-style: italic;
+    text-align: left; /* 🔥 Assicura l'allineamento a sinistra */
+}
+
+/* 🔥 Pulsanti per vedere i dettagli */
+/* 🔥 Pulsanti per vedere i dettagli */
+.recipe-button {
+    height: 30px; /* 🔥 Imposta un'altezza fissa */
+    background: #007bff;
+    color: white;
+    padding: 1px 5px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    align-self: flex-end; /* 🔥 Posiziona il bottone in basso */
+    margin-left: auto; /* 🔥 Lo spinge verso destra */
+    margin-right: 3px;
+    margin-bottom: 3px;
+}
+
+.recipe-button:hover {
+    background: #0056b3;
+}
+
+
+/* 🔥 Stile per ogni riquadro della ricetta */
+
+.recipe-item:hover {
+    transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
+    
+}
+
+/* 🔥 ADD/EDIT Recipe NUOVA RICETTA*/
+
+/* 🔥 Migliora la larghezza delle textarea */
+textarea {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 93%; /* 🔥 Occupa tutta la larghezza disponibile */
+    max-width: 800px; /* 🔥 Evita che sia troppo larga su schermi grandi */
+    min-height: 150px; /* 🔥 Altezza predefinita più comoda */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical; /* 🔥 Permette di ridimensionare solo in altezza */
+}
+
+/* 🔥 immagine procedura 1 */
+.procedure-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.recipe-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+
+#difficultyIcon {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+}
+
+
+/* 🔥 Contenitore principale per gli input */
+#recipeInputContainer {
+    display: flex;
+    flex-direction: column; /* 🔥 Disposizione verticale degli elementi */
+    align-items: center; /* 🔥 Centra gli elementi */
+    gap: 15px; /* 🔥 Spazio tra gli input */
+    max-width: 600px;
+    margin: 0 auto; /* 🔥 Centra il contenitore nella pagina */
+}
+
+/* 🔥 Stile per il pulsante */
+#saveRecipeButton, #deleteRecipeButton, #backButton, #editRecipeButton {
+    width: 150px; /* 🔥 Dimensione ottimale */
+    padding: 10px;
+    font-size: 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px; /* 🔥 Distanzia il pulsante dagli altri elementi */
+    text-align: center;
+}
+
+#saveRecipeButton:hover {
+    background-color: #0056b3;
+}
+
+/* 🔥 Stile per il menu a tendina */
+#recipeCategory, #categoryFilter  {
+    width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
+    max-width: 300px; /* 🔥 Espande la larghezza predefinita */
+    padding: 10px;
+    font-size: 13px; /* 🔥 Testo più leggibile */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* 🔥 Migliora la grafica al passaggio del mouse */
+#recipeCategory:hover {
+    border-color: #007bff;
+}
+
+/* 🔥 Stile per le opzioni all'interno del menu */
+#recipeCategory, #categoryFilter option {
+    padding: 5px;
+    font-size: 16px;
+}
+
+
+/* 🔥 Stile per il menu a tendina */
+#recipeDifficulty {
+    width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
+    max-width: 300px; /* 🔥 Espande la larghezza predefinita */
+    padding: 10px;
+    font-size: 13px; /* 🔥 Testo più leggibile */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* 🔥 Migliora la grafica al passaggio del mouse */
+#rrecipeDifficulty:hover {
+    border-color: #007bff;
+}
+
+/* 🔥 Stile per le opzioni all'interno del menu */
+#recipeDifficulty option {
+    padding: 5px;
+    font-size: 16px;
+}
+
+
+/* 🔥 RICETTA SINGOLA RICETTA.HTML */
+
+.recipe-title {
+    font-size: 8px; /* 🔥 Titolo più grande */
+    font-weight: bold;
+    text-align: center;
+    color: #d35400; /* 🔥 Colore accattivante */
+    margin-top: 20px;
+    padding: 10px;
+    border-bottom: 2px solid #d35400; /* 🔥 Sottolineatura elegante */
+}
+
+#recipeImage {
+    max-width: 600px; /* 🔥 Larghezza massima */
+    width: 100%; /* 🔥 Adatta l'immagine alla dimensione dello schermo */
+    height: auto; /* 🔥 Mantiene le proporzioni senza distorsioni */
+    display: block;
+    margin: 0 auto; /* 🔥 Centra l'immagine */
+}
+
+.recipe-info-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 600px; /* 🔥 Regola la larghezza */
+    margin: 0 auto;
+}
+
+.recipe-column {
+    width: 48%; /* 🔥 Divide in due colonne */
+}
+
+/* 🔥 TRE BOX INFO< INGREDIENTI< PROCEDURA */
+.recipe-info-box, .ingredients-box, .procedure-box {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.recipe-info-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.recipe-column {
+    width: 48%;
+}
+
+.procedure-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
