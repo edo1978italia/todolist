@@ -640,11 +640,11 @@ textarea {
 }
 
 /* 🔥 Stile per il menu a tendina */
-#recipeCategory, #categoryFilter  {
+#categoryFilter  {
     width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
     max-width: 300px; /* 🔥 Espande la larghezza predefinita */
     padding: 10px;
-    font-size: 13px; /* 🔥 Testo più leggibile */
+    font-size: 12px; /* 🔥 Testo più leggibile */
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #fff;
@@ -667,9 +667,20 @@ textarea {
 #recipeDifficulty {
     width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
     max-width: 300px; /* 🔥 Espande la larghezza predefinita */
-    padding: 10px;
-    font-size: 13px; /* 🔥 Testo più leggibile */
-    border: 1px solid #ccc;
+    padding: 5px;
+    font-size: 12px; /* 🔥 Testo più leggibile */
+    border: none;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+#recipeCategory {
+    width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
+    max-width: 300px; /* 🔥 Espande la larghezza predefinita */
+    padding: 5px;
+    font-size: 12px; /* 🔥 Testo più leggibile */
+    border: none;
     border-radius: 5px;
     background-color: #fff;
     cursor: pointer;
@@ -716,21 +727,25 @@ textarea {
 }
 
 .recipe-info-container select {
-    font-size: 16px !important; /* 🔥 Forza l'applicazione del font-size */
+    font-size: 16px !important; /* 🔥 Forza la dimensione del font */
     font-weight: bold;
     border: 2px solid #333;
     padding: 8px;
     background-color: #f8f8f8;
     border-radius: 5px;
+    appearance: none; /* 🔥 Rimuove lo stile predefinito del browser */
 }
+
 
 
 .recipe-column {
     width: 48%; /* 🔥 Divide in due colonne */
+    text-align: center; /* 🔥 Allinea il testo a destra */
 }
 
 /* 🔥 TRE BOX INFO< INGREDIENTI< PROCEDURA */
 .recipe-info-box, .ingredients-box, .procedure-box {
+    font-size: 13px;
     max-width: 600px;
     margin: auto;
     padding: 10px;
