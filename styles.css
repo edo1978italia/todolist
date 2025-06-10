@@ -623,15 +623,16 @@ textarea {
 
 /* 🔥 Stile per il pulsante */
 #saveRecipeButton, #deleteRecipeButton, #backButton, #editRecipeButton {
-    width: 150px; /* 🔥 Dimensione ottimale */
+    width: 120px; /* 🔥 Dimensione ottimale */
     padding: 10px;
-    font-size: 18px;
+    font-size: 13px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px; /* 🔥 Distanzia il pulsante dagli altri elementi */
+    margin-top: 0; /* 🔥 Distanzia il pulsante dagli altri elementi */
+    margin-bottom: 0;
     text-align: center;
 }
 

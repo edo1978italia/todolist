@@ -78,6 +78,7 @@ window.editRecipe = function() {
     window.location.href = `nuovaricetta.html?id=${recipeId}`;
 };
 
+// 🔥 Gestione sidebar
 window.toggleSidebar = function () {
     const sidebar = document.getElementById("sidebar");
     if (!sidebar) {
@@ -89,7 +90,11 @@ window.toggleSidebar = function () {
     console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
 
-// 🔥 Gestione sidebar
+window.navigateTo = function (page) {
+    window.location.href = page;
+};
+
+
 document.addEventListener("DOMContentLoaded", function () {
     fetch("sidebar.html")
         .then((response) => response.text())

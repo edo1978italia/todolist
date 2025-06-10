@@ -165,8 +165,20 @@ async function deleteRecipe() {
     }
 }
 
+
 window.deleteRecipe = deleteRecipe; // 🔥 Rende la funzione accessibile dall'HTML
 
+window.goBack = function() {
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get("id");
+    
+    if (!recipeId) {
+        alert("Errore: ID ricetta non trovato!");
+        return;
+    }
+
+    window.location.href = `ricetta.html?id=${recipeId}`;
+};
 
 // 🔥 Assicura che i pulsanti funzionino correttamente
 document.getElementById("saveRecipeButton").addEventListener("click", saveRecipe);
