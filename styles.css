@@ -439,6 +439,7 @@ input {
     border-radius: 10px;
     box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
     text-align: center;
+    margin-bottom: 10px;
 }
 
 .widget-button-container {
@@ -469,6 +470,47 @@ input {
     text-decoration: line-through;
     font-style: italic;
 }
+
+
+/* 🔥 WIDGET ULTIME RICETTE HOME */
+#latestRecipesContainer {
+    margin-top: 2px;
+    font-size: 12px;
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.recipe-widget-item {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.recipe-widget-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.recipe-widget-name {
+    font-size: 12px;
+    font-weight: bold;
+}
+.recipe-widget-img {
+    width: 120px; /* 🔥 Aumenta la dimensione */
+    height: 80px;
+    border-radius: 1px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
 
 /* 🔥 INIZIO RICETTE LISTA*/
 
