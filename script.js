@@ -150,22 +150,33 @@ import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebase
 document.addEventListener("DOMContentLoaded", async function () {
     const latestRecipesList = document.getElementById("latestRecipesList");
 
+    if (!latestRecipesList) {
+        console.error("❌ Elemento 'latestRecipesList' non trovato nel DOM!");
+        return;
+    }
+
     try {
-        const recipesQuery = query(collection(db, "ricette"), orderBy("timestamp", "desc"), limit(3));
+        const recipesQuery = query(collection(db, "ricette"), orderBy("nome", "desc"), limit(3));
         const querySnapshot = await getDocs(recipesQuery);
 
         let recipesArray = querySnapshot.docs.map(doc => doc.data());
 
         if (recipesArray.length === 0) {
-            latestRecipesList.innerHTML = "<li>❌ No recipes available!</li>";
+            latestRecipesList.innerHTML = "<p>❌ Nessuna ricetta disponibile!</p>";
         } else {
             latestRecipesList.innerHTML = recipesArray
-                .map(recipe => `<li>${recipe.nome}</li>`)
+                .map(recipe => `
+                    <div class="recipe-widget-item">
+                        <img src="${recipe.immagineUrl || 'placeholder.jpg'}" alt="${recipe.nome}" class="recipe-widget-img">
+                        <p class="recipe-widget-name">${recipe.nome}</p>
+                    </div>
+                `)
                 .join("");
         }
     } catch (error) {
-        console.error("❌ Error fetching latest recipes:", error);
-        latestRecipesList.innerHTML = "<li>Error loading recipes.</li>";
+        console.error("❌ Errore nel recupero delle ricette:", error);
+        latestRecipesList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
     }
 });
+
 
