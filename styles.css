@@ -743,7 +743,8 @@ textarea {
 .video-container {
     position: relative;
     width: 100%;
-    padding-bottom: 56.25%; /* 🔥 Mantiene il rapporto 16:9 */
+    max-width: 600px; /* 🔥 Si adatta al box procedura */
+    padding-bottom: 56.25%;
     height: 0;
     overflow: hidden;
 }
@@ -756,6 +757,7 @@ textarea {
     height: 100%;
     border: none;
 }
+
 
 
 /* 🔥 RICETTA SINGOLA RICETTA.HTML */
@@ -818,6 +820,7 @@ textarea {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
 
 
 .recipe-column {

@@ -62,10 +62,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 // 🔥 Sidebar toggle
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     const openSidebarButton = document.getElementById("openSidebar");
     if (openSidebarButton) {
-        openSidebarButton.addEventListener("click", toggleSidebar);
+        openSidebarButton.addEventListener("click", () => {
+            toggleSidebar();
+            console.log("✅ Click rilevato e sidebar aperta!");
+        });
+    } else {
+        console.warn("⚠ Pulsante 'openSidebar' non trovato!");
     }
 });
 
