@@ -723,7 +723,7 @@ textarea {
     justify-content: space-between;
     max-width: 600px; /* 🔥 Regola la larghezza */
     margin: 0 auto;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .recipe-info-container select {
