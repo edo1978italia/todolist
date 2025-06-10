@@ -91,6 +91,7 @@ function filterRecipes() {
 
 
 
+
 window.filterRecipes = filterRecipes; // 🔥 Rende la funzione accessibile dall'HTML
 
 // 🔥 Gestione logout
