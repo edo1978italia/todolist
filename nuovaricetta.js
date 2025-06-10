@@ -145,6 +145,26 @@ async function saveRecipe() {
     window.location.href = "ricettelista.html"; // 🔥 Ora reindirizza alla lista ricette dopo il salvataggio
 }
 
+async function deleteRecipe() {
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get("id");
+
+    if (!recipeId) {
+        alert("❌ Errore: ID ricetta non trovato!");
+        return;
+    }
+
+    try {
+        await deleteDoc(doc(db, "ricette", recipeId));
+        alert("✅ Ricetta eliminata con successo!");
+        window.location.href = "ricettelista.html"; // 🔥 Reindirizza alla lista ricette dopo l'eliminazione
+    } catch (error) {
+        console.error("❌ Errore nell'eliminazione della ricetta:", error);
+        alert("Errore nell'eliminazione della ricetta.");
+    }
+}
+
+window.deleteRecipe = deleteRecipe; // 🔥 Rende la funzione accessibile dall'HTML
 
 
 // 🔥 Assicura che i pulsanti funzionino correttamente
