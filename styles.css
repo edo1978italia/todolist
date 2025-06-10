@@ -533,7 +533,17 @@ input {
     color: #555;
     font-style: italic;
     text-align: left; /* 🔥 Assicura l'allineamento a sinistra */
+    margin-bottom: 1px;
 }
+
+.recipe-difficulty {
+    font-size: 13px;
+    color: #555;
+    font-style: italic;
+    text-align: left; /* 🔥 Assicura l'allineamento a sinistra */
+    margin-top: 1px;
+}
+
 
 /* 🔥 Pulsanti per vedere i dettagli */
 /* 🔥 Pulsanti per vedere i dettagli */
@@ -702,7 +712,18 @@ textarea {
     justify-content: space-between;
     max-width: 600px; /* 🔥 Regola la larghezza */
     margin: 0 auto;
+    font-size: 12px;
 }
+
+.recipe-info-container select {
+    font-size: 16px !important; /* 🔥 Forza l'applicazione del font-size */
+    font-weight: bold;
+    border: 2px solid #333;
+    padding: 8px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+}
+
 
 .recipe-column {
     width: 48%; /* 🔥 Divide in due colonne */
@@ -723,10 +744,6 @@ textarea {
     margin-bottom: 5px;
 }
 
-.recipe-info-container {
-    display: flex;
-    justify-content: space-between;
-}
 
 .recipe-column {
     width: 48%;
@@ -738,3 +755,4 @@ textarea {
     display: block;
     margin: 0 auto;
 }
+
