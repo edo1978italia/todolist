@@ -88,28 +88,40 @@ async function logoutUser() {
 
 window.logoutUser = logoutUser;
 
-// 🔥 Recupero email su tutte le pagine
-document.addEventListener("DOMContentLoaded", function () {
-    const userEmailElement = document.getElementById("userEmail");
+// 🔥 Funzione di riduzione delle immagini con Canvas
+function riduciImmagine(url, callback) {
+    const img = new Image();
+    img.crossOrigin = "Anonymous"; // 🔥 Evita problemi di CORS
+    img.src = url;
+    img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
-    if (localStorage.getItem("userLoggedIn") && userEmailElement) {
-        userEmailElement.innerText = localStorage.getItem("userEmail");
-        console.log("✅ Email aggiornata in index.html:", localStorage.getItem("userEmail"));
-    } else {
-        console.warn("⚠ Elemento userEmail non trovato o utente non loggato!");
-    }
-});
+        // Imposta una nuova dimensione (50% più piccola)
+        canvas.width = img.width * 0.5;
+        canvas.height = img.height * 0.5;
 
-// 🔥 Aggiunta gestione logout dal pulsante nel pannello laterale
-document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser);
-        console.log("✅ Pulsante logout registrato correttamente su questa pagina!");
-    } else {
-        console.warn("⚠ Pulsante logout non trovato su questa pagina!");
-    }
+        // Converti l'immagine in un formato compresso (JPEG con qualità ridotta)
+        const nuovaImmagine = canvas.toDataURL("image/jpeg", 0.6);
+
+        callback(nuovaImmagine);
+    };
+}
+
+// 🔄 Applica la riduzione alle immagini nel widget delle ricette
+document.addEventListener("DOMContentLoaded", async () => {
+    setTimeout(() => {
+        const immaginiRicette = document.querySelectorAll(".recipe-widget-img");
+
+        immaginiRicette.forEach((img) => {
+            riduciImmagine(img.src, (immagineRidotta) => {
+                img.src = immagineRidotta;
+                console.log("✅ Immagine ottimizzata:", img.src);
+            });
+        });
+    }, 500); // 🔥 Attendi il caricamento prima di ridurre le immagini
 });
 
 // 🔥 Gestione sidebar
@@ -143,40 +155,3 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
-// 🔥 Recupero dati da Firebase per il widget delle ricette
-import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-
-document.addEventListener("DOMContentLoaded", async function () {
-    const latestRecipesList = document.getElementById("latestRecipesList");
-
-    if (!latestRecipesList) {
-        console.error("❌ Elemento 'latestRecipesList' non trovato nel DOM!");
-        return;
-    }
-
-    try {
-        const recipesQuery = query(collection(db, "ricette"), orderBy("nome", "desc"), limit(3));
-        const querySnapshot = await getDocs(recipesQuery);
-
-        let recipesArray = querySnapshot.docs.map(doc => doc.data());
-
-        if (recipesArray.length === 0) {
-            latestRecipesList.innerHTML = "<p>❌ Nessuna ricetta disponibile!</p>";
-        } else {
-            latestRecipesList.innerHTML = recipesArray
-                .map(recipe => `
-                    <div class="recipe-widget-item">
-                        <img src="${recipe.immagineUrl || 'placeholder.jpg'}" alt="${recipe.nome}" class="recipe-widget-img">
-                        <p class="recipe-widget-name">${recipe.nome}</p>
-                    </div>
-                `)
-                .join("");
-        }
-    } catch (error) {
-        console.error("❌ Errore nel recupero delle ricette:", error);
-        latestRecipesList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
-    }
-});
-
-
