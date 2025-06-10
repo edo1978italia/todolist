@@ -93,10 +93,13 @@ async function loadRecipeForEdit() {
 
     window.ingredientsEditor.html.set(data.ingredienti || ""); 
     window.procedureEditor.html.set(`
-        ${data.procedura || ""}
-        <br>
-        <img src="${data.procedureImageUrl || ""}" alt="Immagine della procedura" style="max-width: 100%;">
-    `); // 🔥 Mostra l'immagine se presente
+    ${data.procedura || ""}
+    <br>
+    <div class="video-container">
+        <iframe src="${data.videoUrl || ""}" frameborder="0" allowfullscreen></iframe>
+    </div>
+`);
+
 }
 
 

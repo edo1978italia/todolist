@@ -740,6 +740,23 @@ textarea {
     font-size: 16px;
 }
 
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 🔥 Mantiene il rapporto 16:9 */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 
 /* 🔥 RICETTA SINGOLA RICETTA.HTML */
 
