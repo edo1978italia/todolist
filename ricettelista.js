@@ -70,29 +70,24 @@ document.addEventListener("DOMContentLoaded", loadRecipes);
 // 🔥 Funzione Filtro
 function filterRecipes() {
     const searchTerm = document.getElementById("searchRecipe").value.toLowerCase().trim();
-    const selectedCategory = document.getElementById("categoryFilter").value;
+    const selectedCategory = document.getElementById("categoryFilter").value.trim();
     const recipes = document.querySelectorAll(".recipe-card");
 
+    console.log(`🔍 Categoria selezionata: ${selectedCategory}`); // 🔥 Debug per conferma
+
     recipes.forEach(recipe => {
-        const recipeNameElement = recipe.querySelector(".recipe-name");
-        const recipeCategoryElement = recipe.querySelector(".recipe-category");
+        const recipeName = recipe.querySelector(".recipe-name").innerText.toLowerCase();
+        const recipeCategory = recipe.dataset.category?.toLowerCase().trim(); // 🔥 Legge la categoria dal dataset
 
-        if (!recipeNameElement || !recipeCategoryElement) {
-            console.warn("⚠ Elemento mancante in:", recipe);
-            return;
-        }
-
-        const recipeName = recipeNameElement.innerText.toLowerCase();
-        const recipeCategory = recipeCategoryElement.innerText.replace("Categoria:", "").trim();
-
-        console.log(`🧩 Ricetta: ${recipeName} | Categoria: ${recipeCategory}`);
+        console.log(`🧩 Ricetta: ${recipeName} | Categoria salvata: ${recipeCategory}`); // 🔥 Debug per conferma
 
         const matchesSearch = searchTerm ? recipeName.includes(searchTerm) : true;
-        const matchesCategory = selectedCategory ? recipeCategory.trim() === selectedCategory : true; // 🔥 Confronto esatto
+        const matchesCategory = selectedCategory ? recipeCategory === selectedCategory.toLowerCase() : true;
 
         recipe.style.display = matchesSearch && matchesCategory ? "block" : "none";
     });
 }
+
 
 
 
