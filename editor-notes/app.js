@@ -3,14 +3,21 @@ import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "fireb
 
 // 🔥 Carica la sidebar dinamicamente
 async function loadSidebar() {
-    const response = await fetch("../sidebar.html");
-    const sidebarContent = await response.text();
-    document.getElementById("sidebar-container").innerHTML = sidebarContent;
+    try {
+        const response = await fetch("../sidebar.html");
+        const sidebarContent = await response.text();
+        document.getElementById("sidebar-container").innerHTML = sidebarContent;
 
-    // 🔥 Assicura che gli script della sidebar vengano ricaricati
-    const script = document.createElement("script");
-    script.src = "../sidebar.js";
-    document.body.appendChild(script);
+        // 🔥 Dopo il caricamento, assicuriamoci che `sidebar.js` sia eseguito
+        const script = document.createElement("script");
+        script.src = "../sidebar.js";
+        document.body.appendChild(script);
+
+        updateUserInfo(); // 🔥 Aggiorna le informazioni utente nella sidebar
+
+    } catch (error) {
+        console.error("❌ Errore nel caricamento della sidebar:", error);
+    }
 }
 
 // 🔥 Controlla se l'utente è autenticato e carica la sidebar e le note
@@ -66,3 +73,43 @@ async function deleteNote(noteId) {
         loadNotes(auth.currentUser.uid); // 🔄 Aggiorna la lista dopo l'eliminazione
     }
 }
+
+// 🔥 Aggiorna l'email dell'utente nella sidebar
+function updateUserInfo() {
+    const userEmailElement = document.getElementById("userEmail");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato!");
+        return;
+    }
+
+    auth.onAuthStateChanged((user) => {
+        userEmailElement.innerText = user ? user.email : "Non autenticato";
+    });
+}
+
+// 🔥 Gestione logout
+document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato!");
+    }
+});
+
+// 🔥 Funzione logout
+window.logoutUser = async function () {
+    try {
+        await auth.signOut();
+        localStorage.clear();
+        console.log("✅ Logout completato!");
+
+        setTimeout(() => {
+            window.location.href = "../login.html";
+        }, 1000);
+    } catch (error) {
+        console.error("❌ Errore nel logout:", error);
+        alert("Errore nel logout: " + error.message);
+    }
+};
