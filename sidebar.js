@@ -1,7 +1,7 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -9,14 +9,14 @@ const db = getFirestore(app);
 
 console.log("🔥 Firebase inizializzato:", app);
 
-
 // 🔥 FOTO PROFILO E EMAIL UTENTE
 document.addEventListener("DOMContentLoaded", async function () {
     const userPhotoContainer = document.getElementById("userPhotoContainer");
     const userEmailElement = document.getElementById("userEmail");
+    const sidebarContainer = document.getElementById("sidebar-container");
 
-    if (!userPhotoContainer || !userEmailElement) {
-        console.warn("⚠ Elemento 'userPhotoContainer' o 'userEmail' non trovato nel DOM!");
+    if (!userPhotoContainer || !userEmailElement || !sidebarContainer) {
+        console.warn("⚠ Elementi necessari non trovati nel DOM!");
         return;
     }
 
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                     if (data.fotoProfilo) {
                         console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
 
-                        // 🔥 Verifica se c'è già un'immagine, se sì, aggiorna solo il `src`
                         let imgElement = userPhotoContainer.querySelector("img");
                         if (!imgElement) {
                             imgElement = document.createElement("img");
@@ -56,6 +55,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
         } else {
             console.warn("⚠ Utente non autenticato!");
+
+            // 🔥 Rimuoviamo la sidebar completamente dopo il logout
+            sidebarContainer.innerHTML = "";
             userEmailElement.innerText = "Non autenticato";
         }
     });
@@ -84,11 +86,9 @@ window.toggleSidebar = function () {
     console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
 
-
 // 🔥 Debug: Logga i pulsanti cliccati
 document.querySelectorAll("nav button").forEach((button) => {
     button.addEventListener("click", function () {
         console.log("Pulsante cliccato:", button.innerText);
     });
 });
-
