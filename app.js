@@ -7,7 +7,7 @@ import {
     updateDoc,
     deleteDoc,
     query,
-    where,
+    orderBy,
     doc
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
@@ -23,9 +23,7 @@ const auth = getAuth(app);
 // 🔥 Inizializza Quill.js per la gestione delle note
 let quill;
 document.addEventListener("DOMContentLoaded", () => {
-    quill = new Quill("#editor", {
-        theme: "snow"
-    });
+    quill = new Quill("#editor", { theme: "snow" });
 });
 
 // 🔥 Sincronizzazione live delle note utente
@@ -33,24 +31,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
 
     onSnapshot(query(collection(db, "notes"), orderBy("timestamp", "desc")), (snapshot) => {
-    console.log("✅ Lista delle note aggiornata con", snapshot.docs.length, "note.");
+        console.log("✅ Lista aggiornata con", snapshot.docs.length, "note.");
 
-    noteList.innerHTML = ""; // 🔄 Reset della lista
-    snapshot.docs.forEach((docSnap) => {
-        console.log("📌 Nota ricevuta:", docSnap.data());
+        noteList.innerHTML = ""; // 🔄 Reset lista
+        snapshot.docs.forEach((docSnap) => {
+            console.log("📌 Nota ricevuta:", docSnap.data());
 
-        const li = document.createElement("li");
-        li.classList.add("note-box"); // ✅ Applica lo stile corretto
+            const li = document.createElement("li");
+            li.classList.add("note-box");
+            li.setAttribute("data-content", docSnap.data().content); // ✅ Salva contenuto per la ricerca
 
-        li.innerHTML = `
-            <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">
-                <h3>${docSnap.data().title}</h3>
-            </a>
-        `;
-        noteList.appendChild(li);
+            li.innerHTML = `
+                <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">
+                    <h3>${docSnap.data().title}</h3>
+                </a>
+            `;
+            noteList.appendChild(li);
+        });
     });
-});
-
 });
 
 // 🔥 Creazione nuova nota
@@ -58,7 +56,6 @@ document.getElementById("createNoteButton").addEventListener("click", async () =
     const user = auth.currentUser;
     if (!user) return alert("⚠ Devi essere loggato!");
 
-    // 🔥 Crea una nuova nota in Firestore
     const docRef = await addDoc(collection(db, "notes"), {
         title: "Nuova Nota",
         content: "",
@@ -67,8 +64,6 @@ document.getElementById("createNoteButton").addEventListener("click", async () =
     });
 
     console.log("✅ Nuova nota creata con ID:", docRef.id);
-
-    // 🔥 Attiva l'editor Quill.js e imposta il nuovo ID
     editNote(docRef.id, "Nuova Nota", "");
 });
 
@@ -82,21 +77,18 @@ function editNote(noteId, title, content) {
         return;
     }
 
-    // 🔥 Mostra l'editor
     editorContainer.style.display = "block";
     saveButton.setAttribute("data-id", noteId);
 
-    // 🔥 Inizializza Quill.js SOLO quando necessario
     if (!window.quill) {
         window.quill = new Quill("#editor", { theme: "snow" });
         console.log("✅ Quill.js inizializzato!");
     }
 
-    // 🔥 Carica il contenuto della nota
     quill.root.innerHTML = content;
 }
 
-// 🔥 Salvataggio automatico delle modifiche in Firestore
+// 🔥 Salvataggio automatico delle modifiche
 document.getElementById("saveNoteButton").addEventListener("click", async () => {
     const noteId = document.getElementById("saveNoteButton").getAttribute("data-id");
     const content = quill.root.innerHTML;
@@ -110,7 +102,20 @@ document.getElementById("saveNoteButton").addEventListener("click", async () => 
     document.getElementById("editorContainer").style.display = "none";
 });
 
-// 🔥 Abilita selezione multipla per eliminazione
+// 🔥 Campo di ricerca per filtrare le note
+document.getElementById("searchNotes").addEventListener("input", () => {
+    const searchTerm = document.getElementById("searchNotes").value.toLowerCase();
+    const notes = document.querySelectorAll(".note-box");
+
+    notes.forEach((note) => {
+        const title = note.querySelector("h3").innerText.toLowerCase();
+        const content = note.getAttribute("data-content") ? note.getAttribute("data-content").toLowerCase() : "";
+
+        note.style.display = title.includes(searchTerm) || content.includes(searchTerm) ? "block" : "none";
+    });
+});
+
+// 🔥 Selezione multipla per eliminazione
 document.getElementById("selectModeButton").addEventListener("click", function () {
     const checkboxes = document.querySelectorAll(".noteCheckbox");
     const isSelecting = this.innerText === "🔲 Selezione";
