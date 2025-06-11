@@ -1,6 +1,6 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
@@ -13,9 +13,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     const userPhotoContainer = document.getElementById("userPhotoContainer");
     const userEmailElement = document.getElementById("userEmail");
     const sidebarContainer = document.getElementById("sidebar-container");
-    const openSidebarButton = document.getElementById("openSidebar"); // 🔥 Pulsante di apertura sidebar
+    const openSidebarButton = document.getElementById("openSidebar");
+    const logoutButton = document.getElementById("logoutButton"); // 🔥 Pulsante logout
 
-    if (!userPhotoContainer || !userEmailElement || !sidebarContainer || !openSidebarButton) {
+    if (!userPhotoContainer || !userEmailElement || !sidebarContainer || !openSidebarButton || !logoutButton) {
         console.warn("⚠ Elementi necessari non trovati nel DOM!");
         return;
     }
@@ -23,31 +24,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             userEmailElement.innerText = user.email;
-            sidebarContainer.style.display = "block"; // ✅ Mostra la sidebar se l'utente è loggato
-            openSidebarButton.style.display = "block"; // ✅ Mostra il pulsante di apertura
-
-            try {
-                const userRef = doc(db, "utenti", user.uid);
-                const userSnap = await getDoc(userRef);
-
-                if (userSnap.exists()) {
-                    const data = userSnap.data();
-                    console.log("📌 Dati utente Firestore ricevuti:", JSON.stringify(data, null, 2));
-
-                    if (data.fotoProfilo) {
-                        let imgElement = userPhotoContainer.querySelector("img");
-                        if (!imgElement) {
-                            imgElement = document.createElement("img");
-                            imgElement.classList.add("user-photo");
-                            userPhotoContainer.appendChild(imgElement);
-                        }
-                        imgElement.src = data.fotoProfilo;
-                        imgElement.alt = "Foto profilo";
-                    }
-                }
-            } catch (error) {
-                console.error("❌ Errore nel recupero della foto profilo:", error);
-            }
+            sidebarContainer.style.display = "block"; // ✅ Mostra sidebar se loggato
+            openSidebarButton.style.display = "block"; // ✅ Mostra pulsante di apertura
         } else {
             console.warn("⚠ Utente non autenticato!");
 
@@ -55,6 +33,19 @@ document.addEventListener("DOMContentLoaded", async function () {
             sidebarContainer.style.display = "none";
             openSidebarButton.style.display = "none";
             userEmailElement.innerText = "Non autenticato";
+        }
+    });
+
+    // 🔥 Gestione logout - Nasconde sidebar e pulsante immediatamente
+    logoutButton.addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+            console.log("✅ Logout completato!");
+
+            sidebarContainer.style.display = "none"; // ✅ Nasconde sidebar
+            openSidebarButton.style.display = "none"; // ✅ Nasconde pulsante
+        } catch (error) {
+            console.error("❌ Errore nel logout:", error);
         }
     });
 });
