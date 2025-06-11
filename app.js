@@ -45,103 +45,78 @@ document.addEventListener("DOMContentLoaded", () => {
             li.setAttribute("data-content", docSnap.data().content); // ✅ Salva contenuto per la ricerca
 
             li.innerHTML = `
-                <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">
-                    <h3>${docSnap.data().title}</h3>
-                </a>
+                <h3>${docSnap.data().title}</h3>
+                <button onclick="openModal('${docSnap.id}')">✏ Modifica</button>
             `;
             noteList.appendChild(li);
         });
     });
 });
 
-// 🔥 Creazione nuova nota
+// 🔥 Gestione box modale per creazione e modifica note
+function openEditorModal(noteId) {
+    const modal = document.getElementById("noteEditorModal");
+    const titleInput = document.getElementById("noteEditorTitle");
+    const saveButton = document.getElementById("saveNoteEditorButton");
+
+    modal.style.display = "block";
+    saveButton.setAttribute("data-id", noteId);
+
+    // 🔥 Inizializza Quill.js SOLO se non è già attivo
+    if (!window.quill) {
+        window.quill = new Quill("#noteEditor", { theme: "snow" });
+        console.log("✅ Quill.js inizializzato!");
+    } else {
+        console.log("⚡ Quill.js già attivo!");
+    }
+
+    // 🔥 Recuperiamo i dati della nota da Firestore
+    onSnapshot(doc(db, "notes", noteId), (docSnap) => {
+        if (docSnap.exists()) {
+            titleInput.value = docSnap.data().title || "Nuova Nota";
+            quill.root.innerHTML = docSnap.data().content || "<p>Inizia a scrivere qui...</p>";
+        } else {
+            console.error("❌ Nota non trovata in Firestore!");
+        }
+    });
+}
+
+
+function closeEditorModal() {
+    document.getElementById("noteEditorModal").style.display = "none";
+}
+
+// 🔥 Creazione nuova nota con apertura modale
 document.getElementById("createNoteButton").addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) return alert("⚠ Devi essere loggato!");
 
     const docRef = await addDoc(collection(db, "notes"), {
-        title: "Nuova Nota",
+        title: "",
         content: "",
         userId: user.uid,
         timestamp: new Date()
     });
 
     console.log("✅ Nuova nota creata con ID:", docRef.id);
-    editNote(docRef.id, "Nuova Nota", "");
+    openEditorModal(docRef.id); // 🔥 Apriamo direttamente il box modale con editor e titolo
 });
 
-// 🔥 Modifica nota esistente
-function editNote(noteId, title, content) {
-    const editorContainer = document.getElementById("editorContainer");
-    const saveButton = document.getElementById("saveNoteButton");
 
-    if (!editorContainer || !saveButton) {
-        console.error("❌ Elementi dell'editor non trovati!");
-        return;
-    }
 
-    // 🔥 Mostra l'editor
-    editorContainer.style.display = "block";
-    saveButton.setAttribute("data-id", noteId);
-
-    // 🔥 Inizializza Quill.js SOLO se non è già attivo
-    if (!window.quill) {
-        window.quill = new Quill("#editor", { theme: "snow" });
-        console.log("✅ Quill.js inizializzato!");
-    }
-
-    // 🔥 Carica il contenuto della nota
-    quill.root.innerHTML = content || "<p>Inizia a scrivere qui...</p>";
-}
-
-// 🔥 Salvataggio automatico delle modifiche
-document.getElementById("saveNoteButton").addEventListener("click", async () => {
-    const noteId = document.getElementById("saveNoteButton").getAttribute("data-id");
+// 🔥 Salvataggio delle modifiche
+document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
+    const noteId = document.getElementById("saveNoteEditorButton").getAttribute("data-id");
+    const title = document.getElementById("noteEditorTitle").value;
     const content = quill.root.innerHTML;
 
     await updateDoc(doc(db, "notes", noteId), {
+        title: title,
         content: content,
         timestamp: new Date()
     });
 
     alert("✅ Nota salvata!");
-    document.getElementById("editorContainer").style.display = "none";
+    closeEditorModal();
 });
 
-// 🔥 Campo di ricerca per filtrare le note
-document.getElementById("searchNotes").addEventListener("input", () => {
-    const searchTerm = document.getElementById("searchNotes").value.toLowerCase();
-    const notes = document.querySelectorAll(".note-box");
-
-    notes.forEach((note) => {
-        const title = note.querySelector("h3").innerText.toLowerCase();
-        const content = note.getAttribute("data-content") ? note.getAttribute("data-content").toLowerCase() : "";
-
-        note.style.display = title.includes(searchTerm) || content.includes(searchTerm) ? "block" : "none";
-    });
-});
-
-// 🔥 Selezione multipla per eliminazione
-document.getElementById("selectModeButton").addEventListener("click", function () {
-    const checkboxes = document.querySelectorAll(".noteCheckbox");
-    const isSelecting = this.innerText === "🔲 Selezione";
-
-    checkboxes.forEach((cb) => (cb.style.display = isSelecting ? "inline-block" : "none"));
-    this.innerText = isSelecting ? "🗑 Cancella" : "🔲 Selezione";
-});
-
-// 🔥 Cancella note selezionate
-document.getElementById("selectModeButton").addEventListener("click", async function () {
-    if (this.innerText !== "🗑 Cancella") return;
-
-    const selectedNotes = document.querySelectorAll(".noteCheckbox:checked");
-    if (selectedNotes.length === 0) return alert("⚠ Nessuna nota selezionata!");
-
-    if (!confirm("Sei sicuro di voler eliminare le note selezionate?")) return;
-
-    selectedNotes.forEach(async (cb) => {
-        await deleteDoc(doc(db, "notes", cb.dataset.id));
-    });
-
-    alert("✅ Note cancellate!");
-});
