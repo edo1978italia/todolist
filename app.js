@@ -33,17 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
 
     onSnapshot(collection(db, "notes"), (snapshot) => {
-        noteList.innerHTML = ""; // 🔄 Reset della lista per aggiornamenti live
+    console.log("📌 Numero di note recuperate:", snapshot.docs.length); // 🔥 Debug per vedere se sta leggendo le note
 
-        snapshot.docs.forEach((docSnap) => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
-                <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">${docSnap.data().title}</a>
-            `;
-            noteList.appendChild(li);
-        });
+    noteList.innerHTML = ""; // 🔄 Reset della lista per aggiornamenti live
+    snapshot.docs.forEach((docSnap) => {
+        console.log("📌 Nota ricevuta:", docSnap.data()); // 🔥 Debug dettagliato per verificare ogni nota
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
+            <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">${docSnap.data().title}</a>
+        `;
+        noteList.appendChild(li);
     });
+});
+
 });
 
 // 🔥 Creazione nuova nota
