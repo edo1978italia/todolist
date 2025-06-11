@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             userEmailElement.innerText = user.email;
+            sidebarContainer.style.display = "block"; // ✅ Mostra la sidebar se l'utente è loggato
 
             try {
                 const userRef = doc(db, "utenti", user.uid);
@@ -55,8 +56,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
             console.warn("⚠ Utente non autenticato!");
 
-            // 🔥 Nasconde completamente la sidebar dopo il logout
-            sidebarContainer.style.display = "none"; // 🔄 NASCONDE LA SIDEBAR
+            // 🔥 Nascondiamo completamente la sidebar dopo il logout
+            sidebarContainer.style.display = "none"; // ✅ Nascondi sidebar invece di rimuoverla
             userEmailElement.innerText = "Non autenticato";
         }
     });
