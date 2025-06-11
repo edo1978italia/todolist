@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (user) {
             userEmailElement.innerText = user.email;
             sidebarContainer.style.display = "block"; // ✅ Mostra la sidebar se l'utente è loggato
-            openSidebarButton.style.display = "block"; // ✅ Rendi visibile il pulsante solo se l'utente è autenticato
+            openSidebarButton.style.display = "block"; // ✅ Mostra il pulsante di apertura
 
             try {
                 const userRef = doc(db, "utenti", user.uid);
@@ -35,8 +35,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                     console.log("📌 Dati utente Firestore ricevuti:", JSON.stringify(data, null, 2));
 
                     if (data.fotoProfilo) {
-                        console.log("🔄 Foto profilo trovata:", data.fotoProfilo);
-
                         let imgElement = userPhotoContainer.querySelector("img");
                         if (!imgElement) {
                             imgElement = document.createElement("img");
@@ -45,11 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                         }
                         imgElement.src = data.fotoProfilo;
                         imgElement.alt = "Foto profilo";
-                    } else {
-                        console.warn("⚠ Foto profilo non impostata!");
                     }
-                } else {
-                    console.warn("⚠ Documento utente non trovato.");
                 }
             } catch (error) {
                 console.error("❌ Errore nel recupero della foto profilo:", error);
@@ -57,9 +51,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
             console.warn("⚠ Utente non autenticato!");
 
-            // 🔥 Nascondiamo completamente la sidebar e il pulsante di apertura dopo il logout
-            sidebarContainer.style.display = "none"; // ✅ Nascondi sidebar invece di rimuoverla
-            openSidebarButton.style.display = "none"; // ✅ Nascondi il pulsante dopo il logout
+            // 🔥 Nasconde sidebar e pulsante di apertura dopo il logout
+            sidebarContainer.style.display = "none";
+            openSidebarButton.style.display = "none";
             userEmailElement.innerText = "Non autenticato";
         }
     });
@@ -73,8 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
             toggleSidebar();
             console.log("✅ Click rilevato e sidebar aperta!");
         });
-    } else {
-        console.warn("⚠ Pulsante 'openSidebar' non trovato!");
     }
 });
 
