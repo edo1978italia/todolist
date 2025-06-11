@@ -20,14 +20,22 @@ async function loadSidebar() {
         const sidebarContent = await response.text();
         document.getElementById("sidebar-container").innerHTML = sidebarContent;
 
-        // 🔥 Dopo il caricamento, ricarichiamo `sidebar.js`
+        // 🔥 Dopo il caricamento, assicuriamoci che `sidebar.js` sia eseguito
         const script = document.createElement("script");
         script.src = "../sidebar.js";
         document.body.appendChild(script);
 
-        // 🔥 Assicuriamoci che il pulsante per aprire la sidebar sia attivo
-        initializeSidebarEvents();
+        // 🔥 Assicuriamoci che la sidebar sia scrollabile
+        setTimeout(() => {
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar) {
+                sidebar.style.overflowY = "auto";
+                sidebar.style.height = "100vh";
+            }
+        }, 500); // 🔥 Tempo per garantire che il DOM sia aggiornato
         
+        initializeSidebarEvents(); // 🔥 Inizializza gli eventi di apertura della sidebar
+
         updateUserInfo(); // 🔥 Aggiorna le informazioni utente nella sidebar
 
     } catch (error) {
