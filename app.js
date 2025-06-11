@@ -32,22 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
 
-    onAuthStateChanged(auth, (user) => {
-        if (!user) return;
+    onSnapshot(collection(db, "notes"), (snapshot) => {
+        noteList.innerHTML = ""; // 🔄 Reset della lista per aggiornamenti live
 
-        const q = query(collection(db, "notes")); // 🔥 Ora recupera TUTTE le note disponibili
-
-        onSnapshot(q, (snapshot) => {
-            noteList.innerHTML = ""; // 🔄 Reset della lista
-
-            snapshot.docs.forEach((docSnap) => {
-                const li = document.createElement("li");
-                li.innerHTML = `
-                    <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
-                    <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}')">${docSnap.data().title}</a>
-                `;
-                noteList.appendChild(li);
-            });
+        snapshot.docs.forEach((docSnap) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
+                <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">${docSnap.data().title}</a>
+            `;
+            noteList.appendChild(li);
         });
     });
 });
@@ -57,6 +51,7 @@ document.getElementById("createNoteButton").addEventListener("click", async () =
     const user = auth.currentUser;
     if (!user) return alert("⚠ Devi essere loggato!");
 
+    // 🔥 Crea una nuova nota in Firestore
     const docRef = await addDoc(collection(db, "notes"), {
         title: "Nuova Nota",
         content: "",
@@ -64,8 +59,34 @@ document.getElementById("createNoteButton").addEventListener("click", async () =
         timestamp: new Date()
     });
 
+    console.log("✅ Nuova nota creata con ID:", docRef.id);
+
+    // 🔥 Attiva l'editor Quill.js e imposta il nuovo ID
     editNote(docRef.id, "Nuova Nota");
 });
+
+function editNote(noteId, title) {
+    const editorContainer = document.getElementById("editorContainer");
+    const saveButton = document.getElementById("saveNoteButton");
+
+    if (!editorContainer || !saveButton) {
+        console.error("❌ Elementi dell'editor non trovati!");
+        return;
+    }
+
+    // 🔥 Mostra l'editor
+    editorContainer.style.display = "block";
+    saveButton.setAttribute("data-id", noteId);
+    
+    // 🔥 Inizializza Quill.js SOLO quando necessario
+    if (!window.quill) {
+        window.quill = new Quill("#editor", { theme: "snow" });
+        console.log("✅ Quill.js inizializzato!");
+    }
+
+    // 🔥 Imposta il titolo della nuova nota
+    quill.setText(title);
+}
 
 // 🔥 Modifica nota esistente
 function editNote(noteId, title) {
