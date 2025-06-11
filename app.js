@@ -33,21 +33,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
 
     onSnapshot(collection(db, "notes"), (snapshot) => {
-    console.log("📌 Numero di note recuperate:", snapshot.docs.length); // 🔥 Debug per vedere se sta leggendo le note
+        console.log("✅ Lista delle note aggiornata con", snapshot.docs.length, "note."); // 🔥 Debug per vedere se sta leggendo le note
 
-    noteList.innerHTML = ""; // 🔄 Reset della lista per aggiornamenti live
-    snapshot.docs.forEach((docSnap) => {
-        console.log("📌 Nota ricevuta:", docSnap.data()); // 🔥 Debug dettagliato per verificare ogni nota
+        noteList.innerHTML = ""; // 🔄 Reset della lista per aggiornamenti live
+        snapshot.docs.forEach((docSnap) => {
+            console.log("📌 Nota ricevuta:", docSnap.data()); // 🔥 Debug dettagliato per verificare ogni nota
 
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
-            <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">${docSnap.data().title}</a>
-        `;
-        noteList.appendChild(li);
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
+                <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}', '${docSnap.data().content}')">${docSnap.data().title}</a>
+            `;
+            noteList.appendChild(li);
+        });
     });
-});
-
 });
 
 // 🔥 Creazione nuova nota
@@ -66,10 +65,11 @@ document.getElementById("createNoteButton").addEventListener("click", async () =
     console.log("✅ Nuova nota creata con ID:", docRef.id);
 
     // 🔥 Attiva l'editor Quill.js e imposta il nuovo ID
-    editNote(docRef.id, "Nuova Nota");
+    editNote(docRef.id, "Nuova Nota", "");
 });
 
-function editNote(noteId, title) {
+// 🔥 Modifica nota esistente
+function editNote(noteId, title, content) {
     const editorContainer = document.getElementById("editorContainer");
     const saveButton = document.getElementById("saveNoteButton");
 
@@ -81,22 +81,15 @@ function editNote(noteId, title) {
     // 🔥 Mostra l'editor
     editorContainer.style.display = "block";
     saveButton.setAttribute("data-id", noteId);
-    
+
     // 🔥 Inizializza Quill.js SOLO quando necessario
     if (!window.quill) {
         window.quill = new Quill("#editor", { theme: "snow" });
         console.log("✅ Quill.js inizializzato!");
     }
 
-    // 🔥 Imposta il titolo della nuova nota
-    quill.setText(title);
-}
-
-// 🔥 Modifica nota esistente
-function editNote(noteId, title) {
-    document.getElementById("editorContainer").style.display = "block";
-    document.getElementById("saveNoteButton").setAttribute("data-id", noteId);
-    quill.setContents([{ insert: title + "\n" }]);
+    // 🔥 Carica il contenuto della nota
+    quill.root.innerHTML = content;
 }
 
 // 🔥 Salvataggio automatico delle modifiche in Firestore
@@ -118,7 +111,7 @@ document.getElementById("selectModeButton").addEventListener("click", function (
     const checkboxes = document.querySelectorAll(".noteCheckbox");
     const isSelecting = this.innerText === "🔲 Selezione";
 
-    checkboxes.forEach((cb) => cb.style.display = isSelecting ? "inline-block" : "none");
+    checkboxes.forEach((cb) => (cb.style.display = isSelecting ? "inline-block" : "none"));
     this.innerText = isSelecting ? "🗑 Cancella" : "🔲 Selezione";
 });
 
