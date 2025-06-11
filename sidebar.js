@@ -9,7 +9,7 @@ const db = getFirestore(app);
 
 console.log("🔥 Firebase inizializzato:", app);
 
-// 🔥 FOTO PROFILO E EMAIL UTENTE
+// 🔥 FOTO PROFILO E EMAIL UTENTE + NASCONDERE LA SIDEBAR SE NON LOGGATO
 document.addEventListener("DOMContentLoaded", async function () {
     const userPhotoContainer = document.getElementById("userPhotoContainer");
     const userEmailElement = document.getElementById("userEmail");
@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                         }
                         imgElement.src = data.fotoProfilo;
                         imgElement.alt = "Foto profilo";
-
                     } else {
                         console.warn("⚠ Foto profilo non impostata!");
                     }
@@ -56,8 +55,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
             console.warn("⚠ Utente non autenticato!");
 
-            // 🔥 Rimuoviamo la sidebar completamente dopo il logout
-            sidebarContainer.innerHTML = "";
+            // 🔥 Nasconde completamente la sidebar dopo il logout
+            sidebarContainer.style.display = "none"; // 🔄 NASCONDE LA SIDEBAR
             userEmailElement.innerText = "Non autenticato";
         }
     });
