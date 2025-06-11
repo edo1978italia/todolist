@@ -1,5 +1,6 @@
-import { auth, db } from "./config.js";
-import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import firebaseConfig from "./config.js";
 
 // 🔥 Controlla se l'utente è autenticato e carica la sidebar e le note
 auth.onAuthStateChanged(async (user) => {
