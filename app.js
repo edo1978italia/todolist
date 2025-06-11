@@ -2,13 +2,17 @@
 import {
     getFirestore,
     collection,
-    getDocs,
-    doc,
-    getDoc
+    onSnapshot,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    doc
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import firebaseConfig from "./config.js";
 
 // Configura Firebase
@@ -16,111 +20,95 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const params = new URLSearchParams(window.location.search);
-const recipeId = params.get("id");
-
-
-
-// Variabile per il listener Firestore
-let unsubscribeTasks = null;
-
-// 🔥 Debug Firebase
-console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
-
-// 🔥 Verifica sessione utente e aggiorna l'interfaccia
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        console.warn("⚠ Utente non autenticato, reindirizzamento in corso...");
-        setTimeout(() => {
-            window.location.replace("index.html");
-        }, 1000);
-        if (unsubscribeTasks) unsubscribeTasks();
-    } else {
-        document.getElementById("userEmail").innerText = user.email;
-        document.getElementById("mainContainer").style.display = "block";
-
-        console.log("✅ Utente autenticato:", user.email);
-
-        // 🔥 Attiva listener Firebase per i task
-        unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
-            console.log(
-                "📌 Dati ricevuti da Firebase:",
-                snapshot.docs.map((doc) => doc.data())
-            );
-            loadTasks(snapshot);
-        });
-    }
+// 🔥 Inizializza Quill.js per la gestione delle note
+let quill;
+document.addEventListener("DOMContentLoaded", () => {
+    quill = new Quill("#editor", {
+        theme: "snow"
+    });
 });
 
-// 🔥 Gestione logout
-async function logoutUser() {
-    try {
-        await signOut(auth);
-        localStorage.clear();
-        console.log("✅ Logout completato, utente disconnesso!");
-
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 1000);
-    } catch (error) {
-        console.error("❌ Errore nel logout:", error);
-        alert("Errore nel logout: " + error.message);
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
-
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser);
-        console.log("✅ Pulsante logout registrato correttamente!");
-    } else {
-        console.warn("⚠ Pulsante logout non trovato!");
-    }
-});
-
-window.logoutUser = logoutUser;
-
-// 🔥 Gestione della sidebar con caricamento email utente
-document.addEventListener("DOMContentLoaded", function () {
-    fetch("sidebar.html")
-        .then((response) => response.text())
-        .then((data) => {
-            document.getElementById("sidebarContainer").innerHTML = data;
-            updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
-        })
-        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-});
-
-function updateUserInfo() {
-    const userEmailElement = document.getElementById("userEmail");
-    if (!userEmailElement) {
-        console.warn("⚠ Elemento userEmail non trovato!");
-        return;
-    }
+// 🔥 Sincronizzazione live delle note utente
+document.addEventListener("DOMContentLoaded", () => {
+    const noteList = document.getElementById("noteList");
 
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            userEmailElement.innerText = user.email;
-        } else {
-            userEmailElement.innerText = "Non autenticato";
-        }
+        if (!user) return;
+
+        const q = query(collection(db, "notes")); // 🔥 Ora recupera TUTTE le note disponibili
+
+        onSnapshot(q, (snapshot) => {
+            noteList.innerHTML = ""; // 🔄 Reset della lista
+
+            snapshot.docs.forEach((docSnap) => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <input type="checkbox" class="noteCheckbox" style="display: none;" data-id="${docSnap.id}">
+                    <a href="#" onclick="editNote('${docSnap.id}', '${docSnap.data().title}')">${docSnap.data().title}</a>
+                `;
+                noteList.appendChild(li);
+            });
+        });
     });
+});
+
+// 🔥 Creazione nuova nota
+document.getElementById("createNoteButton").addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (!user) return alert("⚠ Devi essere loggato!");
+
+    const docRef = await addDoc(collection(db, "notes"), {
+        title: "Nuova Nota",
+        content: "",
+        userId: user.uid,
+        timestamp: new Date()
+    });
+
+    editNote(docRef.id, "Nuova Nota");
+});
+
+// 🔥 Modifica nota esistente
+function editNote(noteId, title) {
+    document.getElementById("editorContainer").style.display = "block";
+    document.getElementById("saveNoteButton").setAttribute("data-id", noteId);
+    quill.setContents([{ insert: title + "\n" }]);
 }
 
-// 🔥 Funzione per aprire/chiudere la sidebar
-window.toggleSidebar = function () {
-    const sidebar = document.getElementById("sidebar");
-    if (!sidebar) {
-        console.warn("⚠ Sidebar non trovata!");
-        return;
-    }
+// 🔥 Salvataggio automatico delle modifiche in Firestore
+document.getElementById("saveNoteButton").addEventListener("click", async () => {
+    const noteId = document.getElementById("saveNoteButton").getAttribute("data-id");
+    const content = quill.root.innerHTML;
 
-    sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
-    console.log("🔄 Sidebar toggled:", sidebar.style.left);
-};
+    await updateDoc(doc(db, "notes", noteId), {
+        content: content,
+        timestamp: new Date()
+    });
 
-// 🔥 Funzione per navigare tra le pagine dalla sidebar
-window.navigateTo = function (page) {
-    window.location.href = page;
-};
+    alert("✅ Nota salvata!");
+    document.getElementById("editorContainer").style.display = "none";
+});
+
+// 🔥 Abilita selezione multipla per eliminazione
+document.getElementById("selectModeButton").addEventListener("click", function () {
+    const checkboxes = document.querySelectorAll(".noteCheckbox");
+    const isSelecting = this.innerText === "🔲 Selezione";
+
+    checkboxes.forEach((cb) => cb.style.display = isSelecting ? "inline-block" : "none");
+    this.innerText = isSelecting ? "🗑 Cancella" : "🔲 Selezione";
+});
+
+// 🔥 Cancella note selezionate
+document.getElementById("selectModeButton").addEventListener("click", async function () {
+    if (this.innerText !== "🗑 Cancella") return;
+
+    const selectedNotes = document.querySelectorAll(".noteCheckbox:checked");
+    if (selectedNotes.length === 0) return alert("⚠ Nessuna nota selezionata!");
+
+    if (!confirm("Sei sicuro di voler eliminare le note selezionate?")) return;
+
+    selectedNotes.forEach(async (cb) => {
+        await deleteDoc(doc(db, "notes", cb.dataset.id));
+    });
+
+    alert("✅ Note cancellate!");
+});
