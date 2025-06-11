@@ -20,16 +20,34 @@ async function loadSidebar() {
         const sidebarContent = await response.text();
         document.getElementById("sidebar-container").innerHTML = sidebarContent;
 
-        // 🔥 Dopo il caricamento, assicuriamoci che `sidebar.js` sia eseguito
+        // 🔥 Dopo il caricamento, ricarichiamo `sidebar.js`
         const script = document.createElement("script");
         script.src = "../sidebar.js";
         document.body.appendChild(script);
 
+        // 🔥 Assicuriamoci che il pulsante per aprire la sidebar sia attivo
+        initializeSidebarEvents();
+        
         updateUserInfo(); // 🔥 Aggiorna le informazioni utente nella sidebar
 
     } catch (error) {
         console.error("❌ Errore nel caricamento della sidebar:", error);
     }
+}
+
+// 🔥 Inizializza gli eventi della sidebar
+function initializeSidebarEvents() {
+    document.addEventListener("DOMContentLoaded", () => {
+        const openSidebarButton = document.getElementById("openSidebar");
+        if (openSidebarButton) {
+            openSidebarButton.addEventListener("click", () => {
+                const sidebar = document.getElementById("sidebar");
+                if (sidebar) {
+                    sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
+                }
+            });
+        }
+    });
 }
 
 // 🔥 Recupera e mostra le note dell'utente autenticato
