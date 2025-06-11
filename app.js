@@ -13,18 +13,6 @@ auth.onAuthStateChanged(async (user) => {
     loadNotes(user.uid); // ✅ Mostra solo le note dell'utente autenticato
 });
 
-// 🔥 Definisci updateUserInfo() prima di chiamarla
-function updateUserInfo() {
-    const userEmailElement = document.getElementById("userEmail");
-    if (!userEmailElement) {
-        console.warn("⚠ Elemento userEmail non trovato nella sidebar!");
-        return;
-    }
-    auth.onAuthStateChanged((user) => {
-        userEmailElement.innerText = user ? user.email : "Non autenticato";
-    });
-}
-
 // 🔥 Carica la sidebar dinamicamente
 async function loadSidebar() {
     try {
@@ -108,6 +96,18 @@ async function deleteNote(noteId) {
     }
 }
 
+// 🔥 Aggiorna l'email dell'utente nella sidebar
+function updateUserInfo() {
+    const userEmailElement = document.getElementById("userEmail");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato!");
+        return;
+    }
+
+    auth.onAuthStateChanged((user) => {
+        userEmailElement.innerText = user ? user.email : "Non autenticato";
+    });
+}
 
 // 🔥 Gestione logout
 document.addEventListener("DOMContentLoaded", function () {

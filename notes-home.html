@@ -32,6 +32,10 @@
                     const script = document.createElement("script");
                     script.src = "sidebar.js";
                     document.body.appendChild(script);
+
+                    setTimeout(() => {
+                        initializeSidebarEvents(); // 🔥 Connetti gli eventi ai pulsanti dopo il caricamento
+                    }, 500);
                 })
                 .catch(error => console.error("❌ Errore nel caricamento della sidebar:", error));
         });
