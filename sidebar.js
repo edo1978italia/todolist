@@ -9,13 +9,13 @@ const db = getFirestore(app);
 
 console.log("🔥 Firebase inizializzato:", app);
 
-// 🔥 FOTO PROFILO E EMAIL UTENTE + NASCONDERE LA SIDEBAR SE NON LOGGATO
 document.addEventListener("DOMContentLoaded", async function () {
     const userPhotoContainer = document.getElementById("userPhotoContainer");
     const userEmailElement = document.getElementById("userEmail");
     const sidebarContainer = document.getElementById("sidebar-container");
+    const openSidebarButton = document.getElementById("openSidebar"); // 🔥 Pulsante di apertura sidebar
 
-    if (!userPhotoContainer || !userEmailElement || !sidebarContainer) {
+    if (!userPhotoContainer || !userEmailElement || !sidebarContainer || !openSidebarButton) {
         console.warn("⚠ Elementi necessari non trovati nel DOM!");
         return;
     }
@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (user) {
             userEmailElement.innerText = user.email;
             sidebarContainer.style.display = "block"; // ✅ Mostra la sidebar se l'utente è loggato
+            openSidebarButton.style.display = "block"; // ✅ Rendi visibile il pulsante solo se l'utente è autenticato
 
             try {
                 const userRef = doc(db, "utenti", user.uid);
@@ -56,8 +57,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
             console.warn("⚠ Utente non autenticato!");
 
-            // 🔥 Nascondiamo completamente la sidebar dopo il logout
+            // 🔥 Nascondiamo completamente la sidebar e il pulsante di apertura dopo il logout
             sidebarContainer.style.display = "none"; // ✅ Nascondi sidebar invece di rimuoverla
+            openSidebarButton.style.display = "none"; // ✅ Nascondi il pulsante dopo il logout
             userEmailElement.innerText = "Non autenticato";
         }
     });
