@@ -7,14 +7,15 @@
     <link rel="stylesheet" href="../styles.css" />
 </head>
 <body>
-    <div id="sidebar-container"></div> <!-- 🔥 Sidebar caricata dinamicamente -->
-    
+    <button id="openSidebar">☰</button> <!-- 🔥 Pulsante per aprire la sidebar -->
+    <div id="sidebar-container"></div> <!-- 🔥 Qui carichiamo la sidebar -->
+
     <h2>Note Salvate</h2>
     <button onclick="createNewNote()">➕ Crea Nuova Nota</button>
     <ul id="noteList"></ul>
 
     <script type="module" defer src="app.js"></script>
-    
+
     <!-- 🔥 Caricamento dinamico della sidebar -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -27,6 +28,8 @@
                     const script = document.createElement("script");
                     script.src = "../sidebar.js";
                     document.body.appendChild(script);
+
+                    updateUserInfo(); // 🔥 Aggiorna le informazioni utente nella sidebar
                 })
                 .catch((error) => console.error("❌ Errore nel caricamento della sidebar:", error));
         });

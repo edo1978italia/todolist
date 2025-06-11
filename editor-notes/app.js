@@ -1,6 +1,18 @@
 import { auth, db } from "../firebase.js";
 import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
+// 🔥 Controlla se l'utente è autenticato e carica la sidebar e le note
+auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        document.body.innerHTML = "<h2>⚠ Devi essere loggato per accedere alle note!</h2>";
+        setTimeout(() => window.location.href = "../login.html", 2000);
+        return;
+    }
+
+    await loadSidebar(); // ✅ Carica la sidebar
+    loadNotes(user.uid); // ✅ Mostra solo le note dell'utente autenticato
+});
+
 // 🔥 Carica la sidebar dinamicamente
 async function loadSidebar() {
     try {
@@ -19,18 +31,6 @@ async function loadSidebar() {
         console.error("❌ Errore nel caricamento della sidebar:", error);
     }
 }
-
-// 🔥 Controlla se l'utente è autenticato e carica la sidebar e le note
-auth.onAuthStateChanged(async (user) => {
-    if (!user) {
-        document.body.innerHTML = "<h2>⚠ Devi essere loggato per accedere alle note!</h2>";
-        setTimeout(() => window.location.href = "../login.html", 2000);
-        return;
-    }
-
-    await loadSidebar(); // ✅ Carica la sidebar
-    loadNotes(user.uid); // ✅ Mostra solo le note dell'utente autenticato
-});
 
 // 🔥 Recupera e mostra le note dell'utente autenticato
 async function loadNotes(userId) {
