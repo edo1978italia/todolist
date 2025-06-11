@@ -1,116 +1,106 @@
 // Importa Firebase
 import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-import firebaseConfig from "./config.js";
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import firebaseConfig from "./config.js";
 
-// 🔥 Inizializza Firebase
+// Configura Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+const params = new URLSearchParams(window.location.search);
+const recipeId = params.get("id");
 
 
-// 🔥 Controlla se l'utente è autenticato e carica la sidebar e le note
-auth.onAuthStateChanged(async (user) => {
+
+// Variabile per il listener Firestore
+let unsubscribeTasks = null;
+
+// 🔥 Debug Firebase
+console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
+
+// 🔥 Verifica sessione utente e aggiorna l'interfaccia
+onAuthStateChanged(auth, (user) => {
     if (!user) {
-        document.body.innerHTML = "<h2>⚠ Devi essere loggato per accedere alle note!</h2>";
-        setTimeout(() => window.location.href = "todolist.html", 2000);
-        return;
-    }
-
-    await loadSidebar(); // ✅ Carica la sidebar
-    loadNotes(user.uid); // ✅ Mostra solo le note dell'utente autenticato
-});
-
-// 🔥 Carica la sidebar dinamicamente
-async function loadSidebar() {
-    try {
-        const response = await fetch("sidebar.html");
-        const sidebarContent = await response.text();
-        document.getElementById("sidebar-container").innerHTML = sidebarContent;
-
-        // 🔥 Dopo il caricamento, assicuriamoci che `sidebar.js` sia eseguito
-        const script = document.createElement("script");
-        script.src = "sidebar.js";
-        document.body.appendChild(script);
-
+        console.warn("⚠ Utente non autenticato, reindirizzamento in corso...");
         setTimeout(() => {
-            initializeSidebarEvents(); // 🔥 Connetti gli eventi ai pulsanti dopo il caricamento
-        }, 500);
+            window.location.replace("index.html");
+        }, 1000);
+        if (unsubscribeTasks) unsubscribeTasks();
+    } else {
+        document.getElementById("userEmail").innerText = user.email;
+        document.getElementById("mainContainer").style.display = "block";
 
-        updateUserInfo(); // 🔥 Aggiorna le informazioni utente nella sidebar
+        console.log("✅ Utente autenticato:", user.email);
 
-    } catch (error) {
-        console.error("❌ Errore nel caricamento della sidebar:", error);
-    }
-}
-
-// 🔥 Inizializza gli eventi della sidebar
-function initializeSidebarEvents() {
-    const openSidebarButton = document.getElementById("openSidebar");
-    if (openSidebarButton) {
-        openSidebarButton.addEventListener("click", () => {
-            const sidebar = document.getElementById("sidebar");
-            if (sidebar) {
-                sidebar.classList.toggle("active");
-            }
+        // 🔥 Attiva listener Firebase per i task
+        unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
+            console.log(
+                "📌 Dati ricevuti da Firebase:",
+                snapshot.docs.map((doc) => doc.data())
+            );
+            loadTasks(snapshot);
         });
     }
+});
 
+// 🔥 Gestione logout (versione più sicura)
+async function logoutUser() {
+    try {
+        if (unsubscribeTasks) unsubscribeTasks(); // 🔥 Disattiva listener Firestore
+        await signOut(auth);
+        localStorage.clear();
+        console.log("✅ Logout completato, utente disconnesso!");
+
+        setTimeout(() => {
+            if (!auth.currentUser) {
+                console.log("✅ Conferma: utente disconnesso.");
+                window.location.href = "index.html"; // 🔥 Reindirizzamento dopo la disconnessione
+            } else {
+                console.warn("⚠ L'utente risulta ancora autenticato, ricarico la pagina.");
+                window.location.reload();
+            }
+        }, 1000);
+    } catch (error) {
+        console.error("❌ Errore nel logout:", error);
+        alert("Errore nel logout: " + error.message);
+    }
+}
+
+// 🔥 Registra il pulsante logout al caricamento della pagina
+document.addEventListener("DOMContentLoaded", function () {
     const logoutButton = document.getElementById("logoutButton");
+
     if (logoutButton) {
         logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato!");
     }
-}
+});
 
-// 🔥 Recupera e mostra le note dell'utente autenticato
-async function loadNotes(userId) {
-    const noteList = document.getElementById("noteList");
-    noteList.innerHTML = "";
+window.logoutUser = logoutUser;
 
-    const q = query(collection(db, "notes"), where("userId", "==", userId));
-    const querySnapshot = await getDocs(q);
 
-    querySnapshot.forEach((docSnap) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <a href="nuovaricetta.html?id=${docSnap.id}">${docSnap.data().title}</a>
-            <button onclick="deleteNote('${docSnap.id}')">🗑 Elimina</button>
-        `;
-        noteList.appendChild(li);
-    });
-}
+// 🔥 Gestione della sidebar con caricamento email utente
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("sidebar.html")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("sidebarContainer").innerHTML = data;
+            updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
+        })
+        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+});
 
-// 🔥 Crea una nuova nota
-async function createNewNote() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert("⚠ Devi essere loggato per creare una nota!");
-        return;
-    }
-
-    const docRef = await addDoc(collection(db, "notes"), {
-        title: "Nuova Nota",
-        content: "",
-        userId: user.uid
-    });
-    window.location.href = `nuovaricetta.html?id=${docRef.id}`;
-}
-
-// 🔥 Elimina una nota
-async function deleteNote(noteId) {
-    if (confirm("Sei sicuro di voler eliminare questa nota?")) {
-        await deleteDoc(doc(db, "notes", noteId));
-        loadNotes(auth.currentUser.uid); // 🔄 Aggiorna la lista dopo l'eliminazione
-    }
-}
-
-// 🔥 Aggiorna l'email dell'utente nella sidebar
 function updateUserInfo() {
     const userEmailElement = document.getElementById("userEmail");
     if (!userEmailElement) {
@@ -118,30 +108,28 @@ function updateUserInfo() {
         return;
     }
 
-    auth.onAuthStateChanged((user) => {
-        userEmailElement.innerText = user ? user.email : "Non autenticato";
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userEmailElement.innerText = user.email;
+        } else {
+            userEmailElement.innerText = "Non autenticato";
+        }
     });
 }
 
-// 🔥 Gestione logout
-document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser);
+// 🔥 Funzione per aprire/chiudere la sidebar
+window.toggleSidebar = function () {
+    const sidebar = document.getElementById("sidebar");
+    if (!sidebar) {
+        console.warn("⚠ Sidebar non trovata!");
+        return;
     }
-});
 
-// 🔥 Funzione logout
-window.logoutUser = async function () {
-    try {
-        await auth.signOut();
-        localStorage.clear();
-        console.log("✅ Logout completato!");
-        setTimeout(() => {
-            window.location.href = "todolist.html";
-        }, 1000);
-    } catch (error) {
-        console.error("❌ Errore nel logout:", error);
-        alert("Errore nel logout: " + error.message);
-    }
+    sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
+    console.log("🔄 Sidebar toggled:", sidebar.style.left);
+};
+
+// 🔥 Funzione per navigare tra le pagine dalla sidebar
+window.navigateTo = function (page) {
+    window.location.href = page;
 };

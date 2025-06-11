@@ -1,44 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Note Salvate</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <!-- 🔥 Sidebar -->
-    <button id="openSidebar">☰</button>
-    <div id="sidebar-container"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Note Salvate</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <!-- 🔥 Sidebar -->
+        <button id="openSidebar">☰</button>
+        <div id="sidebar-container"></div>
 
-    <!-- 🔥 Contenuto principale -->
-    <h2>Note Salvate</h2>
-    <button onclick="createNewNote()">➕ Crea Nuova Nota</button>
-    <ul id="noteList"></ul>
+        <!-- 🔥 Contenuto principale -->
+        <h2>Note Salvate</h2>
+        <button onclick="createNewNote()">➕ Crea Nuova Nota</button>
+        <ul id="noteList"></ul>
 
-    <!-- 🔥 Script principali -->
-    <script type="module" defer src="app.js"></script>
-    <script defer src="sidebar.js"></script>
-
-    <!-- 🔥 Caricamento dinamico della sidebar -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        
+         <!-- 🔥 Sidebar inclusa dinamicamente -->
+        <div id="sidebarContainer"></div>
+        <script>
             fetch("sidebar.html")
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById("sidebar-container").innerHTML = data;
+                .then((response) => response.text())
+                .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
+                .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+        </script>
+        <button id="logoutButton">Logout</button>
 
-                    // 🔥 Dopo il caricamento, assicuriamoci che `sidebar.js` sia eseguito
-                    const script = document.createElement("script");
-                    script.src = "sidebar.js";
-                    document.body.appendChild(script);
-
-                    setTimeout(() => {
-                        initializeSidebarEvents(); // 🔥 Connetti gli eventi ai pulsanti dopo il caricamento
-                    }, 500);
-                })
-                .catch(error => console.error("❌ Errore nel caricamento della sidebar:", error));
-        });
-    </script>
-</body>
+        <!-- 🔥 Script principali -->
+        <script type="module" defer src="app.js"></script>
+        <script defer src="sidebar.js"></script>
+    </body>
 </html>

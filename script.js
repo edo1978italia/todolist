@@ -89,6 +89,31 @@ async function logoutUser() {
 window.logoutUser = logoutUser;
 
 // 🔥 Recupero email su tutte le pagine
+document.addEventListener("DOMContentLoaded", function () {
+    const userEmailElement = document.getElementById("userEmail");
+
+    if (localStorage.getItem("userLoggedIn") && userEmailElement) {
+        userEmailElement.innerText = localStorage.getItem("userEmail");
+        console.log("✅ Email aggiornata in index.html:", localStorage.getItem("userEmail"));
+    } else {
+        console.warn("⚠ Elemento userEmail non trovato o utente non loggato!");
+    }
+});
+
+// 🔥 Aggiunta gestione logout dal pulsante nel pannello laterale
+document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente su questa pagina!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato su questa pagina!");
+    }
+});
+
+
+// 🔥 Recupero email su tutte le pagine
 document.addEventListener("DOMContentLoaded", () => {
     function aggiornaEmail() {
         const userEmailElement = document.getElementById("userEmail");
