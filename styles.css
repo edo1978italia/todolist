@@ -264,7 +264,7 @@ input {
     flex-grow: 1;
     text-align: left;
 }
-
+/* 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥POP UP TO DO LIST MODIFICA*/
 .modal {
     display: none;
     position: fixed;
@@ -278,22 +278,21 @@ input {
 }
 
 .modal-content {
-    max-width: 600px;
-    margin: auto;
-    padding: 10px;
-    background: #fafafa;
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background: #fff;
     border-radius: 10px;
-    box-shadow: 15px 17px 15px rgba(0, 0, 0, 0.2);
-
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 5px;
-    position: absolute;
-    top: 25%;
-
-    margin-left: 10px;
-    margin-right: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 400px; /* ✅ Limitata altezza */
+    overflow-y: auto; /* 🔥 Scroll se necessario */
+    z-index: 1100; /* ✅ Assicuriamoci che abbia la priorità */
 }
+
 
 .close {
     float: right;
@@ -863,4 +862,37 @@ textarea {
 .note-box:hover {
     transform: scale(1.05); /* 🔄 Leggero ingrandimento */
     cursor: pointer;
+}
+
+/* 🔥 pop up creazione e modifica NOTE */
+#noteEditorModal {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 800px; /* 🔥 Limitiamo l'altezza */
+    overflow-y: auto; /* ✅ Se il contenuto è troppo lungo, abilitiamo lo scroll */
+    z-index: 1000;
+}
+
+.noteEditorContent {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
 }
