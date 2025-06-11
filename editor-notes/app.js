@@ -1,5 +1,6 @@
 import { auth, db } from "../firebase.js";
-import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "./firebase/firestore.js";
+
 
 // 🔥 Controlla se l'utente è autenticato e carica la sidebar e le note
 auth.onAuthStateChanged(async (user) => {
@@ -12,6 +13,16 @@ auth.onAuthStateChanged(async (user) => {
     await loadSidebar(); // ✅ Carica la sidebar
     loadNotes(user.uid); // ✅ Mostra solo le note dell'utente autenticato
 });
+function updateUserInfo() {
+    const userEmailElement = document.getElementById("userEmail");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato nella sidebar!");
+        return;
+    }
+    auth.onAuthStateChanged((user) => {
+        userEmailElement.innerText = user ? user.email : "Non autenticato";
+    });
+}
 
 // 🔥 Carica la sidebar dinamicamente
 async function loadSidebar() {
@@ -102,36 +113,6 @@ async function deleteNote(noteId) {
 
 // 🔥 Aggiorna l'email dell'utente nella sidebar
 // 🔥 Definisci updateUserInfo prima di chiamarla
-function updateUserInfo() {
-    const userEmailElement = document.getElementById("userEmail");
-    if (!userEmailElement) {
-        console.warn("⚠ Elemento userEmail non trovato nella sidebar!");
-        return;
-    }
-
-    auth.onAuthStateChanged((user) => {
-        userEmailElement.innerText = user ? user.email : "Non autenticato";
-    });
-}
-
-// 🔥 Carica la sidebar dinamicamente
-async function loadSidebar() {
-    try {
-        const response = await fetch("../sidebar.html");
-        const sidebarContent = await response.text();
-        document.getElementById("sidebar-container").innerHTML = sidebarContent;
-
-        // 🔥 Dopo il caricamento, assicuriamoci che sidebar.js sia eseguito
-        const script = document.createElement("script");
-        script.src = "../sidebar.js";
-        document.body.appendChild(script);
-
-        updateUserInfo(); // 🔥 Ora `updateUserInfo()` è definita prima di essere chiamata
-
-    } catch (error) {
-        console.error("❌ Errore nel caricamento della sidebar:", error);
-    }
-}
 
 
 // 🔥 Gestione logout
