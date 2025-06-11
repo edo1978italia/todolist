@@ -587,7 +587,7 @@ input {
 }
 
 
-/* 🔥 Pulsanti per vedere i dettagli */
+
 /* 🔥 Pulsanti per vedere i dettagli */
 .recipe-button {
     height: 30px; /* 🔥 Imposta un'altezza fissa */
@@ -609,14 +609,12 @@ input {
 
 
 /* 🔥 Stile per ogni riquadro della ricetta */
-
 .recipe-item:hover {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
     
 }
 
 /* 🔥 ADD/EDIT Recipe NUOVA RICETTA*/
-
 /* 🔥 Migliora la larghezza delle textarea */
 textarea {
     margin-top: 10px;
@@ -761,7 +759,6 @@ textarea {
 
 
 /* 🔥 RICETTA SINGOLA RICETTA.HTML */
-
 .recipe-title {
     font-size: 8px; /* 🔥 Titolo più grande */
     font-weight: bold;
@@ -834,3 +831,36 @@ textarea {
     margin: 0 auto;
 }
 
+
+
+/* 🔥🔥🔥🔥🔥🔥PAGINA NOTE🔥🔥🔥🔥🔥🔥 */
+/* 🔥 Stile per il contenitore delle note */
+/* 🔥 Layout verticale per le note */
+#noteList {
+    list-style: none; /* ✅ Rimuove i puntini neri */
+    display: flex;
+    flex-direction: column; /* ✅ Disposizione verticale */
+    gap: 10px; /* 🔄 Spazio tra le note */
+    padding: 0;
+}
+
+/* 🔥 Stile per ogni nota */
+.note-box {
+    max-width: 600px;
+    font-size: 13px;
+    background-color: #f9f9f9; /* ✅ Sfondo chiaro */
+    border: 1px solid #ddd; /* ✅ Bordo sottile */
+    border-radius: 8px; /* ✅ Angoli arrotondati */
+    padding: 10px;
+    
+    min-height: 40px; /* ✅ Altezza minima */
+    text-align: center;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* ✅ Ombra leggera */
+    transition: transform 0.2s ease-in-out;
+}
+
+/* 🔥 Effetto hover */
+.note-box:hover {
+    transform: scale(1.05); /* 🔄 Leggero ingrandimento */
+    cursor: pointer;
+}
