@@ -20,10 +20,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 🔥 Inizializza Quill.js per la gestione delle note
+// 🔥 Inizializza Quill.js UNA SOLA VOLTA
 let quill;
 document.addEventListener("DOMContentLoaded", () => {
-    quill = new Quill("#editor", { theme: "snow" });
+    if (!window.quill) {
+        window.quill = new Quill("#editor", { theme: "snow" });
+        console.log("✅ Quill.js inizializzato!");
+    }
 });
 
 // 🔥 Sincronizzazione live delle note utente
@@ -77,15 +80,18 @@ function editNote(noteId, title, content) {
         return;
     }
 
+    // 🔥 Mostra l'editor
     editorContainer.style.display = "block";
     saveButton.setAttribute("data-id", noteId);
 
+    // 🔥 Inizializza Quill.js SOLO se non è già attivo
     if (!window.quill) {
         window.quill = new Quill("#editor", { theme: "snow" });
         console.log("✅ Quill.js inizializzato!");
     }
 
-    quill.root.innerHTML = content;
+    // 🔥 Carica il contenuto della nota
+    quill.root.innerHTML = content || "<p>Inizia a scrivere qui...</p>";
 }
 
 // 🔥 Salvataggio automatico delle modifiche
