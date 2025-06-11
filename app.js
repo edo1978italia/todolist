@@ -20,15 +20,37 @@ async function loadSidebar() {
         const sidebarContent = await response.text();
         document.getElementById("sidebar-container").innerHTML = sidebarContent;
 
-        // 🔥 Dopo il caricamento, esegui `sidebar.js`
+        // 🔥 Dopo il caricamento, assicuriamoci che `sidebar.js` sia eseguito
         const script = document.createElement("script");
         script.src = "sidebar.js";
         document.body.appendChild(script);
+
+        setTimeout(() => {
+            initializeSidebarEvents(); // 🔥 Connetti gli eventi ai pulsanti dopo il caricamento
+        }, 500);
 
         updateUserInfo(); // 🔥 Aggiorna le informazioni utente nella sidebar
 
     } catch (error) {
         console.error("❌ Errore nel caricamento della sidebar:", error);
+    }
+}
+
+// 🔥 Inizializza gli eventi della sidebar
+function initializeSidebarEvents() {
+    const openSidebarButton = document.getElementById("openSidebar");
+    if (openSidebarButton) {
+        openSidebarButton.addEventListener("click", () => {
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar) {
+                sidebar.classList.toggle("active");
+            }
+        });
+    }
+
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
     }
 }
 
