@@ -14,7 +14,6 @@
         <!-- 🔥 Sidebar -->
         <button id="openSidebar">☰</button>
 
-        <!-- 🔥 Sidebar inclusa dinamicamente -->
         <div id="sidebarContainer"></div>
         <script>
             fetch("sidebar.html")
@@ -22,6 +21,8 @@
                 .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
                 .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
         </script>
+        
+        
         <button id="logoutButton">Logout</button>
 
         <!-- 🔥 Area gestione note -->

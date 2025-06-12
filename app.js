@@ -12,13 +12,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import firebaseConfig from "./config.js";
 
 // Configura Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+
+
 
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
@@ -85,6 +88,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+
+
+
+
+
+
+
+
+document.addEventListener("click", function (e) {
+  if (e.target.matches("#openSidebar")) {
+    window.toggleSidebar();
+  }
+});
+
+
+
+
+
+
+
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
     const modal = document.getElementById("noteEditorModal");
@@ -137,31 +160,8 @@ function openEditorModal(noteId = null) {
         window.quill.setContents([]);
     }
 }
-// ✅ Inserisci bottone emoji tra toolbar e editor
-requestAnimationFrame(() => {
-    const container = document.querySelector("#noteEditor .ql-container");
-    const toolbar = container?.querySelector(".ql-toolbar");
-    const editor = container?.querySelector(".ql-editor");
 
-    if (toolbar && editor && !document.getElementById("emojiEditorBtn")) {
-        const emojiWrapper = document.createElement("div");
-        emojiWrapper.className = "editor-toolbar-extension";
-        emojiWrapper.innerHTML = `<button id="emojiEditorBtn" title="Emoji">😊</button>`;
-        toolbar.insertAdjacentElement("afterend", emojiWrapper);
 
-        const emojiEditorBtn = document.getElementById("emojiEditorBtn");
-        emojiEditorBtn.addEventListener("click", () => {
-            const rect = emojiEditorBtn.getBoundingClientRect();
-            const pickerWidth = 300;
-            const spaceRight = window.innerWidth - rect.left;
-
-            emojiPickerForQuill.style.left =
-                spaceRight < pickerWidth ? `${rect.right - pickerWidth}px` : `${rect.left}px`;
-            emojiPickerForQuill.style.top = `${rect.bottom + 8}px`;
-            emojiPickerForQuill.style.display = emojiPickerForQuill.style.display === "block" ? "none" : "block";
-        });
-    }
-});
 
 function closeEditorModal() {
     document.getElementById("noteEditorModal").style.display = "none";
@@ -275,3 +275,77 @@ emojiEditorBtn?.addEventListener("click", () => {
     emojiPickerForQuill.style.top = `${rect.bottom + 8}px`;
     emojiPickerForQuill.style.display = emojiPickerForQuill.style.display === "block" ? "none" : "block";
 });
+
+
+// 🔥 Gestione logout
+async function logoutUser() {
+    try {
+        await signOut(auth);
+        localStorage.clear();
+        console.log("✅ Logout completato, utente disconnesso!");
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1000);
+    } catch (error) {
+        console.error("❌ Errore nel logout:", error);
+        alert("Errore nel logout: " + error.message);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const logoutButton = document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logoutUser);
+        console.log("✅ Pulsante logout registrato correttamente!");
+    } else {
+        console.warn("⚠ Pulsante logout non trovato!");
+    }
+});
+
+window.logoutUser = logoutUser;
+
+// 🔥 Gestione della sidebar con caricamento email utente
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("sidebar.html")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("sidebarContainer").innerHTML = data;
+            updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
+        })
+        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
+});
+
+function updateUserInfo() {
+    const userEmailElement = document.getElementById("userEmail");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato!");
+        return;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userEmailElement.innerText = user.email;
+        } else {
+            userEmailElement.innerText = "Non autenticato";
+        }
+    });
+}
+
+// 🔥 Funzione per aprire/chiudere la sidebar
+window.toggleSidebar = function () {
+    const sidebar = document.getElementById("sidebar");
+    if (!sidebar) {
+        console.warn("⚠ Sidebar non trovata!");
+        return;
+    }
+
+    sidebar.style.left = sidebar.style.left === "0px" ? "-350px" : "0px";
+    console.log("🔄 Sidebar toggled:", sidebar.style.left);
+};
+
+// 🔥 Funzione per navigare tra le pagine dalla sidebar
+window.navigateTo = function (page) {
+    window.location.href = page;
+};
