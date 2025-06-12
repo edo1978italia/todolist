@@ -28,55 +28,54 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("✅ Lista aggiornata con", snapshot.docs.length, "note.");
 
         noteList.innerHTML = ""; // 🔄 Reset lista
-        snapshot.docs.forEach((docSnap) => {
-            console.log("📌 Nota ricevuta:", docSnap.data());
+        snapshot.docs.forEach((docSnap, index) => {
+    console.log("📌 Nota ricevuta:", docSnap.data());
 
-            const li = document.createElement("li");
-            li.classList.add("note-box");
-            li.setAttribute("data-content", docSnap.data().content);
+    const li = document.createElement("li");
+    li.classList.add("note-box");
+    li.classList.add(index % 2 === 0 ? "even" : "odd"); // ✅ alternanza colore
+    li.setAttribute("data-content", docSnap.data().content);
 
-            li.innerHTML = `
-                <h3>${docSnap.data().title}</h3>
-                <div class="note-options">
-                    <button class="options-button" data-id="${docSnap.id}">⋮</button>
-                    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-                        <button class="menu-edit" data-id="${docSnap.id}">✏ Modifica</button>
-                        <button class="menu-delete" data-id="${docSnap.id}">🗑 Elimina</button>
-                    </div>
-                </div>
-            `;
+    li.innerHTML = `
+        <h3>${docSnap.data().title}</h3>
+        <div class="note-options">
+            <button class="options-button" data-id="${docSnap.id}">⋮</button>
+            <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+                <button class="menu-edit" data-id="${docSnap.id}">✏ Modifica</button>
+                <button class="menu-delete" data-id="${docSnap.id}">🗑 Elimina</button>
+            </div>
+        </div>
+    `;
 
-            noteList.appendChild(li);
+    noteList.appendChild(li);
 
-            // 🔧 Gestione menu
-            const menuButton = li.querySelector(".options-button");
-            const optionsMenu = li.querySelector(".options-menu");
+    // 🔧 Gestione menu
+    const menuButton = li.querySelector(".options-button");
+    const optionsMenu = li.querySelector(".options-menu");
 
-            menuButton.addEventListener("click", (event) => {
-                event.stopPropagation(); // 🔒 Evita chiusura accidentale
-                const isVisible = optionsMenu.style.display === "block";
-                // Chiudi eventuali altri menu aperti
-                document.querySelectorAll(".options-menu").forEach(menu => menu.style.display = "none");
-                optionsMenu.style.display = isVisible ? "none" : "block";
-            });
+    menuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isVisible = optionsMenu.style.display === "block";
+        document.querySelectorAll(".options-menu").forEach(menu => menu.style.display = "none");
+        optionsMenu.style.display = isVisible ? "none" : "block";
+    });
 
-            // 🔒 Chiudi menu cliccando fuori
-            document.addEventListener("click", () => {
-                optionsMenu.style.display = "none";
-            });
+    document.addEventListener("click", () => {
+        optionsMenu.style.display = "none";
+    });
 
-            // 🛠 Azioni menu
-            optionsMenu.querySelector(".menu-edit").addEventListener("click", () => {
-                openEditorModal(docSnap.id);
-            });
+    optionsMenu.querySelector(".menu-edit").addEventListener("click", () => {
+        openEditorModal(docSnap.id);
+    });
 
-            optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
-                if (confirm("🗑 Vuoi eliminare questa nota?")) {
-                    await deleteDoc(doc(db, "notes", docSnap.id));
-                    console.log("✅ Nota eliminata:", docSnap.id);
-                }
-            });
-        });
+    optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
+        if (confirm("🗑 Vuoi eliminare questa nota?")) {
+            await deleteDoc(doc(db, "notes", docSnap.id));
+            console.log("✅ Nota eliminata:", docSnap.id);
+        }
+    });
+});
+
     });
 });
 

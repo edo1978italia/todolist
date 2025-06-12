@@ -23,13 +23,14 @@
     align-items: center;
 }
 /* Alternanza colori: bianco / grigio */
-#noteList > li:nth-child(odd) {
+.note-box.even {
     background-color: #ffffff;
 }
 
-#noteList > li:nth-child(even) {
+.note-box.odd {
     background-color: #f7f7f7;
 }
+
 
 
 
