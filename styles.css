@@ -818,6 +818,8 @@ textarea {
 
 /* 🔥 WIDGET NOTE */
 #notesPreviewContainer {
+    margin: auto;
+    max-width: 600px;
     background-color: #f9f9f9;
     padding: 12px;
     margin-top: 10px;
@@ -828,7 +830,7 @@ textarea {
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 6px;
-    padding: 1px;
+    padding: 10px;
     margin-bottom: 1px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
