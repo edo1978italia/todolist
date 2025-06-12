@@ -183,6 +183,7 @@
     flex-direction: column;
     /* ✅ Questo lo centra dentro il contenitore flex */
     margin: auto;
+    margin-top: 40px;
     
     
 }
