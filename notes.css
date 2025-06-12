@@ -11,13 +11,27 @@
 
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
-    position: relative; /* Per posizionare elementi interni come il menu a 3 puntini */
-    padding: 10px; /* Spaziatura interna */
-    border-bottom: 1px solid #ccc; /* Separatore tra le note */
-    display: flex; /* Layout in riga tra titolo e pulsante menu */
-    justify-content: space-between; /* Titolo a sinistra, menu a destra */
-    align-items: center; /* Allinea verticalmente al centro */
+    position: relative;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    background-color: #ffffff; /* ✅ Sfondo bianco del box */
+    border: 1px solid #ddd; /* ✅ Bordo leggero */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* ✅ Ombra leggera per staccarla dallo sfondo */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+/* Alternanza colori: bianco / grigio */
+#noteList > li:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+#noteList > li:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+
 
 /* 📝 Stile del titolo della nota */
 .note-box h3 {
