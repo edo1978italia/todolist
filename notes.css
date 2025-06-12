@@ -18,17 +18,16 @@
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
     position: relative;
-    padding: 1px;
+    padding: 10px;
     border-radius: 8px;
     border: 1px solid #ddd; /* ✅ Bordo leggero */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* ✅ Ombra leggera per staccarla dallo sfondo */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2px;
-    
-    
+    margin-bottom: 5px;
 }
+
 /* Alternanza colori: bianco / grigio */
 .note-box.even {
     background-color: #ffffff;
