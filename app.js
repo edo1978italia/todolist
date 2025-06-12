@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
             li.innerHTML = `
     <div class="note-content">
         <h3>${data.title}</h3>
-        <div class="note-meta">🕒 ${dateStr} alle ${timeStr} • 👤 ${userId}</div>
+        <div class="note-meta">🕒 ${dateStr} - ${timeStr}</div>
     </div>
     <div class="note-options">
         <button class="options-button" data-id="${docSnap.id}">⋮</button>
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
-                if (confirm("🗑 Vuoi eliminare questa nota?")) {
+                if (confirm("🗑 Do you want to delete the note?")) {
                     await deleteDoc(doc(db, "notes", docSnap.id));
                     console.log("✅ Nota eliminata:", docSnap.id);
                 }
@@ -127,6 +127,8 @@ function openEditorModal(noteId = null) {
         });
     } else {
         titleInput.value = "";
+        window.quill.setContents([]);
+
     }
 }
 

@@ -1,3 +1,6 @@
+
+
+
 /* 🔥🔥🔥🔥🔥🔥PAGINA NOTE🔥🔥🔥🔥🔥🔥 */
 /* 🔥 Stile per il contenitore delle note */
 /* 🔥 Layout verticale per le note */
@@ -101,22 +104,8 @@
     background-color: #a0a0a0; /* Colore di evidenziazione al passaggio del mouse */
 }
 
-/* 🔥 pop up creazione e modifica NOTE */
-#noteEditorModal {
-    position: fixed;
-    top: 10%;
-    left: 50%;
-    transform: translate(-50%, 0);
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 600px; /* 🔥 Limitiamo l'altezza */
-    overflow-y: auto; /* ✅ Se il contenuto è troppo lungo, abilitiamo lo scroll */
-    z-index: 1000;
-}
+
+
 
 .noteEditorContent .ql-toolbar {
     background-color: #f8f8f8;
@@ -132,10 +121,10 @@
 
 .close {
     position: absolute;
-    top: 10px;
+    top: 1px;
     right: 15px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 30px;
 }
 
 
@@ -162,31 +151,40 @@
     text-align: left; /* ✅ Forza l'allineamento a sinistra */
     font-size: 10px;
     color: #888;
-    margin-top: 4px;
+    margin-top: 1px;
+    margin-left: 3px;
+    margin-bottom: 3px;
 }
-
+/* 🔥 pop up creazione e modifica NOTE */
 /* 🔲 Modale trasparente fullscreen (sfondo nero semi-trasparente) */
+/* Overlay a schermo intero */
 #noteEditorModal {
     position: fixed;
     inset: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center;   /* ➡️ Centro orizzontale */
+    align-items: center;       /* ⬇️ Centro verticale */
     background: rgba(0, 0, 0, 0.3);
     z-index: 1000;
     overflow: hidden;
+    
 }
 
+
+/* Contenitore della nota */
 .noteEditorInner {
+    background: #fff;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    height: 90%;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    width: 90%;
-    max-width: 800px;
-    max-height: 80vh;
-    overflow-y: auto;
-    background: #fff;
-    border-radius: 8px;
-    margin: auto; /* 💡 Questo lo centra dentro il flex container */
+    /* ✅ Questo lo centra dentro il contenitore flex */
+    margin: auto;
+    
+    
 }
 
 
@@ -196,11 +194,15 @@
     top: 0;
     z-index: 1;
     background: white;
-    padding: 10px 16px;
+    padding-top: 30px;
+    padding-left: 16px;
+    padding-right: 17px;
     display: flex;
     align-items: center;
     gap: 12px;
     border-bottom: 1px solid #ddd;
+    margin-top: 10px;
+    margin-bottom: 1px;
 }
 
 /* ✍️ Input titolo */
@@ -212,6 +214,7 @@
 
 /* 📄 Area di scrittura (nessuno scroll qui) */
 .noteEditorContent {
-    padding: 16px;
+    position: sticky;
+    padding: 26px;
     flex: 1; /* Permette di espandersi fino al limite dello scroll di .noteEditorInner */
 }
