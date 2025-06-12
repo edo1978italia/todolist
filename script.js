@@ -112,7 +112,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
 // 🔥 Recupero email su tutte le pagine
 document.addEventListener("DOMContentLoaded", () => {
     function aggiornaEmail() {
@@ -125,11 +124,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 🔥 Aspetta Firebase Authentication e aggiorna email
         onAuthStateChanged(auth, (user) => {
+            const sidebarContainer = document.getElementById("sidebarContainer");
+            const openSidebarButton = document.getElementById("openSidebar");
+
             if (user) {
-                userEmailElement.textContent = user.email;
-                console.log("✅ Email aggiornata correttamente:", user.email);
+                console.log("✅ Utente autenticato:", user.email);
+
+                sidebarContainer.style.display = "block"; // 🔥 Mostra la sidebar
+                openSidebarButton.style.display = "block"; // 🔥 Mostra il pulsante di apertura
             } else {
-                console.warn("⚠ Utente non autenticato.");
+                console.warn("⚠ Utente non autenticato, rimuoviamo sidebar e pulsante!");
+
+                // 🔥 Rimuove completamente il contenuto della sidebar
+                if (sidebarContainer) {
+                    sidebarContainer.innerHTML = "";
+                    sidebarContainer.style.display = "none";
+                }
+
+                if (openSidebarButton) {
+                    openSidebarButton.style.display = "none";
+                }
+
+                console.log("✅ Sidebar e pulsante rimossi correttamente dopo il logout!");
             }
         });
     }
@@ -154,10 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((error) => console.error("❌ Errore nel caricamento della sidebar:", error));
 });
-
-
-
-
 
 // 🔥 Gestione sidebar
 window.toggleSidebar = function () {
@@ -194,7 +206,6 @@ document.addEventListener("DOMContentLoaded", function () {
 // 🔥 Recupero dati da Firebase per il widget delle ricette
 import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-
 document.addEventListener("DOMContentLoaded", async function () {
     const latestRecipesList = document.getElementById("latestRecipesList");
 
@@ -207,18 +218,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         const recipesQuery = query(collection(db, "ricette"), orderBy("timestamp", "desc"), limit(3)); // 🔥 Ordina per timestamp
         const querySnapshot = await getDocs(recipesQuery);
 
-        let recipesArray = querySnapshot.docs.map(doc => doc.data());
+        let recipesArray = querySnapshot.docs.map((doc) => doc.data());
 
         if (recipesArray.length === 0) {
             latestRecipesList.innerHTML = "<p>❌ Nessuna ricetta disponibile!</p>";
         } else {
             latestRecipesList.innerHTML = recipesArray
-                .map(recipe => `
+                .map(
+                    (recipe) => `
                     <div class="recipe-widget-item">
-                        <img src="${recipe.immagineUrl || 'placeholder.jpg'}" alt="${recipe.nome}" class="recipe-widget-img">
+                        <img src="${recipe.immagineUrl || "placeholder.jpg"}" alt="${recipe.nome}" class="recipe-widget-img">
                         <p class="recipe-widget-name">${recipe.nome}</p>
                     </div>
-                `)
+                `
+                )
                 .join("");
         }
     } catch (error) {
@@ -227,3 +240,37 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
+// 🔥 Recupero dati da Firebase per il widget della lista To-Do
+document.addEventListener("DOMContentLoaded", async function () {
+  const notesPreviewList = document.getElementById("notesPreviewList");
+
+  if (!notesPreviewList) {
+    console.error("❌ Elemento 'notesPreviewList' non trovato nel DOM!");
+    return;
+  }
+
+  try {
+    const notesQuery = query(collection(db, "notes"), orderBy("timestamp", "desc"), limit(3));
+    const notesSnapshot = await getDocs(notesQuery);
+
+    const notesArray = notesSnapshot.docs.map((doc) => doc.data());
+
+    if (notesArray.length === 0) {
+      notesPreviewList.innerHTML = "<p>❌ Nessuna nota disponibile.</p>";
+    } else {
+      notesPreviewList.innerHTML = notesArray
+        .map(
+          (note) => `
+          <div class="note-preview-box">
+            <h4 class="note-preview-title">${note.title || "Senza titolo"}</h4>
+            <p class="note-preview-content">${note.content?.replace(/<[^>]+>/g, "").slice(0, 120) || ""}...</p>
+          </div>
+        `
+        )
+        .join("");
+    }
+  } catch (error) {
+    console.error("❌ Errore nel recupero delle note:", error);
+    notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note.</p>";
+  }
+});

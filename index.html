@@ -45,7 +45,9 @@
                             if (userEmailElement && typeof aggiornaEmail === "function") {
                                 aggiornaEmail();
                             } else {
-                                console.error("❌ Elemento 'userEmail' ancora non trovato o funzione aggiornaEmail non disponibile!");
+                                console.error(
+                                    "❌ Elemento 'userEmail' ancora non trovato o funzione aggiornaEmail non disponibile!"
+                                );
                             }
                         }, 500);
                     })
@@ -69,6 +71,15 @@
                 <div id="latestRecipesList"></div>
                 <div class="widget-button-container">
                     <button class="widget-button" onclick="navigateTo('ricettelista.html')">See All Recipes</button>
+                </div>
+            </div>
+
+            <!-- 🔥 Widget anteprima delle note -->
+            <div id="notesPreviewContainer">
+                <h3 class="widget-title">Note Recenti</h3>
+                <div id="notesPreviewList"></div>
+                <div class="widget-button-container">
+                    <button class="widget-button" onclick="navigateTo('notes-home.html')">Vedi tutte le note</button>
                 </div>
             </div>
         </div>

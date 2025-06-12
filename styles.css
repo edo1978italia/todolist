@@ -293,7 +293,6 @@ input {
     z-index: 1100; /* ✅ Assicuriamoci che abbia la priorità */
 }
 
-
 .close {
     float: right;
     font-size: 24px;
@@ -336,13 +335,10 @@ input {
     cursor: pointer;
     text-align: left; /* 🔥 Allinea il testo a sinistra */
     padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
-    
 }
 
 #sidebar nav {
     display: block; /* 🔥 Nasconde il menu di default */
-    
-    
 }
 
 #sidebar nav button:hover {
@@ -350,7 +346,6 @@ input {
     text-align: left; /* 🔥 Allinea il testo a sinistra */
     padding-left: 10px; /* 🔥 Aggiunge spazio a sinistra per migliorare la leggibilità */
     transform: none; /* 🔥 Rimuove l'ingrandimento */
-    
 }
 #openSidebar {
     position: fixed;
@@ -470,7 +465,6 @@ input {
     font-style: italic;
 }
 
-
 /* 🔥 WIDGET ULTIME RICETTE HOME */
 #latestRecipesContainer {
     margin-top: 2px;
@@ -509,7 +503,6 @@ input {
     margin-top: 3px;
     margin-bottom: 3px;
 }
-
 
 /* 🔥 INIZIO RICETTE LISTA*/
 
@@ -585,8 +578,6 @@ input {
     margin-top: 1px;
 }
 
-
-
 /* 🔥 Pulsanti per vedere i dettagli */
 .recipe-button {
     height: 30px; /* 🔥 Imposta un'altezza fissa */
@@ -606,11 +597,9 @@ input {
     background: #0056b3;
 }
 
-
 /* 🔥 Stile per ogni riquadro della ricetta */
 .recipe-item:hover {
     transform: scale(1.01); /* 🔥 Leggera espansione al passaggio del mouse */
-    
 }
 
 /* 🔥 ADD/EDIT Recipe NUOVA RICETTA*/
@@ -642,13 +631,11 @@ textarea {
     margin: 0 auto;
 }
 
-
 #difficultyIcon {
     width: 30px;
     height: 30px;
     margin-left: 10px;
 }
-
 
 /* 🔥 Contenitore principale per gli input */
 #recipeInputContainer {
@@ -661,7 +648,10 @@ textarea {
 }
 
 /* 🔥 Stile per il pulsante */
-#saveRecipeButton, #deleteRecipeButton, #backButton, #editRecipeButton {
+#saveRecipeButton,
+#deleteRecipeButton,
+#backButton,
+#editRecipeButton {
     width: 120px; /* 🔥 Dimensione ottimale */
     padding: 10px;
     font-size: 13px;
@@ -680,7 +670,7 @@ textarea {
 }
 
 /* 🔥 Stile per il menu a tendina */
-#categoryFilter  {
+#categoryFilter {
     width: 100%; /* 🔥 Occupa tutta la larghezza del contenitore */
     max-width: 300px; /* 🔥 Espande la larghezza predefinita */
     padding: 10px;
@@ -697,11 +687,11 @@ textarea {
 }
 
 /* 🔥 Stile per le opzioni all'interno del menu */
-#recipeCategory, #categoryFilter option {
+#recipeCategory,
+#categoryFilter option {
     padding: 5px;
     font-size: 16px;
 }
-
 
 /* 🔥 Stile per il menu a tendina */
 #recipeDifficulty {
@@ -755,8 +745,6 @@ textarea {
     border: none;
 }
 
-
-
 /* 🔥 RICETTA SINGOLA RICETTA.HTML */
 .recipe-title {
     font-size: 8px; /* 🔥 Titolo più grande */
@@ -794,15 +782,15 @@ textarea {
     appearance: none; /* 🔥 Rimuove lo stile predefinito del browser */
 }
 
-
-
 .recipe-column {
     width: 48%; /* 🔥 Divide in due colonne */
     text-align: center; /* 🔥 Allinea il testo a destra */
 }
 
 /* 🔥 TRE BOX INFO< INGREDIENTI< PROCEDURA */
-.recipe-info-box, .ingredients-box, .procedure-box {
+.recipe-info-box,
+.ingredients-box,
+.procedure-box {
     font-size: 13px;
     max-width: 600px;
     margin: auto;
@@ -817,8 +805,6 @@ textarea {
     margin-bottom: 5px;
 }
 
-
-
 .recipe-column {
     width: 48%;
 }
@@ -830,6 +816,33 @@ textarea {
     margin: 0 auto;
 }
 
+/* 🔥 WIDGET NOTE */
+#notesPreviewContainer {
+    background-color: #f9f9f9;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+}
 
+.note-preview-box {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1px;
+    margin-bottom: 1px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
+.note-preview-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+    margin-top: 3px;
+    font-size: 12px;
+}
 
+.note-preview-content {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    font-size: 12px;
+    color: #333;
+}
