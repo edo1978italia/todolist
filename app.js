@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     onSnapshot(query(collection(db, "notes"), orderBy("timestamp", "desc")), (snapshot) => {
         console.log("✅ Lista aggiornata con", snapshot.docs.length, "note.");
-        
+
         noteList.innerHTML = ""; // 🔄 Reset lista
         snapshot.docs.forEach((docSnap) => {
             console.log("📌 Nota ricevuta:", docSnap.data());
@@ -37,16 +37,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
             li.innerHTML = `
                 <h3>${docSnap.data().title}</h3>
-                <button class="editNoteButton" data-id="${docSnap.id}">✏ Modifica</button>
+                <div class="note-options">
+                    <button class="options-button" data-id="${docSnap.id}">⋮</button>
+                    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+                        <button class="menu-edit" data-id="${docSnap.id}">✏ Modifica</button>
+                        <button class="menu-delete" data-id="${docSnap.id}">🗑 Elimina</button>
+                    </div>
+                </div>
             `;
-            noteList.appendChild(li);
-        });
 
-        // 🔥 Collega gli eventi ai pulsanti "Modifica"
-        document.querySelectorAll(".editNoteButton").forEach(button => {
-            button.addEventListener("click", (event) => {
-                const noteId = event.target.getAttribute("data-id");
-                openEditorModal(noteId);
+            noteList.appendChild(li);
+
+            // 🔧 Gestione menu
+            const menuButton = li.querySelector(".options-button");
+            const optionsMenu = li.querySelector(".options-menu");
+
+            menuButton.addEventListener("click", (event) => {
+                event.stopPropagation(); // 🔒 Evita chiusura accidentale
+                const isVisible = optionsMenu.style.display === "block";
+                // Chiudi eventuali altri menu aperti
+                document.querySelectorAll(".options-menu").forEach(menu => menu.style.display = "none");
+                optionsMenu.style.display = isVisible ? "none" : "block";
+            });
+
+            // 🔒 Chiudi menu cliccando fuori
+            document.addEventListener("click", () => {
+                optionsMenu.style.display = "none";
+            });
+
+            // 🛠 Azioni menu
+            optionsMenu.querySelector(".menu-edit").addEventListener("click", () => {
+                openEditorModal(docSnap.id);
+            });
+
+            optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
+                if (confirm("🗑 Vuoi eliminare questa nota?")) {
+                    await deleteDoc(doc(db, "notes", docSnap.id));
+                    console.log("✅ Nota eliminata:", docSnap.id);
+                }
             });
         });
     });
@@ -55,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
     const modal = document.getElementById("noteEditorModal");
-    const modalContent = modal.querySelector(".noteEditorContent"); 
+    const modalContent = modal.querySelector(".noteEditorContent");
     const titleInput = document.getElementById("noteEditorTitle");
     const saveButton = document.getElementById("saveNoteEditorButton");
 
@@ -69,17 +97,17 @@ function openEditorModal(noteId = null) {
             modules: {
                 toolbar: [
                     [{ header: [1, 2, false] }],
-                    ["bold", "italic", "underline", "strike"], 
+                    ["bold", "italic", "underline", "strike"],
                     [{ list: "ordered" }, { list: "bullet" }],
                     [{ script: "sub" }, { script: "super" }],
                     [{ indent: "-1" }, { indent: "+1" }],
                     [{ direction: "rtl" }],
-                    [{ size: ["small", false, "large", "huge"] }], 
+                    [{ size: ["small", false, "large", "huge"] }],
                     [{ color: [] }, { background: [] }],
                     [{ font: [] }],
                     [{ align: [] }],
-                    ["link", "image"], 
-                    ["clean"] 
+                    ["link", "image"],
+                    ["clean"]
                 ]
             }
         });

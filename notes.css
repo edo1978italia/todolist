@@ -1,0 +1,111 @@
+/* 🔥🔥🔥🔥🔥🔥PAGINA NOTE🔥🔥🔥🔥🔥🔥 */
+/* 🔥 Stile per il contenitore delle note */
+/* 🔥 Layout verticale per le note */
+#noteList {
+    list-style: none; /* ✅ Rimuove i puntini neri */
+    display: flex;
+    flex-direction: column; /* ✅ Disposizione verticale */
+    gap: 10px; /* 🔄 Spazio tra le note */
+    padding: 0;
+}
+
+/* 📦 Contenitore visivo di ogni singola nota */
+.note-box {
+    position: relative; /* Per posizionare elementi interni come il menu a 3 puntini */
+    padding: 10px; /* Spaziatura interna */
+    border-bottom: 1px solid #ccc; /* Separatore tra le note */
+    display: flex; /* Layout in riga tra titolo e pulsante menu */
+    justify-content: space-between; /* Titolo a sinistra, menu a destra */
+    align-items: center; /* Allinea verticalmente al centro */
+}
+
+/* 📝 Stile del titolo della nota */
+.note-box h3 {
+    margin: 0; /* Rimuove margine predefinito */
+    flex: 1; /* Occupa tutto lo spazio disponibile prima del menu */
+    font-size: 1.1rem; /* Dimensione leggermente più grande */
+}
+
+/* 📍 Contenitore del menu dei 3 puntini */
+.note-options {
+    position: relative; /* Serve per posizionare il menu a tendina assolutamente rispetto a questo */
+}
+
+/* ☰ Stile del pulsante dei 3 puntini */
+.options-button {
+    background: none; /* Nessun colore di sfondo */
+    border: none; /* Nessun bordo */
+    font-size: 20px; /* Grandezza visibile dei 3 puntini */
+    cursor: pointer; /* Mostra il cursore interattivo */
+    padding: 5px 10px; /* Spaziatura intorno */
+}
+
+/* 🔽 Menu a tendina che compare cliccando sui 3 puntini */
+.options-menu {
+    position: absolute; /* Posizionato rispetto a .note-options */
+    top: 30px; /* Distanza verticale dal pulsante */
+    right: 0; /* Allineato a destra */
+    display: flex; /* Layout per i bottoni */
+    flex-direction: column; /* Posizionati uno sotto l'altro */
+    background: #fff; /* Sfondo bianco */
+    border: 1px solid #ccc; /* Bordo sottile grigio */
+    border-radius: 6px; /* Angoli arrotondati */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+    z-index: 100; /* Priorità sopra altri elementi */
+    min-width: 120px; /* Larghezza minima del menu */
+}
+
+/* 🔘 Bottoni dentro il menu (Modifica / Elimina) */
+.options-menu button {
+    background: none; /* Nessuno sfondo iniziale */
+    border: none; /* Nessun bordo */
+    padding: 10px 15px; /* Spaziatura interna */
+    text-align: left; /* Allinea il testo a sinistra */
+    width: 100%; /* Occupa tutto lo spazio del menu */
+    font-size: 14px; /* Dimensione testo comoda */
+    cursor: pointer; /* Interattivo */
+}
+
+/* 🎨 Hover sui bottoni del menu */
+.options-menu button:hover {
+    background-color: #f0f0f0; /* Colore di evidenziazione al passaggio del mouse */
+}
+
+
+/* 🔥 pop up creazione e modifica NOTE */
+#noteEditorModal {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 1000px; /* 🔥 Limitiamo l'altezza */
+    overflow-y: auto; /* ✅ Se il contenuto è troppo lungo, abilitiamo lo scroll */
+    z-index: 1000;
+}
+
+.noteEditorContent .ql-toolbar {
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.noteEditorContent .ql-editor {
+    min-height: 300px;
+    font-size: 16px;
+    padding: 10px;
+}
+
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+}
