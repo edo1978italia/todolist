@@ -26,70 +26,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
     onSnapshot(query(collection(db, "notes"), orderBy("timestamp", "desc")), (snapshot) => {
         console.log("✅ Lista aggiornata con", snapshot.docs.length, "note.");
-
         noteList.innerHTML = ""; // 🔄 Reset lista
+
         snapshot.docs.forEach((docSnap, index) => {
-    console.log("📌 Nota ricevuta:", docSnap.data());
+            const li = document.createElement("li");
+            li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
+            li.setAttribute("data-content", docSnap.data().content);
 
-    const li = document.createElement("li");
-    li.classList.add("note-box");
-    li.classList.add(index % 2 === 0 ? "even" : "odd"); // ✅ alternanza colore
-    li.setAttribute("data-content", docSnap.data().content);
+            li.innerHTML = `
+                <div class="note-options">
+                    <button class="options-button" data-id="${docSnap.id}">⋮</button>
+                    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+                        <button class="menu-edit">✏ Modifica</button>
+                        <button class="menu-delete">🗑 Elimina</button>
+                    </div>
+                </div>
+                <h3>${docSnap.data().title}</h3>
+            `;
 
-    li.innerHTML = `
-        <h3>${docSnap.data().title}</h3>
-        <div class="note-options">
-            <button class="options-button" data-id="${docSnap.id}">⋮</button>
-            <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-                <button class="menu-edit" data-id="${docSnap.id}">✏ Modifica</button>
-                <button class="menu-delete" data-id="${docSnap.id}">🗑 Elimina</button>
-            </div>
-        </div>
-    `;
+            noteList.appendChild(li);
 
-    noteList.appendChild(li);
+            const menuButton = li.querySelector(".options-button");
+            const optionsMenu = li.querySelector(".options-menu");
 
-    // 🔧 Gestione menu
-    const menuButton = li.querySelector(".options-button");
-    const optionsMenu = li.querySelector(".options-menu");
+            menuButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                const isVisible = optionsMenu.style.display === "block";
+                document.querySelectorAll(".options-menu").forEach(menu => menu.style.display = "none");
+                optionsMenu.style.display = isVisible ? "none" : "block";
+            });
 
-    menuButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        const isVisible = optionsMenu.style.display === "block";
-        document.querySelectorAll(".options-menu").forEach(menu => menu.style.display = "none");
-        optionsMenu.style.display = isVisible ? "none" : "block";
-    });
+            document.addEventListener("click", () => {
+                optionsMenu.style.display = "none";
+            });
 
-    document.addEventListener("click", () => {
-        optionsMenu.style.display = "none";
-    });
+            optionsMenu.querySelector(".menu-edit").addEventListener("click", () => {
+                openEditorModal(docSnap.id);
+            });
 
-    optionsMenu.querySelector(".menu-edit").addEventListener("click", () => {
-        openEditorModal(docSnap.id);
-    });
-
-    optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
-        if (confirm("🗑 Vuoi eliminare questa nota?")) {
-            await deleteDoc(doc(db, "notes", docSnap.id));
-            console.log("✅ Nota eliminata:", docSnap.id);
-        }
-    });
-});
-
+            optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
+                if (confirm("🗑 Vuoi eliminare questa nota?")) {
+                    await deleteDoc(doc(db, "notes", docSnap.id));
+                    console.log("✅ Nota eliminata:", docSnap.id);
+                }
+            });
+        });
     });
 });
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
     const modal = document.getElementById("noteEditorModal");
-    const modalContent = modal.querySelector(".noteEditorContent");
     const titleInput = document.getElementById("noteEditorTitle");
     const saveButton = document.getElementById("saveNoteEditorButton");
 
     modal.style.display = "block";
     saveButton.setAttribute("data-id", noteId || "new");
 
-    // 🔥 Inizializza Quill.js con una toolbar completa
     if (!window.quill) {
         window.quill = new Quill("#noteEditor", {
             theme: "snow",
@@ -110,7 +103,7 @@ function openEditorModal(noteId = null) {
                 ]
             }
         });
-        console.log("✅ Quill.js inizializzato con toolbar avanzata!");
+        console.log("✅ Quill.js inizializzato!");
     }
 
     if (noteId) {
@@ -118,8 +111,6 @@ function openEditorModal(noteId = null) {
             if (docSnap.exists()) {
                 titleInput.value = docSnap.data().title || "";
                 window.quill.root.innerHTML = docSnap.data().content || "<p>Inizia a scrivere qui...</p>";
-            } else {
-                console.error("❌ Nota non trovata!");
             }
         });
     } else {
@@ -132,24 +123,21 @@ function closeEditorModal() {
     document.getElementById("noteEditorModal").style.display = "none";
 }
 
-// 🔥 Assicuriamoci che il tasto "X" chiuda il popup
 document.addEventListener("DOMContentLoaded", () => {
     const closeButton = document.querySelector(".close");
     if (closeButton) {
         closeButton.addEventListener("click", () => {
             closeEditorModal();
         });
-    } else {
-        console.error("❌ Il tasto X non è stato trovato nel DOM!");
     }
 });
 
-// 🔥 Creazione nuova nota con apertura modale (senza salvarla subito)
+// 🔥 Crea nuova nota solo alla conferma
 document.getElementById("createNoteButton").addEventListener("click", () => {
-    openEditorModal(); // 🔥 Apriamo il modale SENZA creare subito la nota
+    openEditorModal();
 });
 
-// 🔥 Salvataggio delle modifiche SOLO se l'utente ha scritto qualcosa
+// 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) return alert("⚠ Devi essere loggato!");
@@ -165,20 +153,18 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     }
 
     if (noteId === "new") {
-        const docRef = await addDoc(collection(db, "notes"), {
+        await addDoc(collection(db, "notes"), {
             title: title || "Nuova Nota",
             content: content,
             userId: user.uid,
             timestamp: new Date()
         });
-        console.log("✅ Nuova nota creata con ID:", docRef.id);
     } else {
         await updateDoc(doc(db, "notes", noteId), {
             title: title,
             content: content,
             timestamp: new Date()
         });
-        console.log("✅ Nota aggiornata con ID:", noteId);
     }
 
     alert("✅ Nota salvata!");
