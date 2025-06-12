@@ -174,7 +174,7 @@
 .noteEditorInner {
     background: #fff;
     border-radius: 10px;
-    width: 90%;
+    width: 95%;
     max-width: 600px;
     height: 90%;
     overflow-y: auto;
@@ -214,7 +214,8 @@
 
 /* 📄 Area di scrittura (nessuno scroll qui) */
 .noteEditorContent {
+    width: 99%;
     position: sticky;
-    padding: 26px;
+    padding: 2px;
     flex: 1; /* Permette di espandersi fino al limite dello scroll di .noteEditorInner */
 }

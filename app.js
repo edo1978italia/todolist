@@ -103,12 +103,9 @@ function openEditorModal(noteId = null) {
                     [{ header: [1, 2, false] }],
                     ["bold", "italic", "underline", "strike"],
                     [{ list: "ordered" }, { list: "bullet" }],
-                    [{ script: "sub" }, { script: "super" }],
                     [{ indent: "-1" }, { indent: "+1" }],
                     [{ direction: "rtl" }],
-                    [{ size: ["small", false, "large", "huge"] }],
                     [{ color: [] }, { background: [] }],
-                    [{ font: [] }],
                     [{ align: [] }],
                     ["link", "image"],
                     ["clean"]
@@ -159,7 +156,8 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     const title = document.getElementById("noteEditorTitle").value.trim();
     const content = window.quill.root.innerHTML.trim();
 
-    if (!title && content === "<p>Inizia a scrivere qui...</p>") {
+    if (!title && window.quill.getText().trim() === "") {
+
         alert("⚠ Empty note! It will not be saved!");
         closeEditorModal();
         return;
