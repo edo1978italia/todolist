@@ -105,17 +105,18 @@
 
 
 
-
+/* 🎨 CAMPO TOOLS EDITOR QUILL BARRA STRUMENTI */
 .noteEditorContent .ql-toolbar {
     background-color: #f8f8f8;
     border-radius: 5px;
     padding: 8px;
 }
 
+/* 🎨 CAMPO TESTO CORPO NOTA */
 .noteEditorContent .ql-editor {
     min-height: 300px;
     font-size: 16px;
-    padding: 10px;
+    padding: 12px;
 }
 
 .close {
@@ -257,4 +258,19 @@
     flex: 1; /* Permette di espandersi fino al limite dello scroll di .noteEditorInner */
 }
 
+/* ✍️ EMOTICON AGGIUNTIVA TASTO DEL CORPO NOTE */
+.editor-toolbar-extension {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px;
+}
+
+#emojiEditorBtn {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+}
 
