@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     onSnapshot(query(collection(db, "notes"), orderBy("timestamp", "desc")), (snapshot) => {
         console.log("✅ Lista aggiornata con", snapshot.docs.length, "note.");
-        noteList.innerHTML = ""; // 🔄 Reset lista
+        noteList.innerHTML = "";
 
         snapshot.docs.forEach((docSnap, index) => {
             const data = docSnap.data();
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const timeStr = timestamp
                 ? timestamp.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
                 : "";
-            const userId = data.userId || "—";
 
             const li = document.createElement("div");
             li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
@@ -48,17 +47,17 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             li.innerHTML = `
-    <div class="note-content">
-        <h3>${data.title}</h3>
-        <div class="note-meta">🕒 ${dateStr} - ${timeStr}</div>
-    </div>
-    <div class="note-options">
-        <button class="options-button" data-id="${docSnap.id}">⋮</button>
-        <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-            <button class="menu-delete">🗑 Delete</button>
+        <div class="note-content">
+          <h3>${data.title}</h3>
+          <div class="note-meta">🕒 ${dateStr} - ${timeStr}</div>
         </div>
-    </div>
-`;
+        <div class="note-options">
+          <button class="options-button" data-id="${docSnap.id}">⋮</button>
+          <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+            <button class="menu-delete">🗑 Delete</button>
+          </div>
+        </div>`;
+
             noteList.appendChild(li);
 
             const menuButton = li.querySelector(".options-button");
@@ -99,20 +98,37 @@ function openEditorModal(noteId = null) {
             theme: "snow",
             placeholder: "Write your note here",
             modules: {
-                toolbar: [
-                    [{ header: [1, 2, false] }],
-                    ["bold", "italic", "underline", "strike"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    [{ indent: "-1" }, { indent: "+1" }],
-                    [{ direction: "rtl" }],
-                    [{ color: [] }, { background: [] }],
-                    [{ align: [] }],
-                    ["link", "image"],
-                    ["clean"]
-                ]
+                toolbar: {
+                    container: [
+                        ["emoji"],
+                        [{ header: [1, 2, false] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        [{ indent: "-1" }, { indent: "+1" }],
+                        [{ direction: "rtl" }],
+                        [{ color: [] }, { background: [] }],
+                        [{ align: [] }],
+                        ["link", "image"],
+                        ["clean"]
+                    ],
+                    handlers: {
+                        emoji: () => toggleCustomEmojiPickerForQuill()
+                    }
+                }
             }
         });
-        console.log("✅ Quill.js inizializzato!");
+
+        // 👉 Inserisci il pulsante manualmente, appena la toolbar è creata
+        const toolbar = document.querySelector(".ql-toolbar");
+        if (toolbar && !toolbar.querySelector(".ql-emoji")) {
+            const button = document.createElement("button");
+            button.className = "ql-emoji";
+            button.innerText = "😊";
+            button.type = "button";
+            toolbar.insertBefore(button, toolbar.firstChild);
+        }
+
+        console.log("✅ Quill.js inizializzato con picker emoji personalizzato!");
     }
 
     if (noteId) {
@@ -125,7 +141,6 @@ function openEditorModal(noteId = null) {
     } else {
         titleInput.value = "";
         window.quill.setContents([]);
-
     }
 }
 
@@ -142,12 +157,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// 🔥 Crea nuova nota solo alla conferma
+// 🔥 Crea nuova nota
 document.getElementById("createNoteButton").addEventListener("click", () => {
     openEditorModal();
 });
 
-// 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
+// 🔥 Salvataggio nota
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) return alert("⚠ You must be logged in!");
@@ -157,7 +172,6 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     const content = window.quill.root.innerHTML.trim();
 
     if (!title && window.quill.getText().trim() === "") {
-
         alert("⚠ Empty note! It will not be saved!");
         closeEditorModal();
         return;
@@ -166,14 +180,14 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     if (noteId === "new") {
         await addDoc(collection(db, "notes"), {
             title: title || "New Note",
-            content: content,
+            content,
             userId: user.uid,
             timestamp: new Date()
         });
     } else {
         await updateDoc(doc(db, "notes", noteId), {
-            title: title,
-            content: content,
+            title,
+            content,
             timestamp: new Date()
         });
     }
@@ -182,7 +196,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     closeEditorModal();
 });
 
-// 🔍 Cerca note in tempo reale per titolo o contenuto
+// 🔍 Ricerca in tempo reale
 document.getElementById("searchNotes").addEventListener("input", () => {
     const searchTerm = document.getElementById("searchNotes").value.toLowerCase();
     const noteBoxes = document.querySelectorAll(".note-box");
@@ -190,8 +204,79 @@ document.getElementById("searchNotes").addEventListener("input", () => {
     noteBoxes.forEach((box) => {
         const title = box.querySelector("h3")?.textContent.toLowerCase() || "";
         const content = box.getAttribute("data-content")?.toLowerCase() || "";
-
         const matches = title.includes(searchTerm) || content.includes(searchTerm);
         box.style.display = matches ? "flex" : "none";
     });
+});
+
+// 👉 Emoji picker per input titolo
+const emojiPicker = document.createElement("emoji-picker");
+emojiPicker.style.position = "absolute";
+emojiPicker.style.display = "none";
+emojiPicker.style.zIndex = "9999";
+document.body.appendChild(emojiPicker);
+
+const emojiBtn = document.getElementById("emojiTitleBtn");
+const titleInput = document.getElementById("noteEditorTitle");
+
+emojiBtn.addEventListener("click", (event) => {
+    const rect = emojiBtn.getBoundingClientRect();
+    emojiPicker.style.left = `${rect.left}px`;
+    emojiPicker.style.top = `${rect.bottom + 8}px`;
+    emojiPicker.style.display = "block";
+});
+
+emojiPicker.addEventListener("emoji-click", (event) => {
+    const emoji = event.detail.unicode;
+    const start = titleInput.selectionStart;
+    const end = titleInput.selectionEnd;
+    const value = titleInput.value;
+    titleInput.value = value.slice(0, start) + emoji + value.slice(end);
+    titleInput.selectionStart = titleInput.selectionEnd = start + emoji.length;
+    titleInput.focus();
+    emojiPicker.style.display = "none";
+});
+
+document.addEventListener("click", (e) => {
+    if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
+        emojiPicker.style.display = "none";
+    }
+});
+
+// 👉 Emoji picker
+
+// 👉 Emoji picker per Quill editor (stesso del titolo)
+const emojiPickerForQuill = document.createElement("emoji-picker");
+emojiPickerForQuill.style.position = "absolute";
+emojiPickerForQuill.style.display = "none";
+emojiPickerForQuill.style.zIndex = "9999";
+document.body.appendChild(emojiPickerForQuill);
+
+function toggleCustomEmojiPickerForQuill() {
+    const button = document.querySelector(".ql-emoji");
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    const pickerWidth = 300;
+    const spaceRight = window.innerWidth - rect.left;
+
+    emojiPickerForQuill.style.left = spaceRight < pickerWidth ? `${rect.right - pickerWidth}px` : `${rect.left}px`;
+    emojiPickerForQuill.style.top = `${rect.bottom + 8}px`;
+    emojiPickerForQuill.style.display = emojiPickerForQuill.style.display === "block" ? "none" : "block";
+}
+
+emojiPickerForQuill.addEventListener("emoji-click", (event) => {
+    const emoji = event.detail.unicode;
+    const range = window.quill.getSelection(true);
+    if (range) {
+        window.quill.insertText(range.index, emoji, "user");
+        window.quill.setSelection(range.index + emoji.length);
+    }
+    emojiPickerForQuill.style.display = "none";
+});
+
+document.addEventListener("click", (e) => {
+    if (!emojiPickerForQuill.contains(e.target) && !e.target.closest(".ql-emoji")) {
+        emojiPickerForQuill.style.display = "none";
+    }
 });
