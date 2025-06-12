@@ -68,9 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 optionsMenu.style.display = "none";
             });
 
-            optionsMenu.querySelector(".menu-edit").addEventListener("click", () => {
-                openEditorModal(docSnap.id);
-            });
+            
 
             optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
                 if (confirm("🗑 Vuoi eliminare questa nota?")) {
