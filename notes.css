@@ -113,7 +113,7 @@
     padding: 20px;
     width: 90%;
     max-width: 600px;
-    max-height: 1000px; /* 🔥 Limitiamo l'altezza */
+    max-height: 600px; /* 🔥 Limitiamo l'altezza */
     overflow-y: auto; /* ✅ Se il contenuto è troppo lungo, abilitiamo lo scroll */
     z-index: 1000;
 }
@@ -138,6 +138,7 @@
     font-size: 20px;
 }
 
+
 /* 🔥 Cerca NOTE */
 #searchNotes {
     max-width: 600px;        /* 📏 Larghezza massima */
@@ -149,4 +150,68 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    margin-top: 5px;
+}
+
+/* 🔥 data creazione e info singolo box note */
+.note-content {
+    flex: 1;
+}
+
+.note-meta {
+    text-align: left; /* ✅ Forza l'allineamento a sinistra */
+    font-size: 10px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 🔲 Modale trasparente fullscreen (sfondo nero semi-trasparente) */
+#noteEditorModal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.noteEditorInner {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 8px;
+    margin: auto; /* 💡 Questo lo centra dentro il flex container */
+}
+
+
+/* 📌 Intestazione fissa: X, Titolo, Salva */
+.noteEditorHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: white;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* ✍️ Input titolo */
+.noteEditorHeader input {
+    flex: 1;
+    font-size: 1rem;
+    padding: 6px 10px;
+}
+
+/* 📄 Area di scrittura (nessuno scroll qui) */
+.noteEditorContent {
+    padding: 16px;
+    flex: 1; /* Permette di espandersi fino al limite dello scroll di .noteEditorInner */
 }

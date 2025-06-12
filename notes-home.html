@@ -25,20 +25,22 @@
 
         <!-- 🔥 Area gestione note -->
         <h2>Note Salvate</h2>
-        <button id="createNoteButton">➕ Crea Nuova Nota</button>
-        <button id="selectModeButton">🔲 Selezione</button>
+        <button id="createNoteButton">➕ New Note</button>
+
         <input type="text" id="searchNotes" placeholder="🔎 Cerca note..." />
         <div id="noteList"></div>
 
-
         <!-- 🔥 Box Modale per la gestione delle note -->
-        <div id="noteEditorModal" class="modal">
-            <div class="noteEditorContent">
-                <span class="close" onclick="closeEditorModal()">&times;</span>
-                <h2>Modifica Nota</h2>
-                <input type="text" id="noteEditorTitle" placeholder="Title" />
-                <div id="noteEditor"></div>
-                <button id="saveNoteEditorButton">💾 Salva Nota</button>
+        <div id="noteEditorModal" style="display: none">
+            <div class="noteEditorInner">
+                <div class="noteEditorHeader">
+                    <span class="close">×</span>
+                    <input id="noteEditorTitle" type="text" placeholder="Titolo nota" />
+                    <button id="saveNoteEditorButton">Salva nota</button>
+                </div>
+                <div class="noteEditorContent">
+                    <div id="noteEditor"></div>
+                </div>
             </div>
         </div>
 

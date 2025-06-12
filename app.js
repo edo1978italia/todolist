@@ -29,29 +29,36 @@ document.addEventListener("DOMContentLoaded", () => {
         noteList.innerHTML = ""; // 🔄 Reset lista
 
         snapshot.docs.forEach((docSnap, index) => {
-            const li = document.createElement("div");
+            const data = docSnap.data();
+            const timestamp = data.timestamp?.toDate?.();
+            const dateStr = timestamp ? timestamp.toLocaleDateString("it-IT") : "—";
+            const timeStr = timestamp
+                ? timestamp.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
+                : "";
+            const userId = data.userId || "—";
 
+            const li = document.createElement("div");
             li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
-            li.setAttribute("data-content", docSnap.data().content);
+            li.setAttribute("data-content", data.content);
             li.setAttribute("data-id", docSnap.id);
             li.addEventListener("click", (e) => {
-                // Evita di aprire la nota se si sta cliccando sui 3 puntini
                 if (!e.target.closest(".options-button") && !e.target.closest(".options-menu")) {
                     openEditorModal(docSnap.id);
                 }
             });
 
             li.innerHTML = `
-    <h3>${docSnap.data().title}</h3>
+    <div class="note-content">
+        <h3>${data.title}</h3>
+        <div class="note-meta">🕒 ${dateStr} alle ${timeStr} • 👤 ${userId}</div>
+    </div>
     <div class="note-options">
         <button class="options-button" data-id="${docSnap.id}">⋮</button>
         <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-            
             <button class="menu-delete">🗑 Delete</button>
         </div>
     </div>
 `;
-
             noteList.appendChild(li);
 
             const menuButton = li.querySelector(".options-button");
@@ -67,8 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.addEventListener("click", () => {
                 optionsMenu.style.display = "none";
             });
-
-            
 
             optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
                 if (confirm("🗑 Vuoi eliminare questa nota?")) {
@@ -92,6 +97,7 @@ function openEditorModal(noteId = null) {
     if (!window.quill) {
         window.quill = new Quill("#noteEditor", {
             theme: "snow",
+            placeholder: "Write your note here",
             modules: {
                 toolbar: [
                     [{ header: [1, 2, false] }],
@@ -121,7 +127,6 @@ function openEditorModal(noteId = null) {
         });
     } else {
         titleInput.value = "";
-        window.quill.root.innerHTML = "<p>Inizia a scrivere qui...</p>";
     }
 }
 
