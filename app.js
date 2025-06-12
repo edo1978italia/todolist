@@ -87,80 +87,88 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
-    const modal = document.getElementById("noteEditorModal");
-    const titleInput = document.getElementById("noteEditorTitle");
-    const saveButton = document.getElementById("saveNoteEditorButton");
+  const modal = document.getElementById("noteEditorModal");
+  const titleInput = document.getElementById("noteEditorTitle");
+  const saveButton = document.getElementById("saveNoteEditorButton");
 
-    modal.style.display = "block";
-    saveButton.setAttribute("data-id", noteId || "new");
+  modal.style.display = "block";
+  saveButton.setAttribute("data-id", noteId || "new");
 
-    if (!window.quill) {
-        window.quill = new Quill("#noteEditor", {
-            theme: "snow",
-            placeholder: "Write your note here...",
-            modules: {
-                toolbar: [
-                    [{ header: [1, 2, false] }],
-                    ["bold", "italic", "underline", "strike"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    [{ indent: "-1" }, { indent: "+1" }],
-                    [{ direction: "rtl" }],
-                    [{ color: [] }, { background: [] }],
-                    [{ align: [] }],
-                    ["link", "image"],
-                    ["clean"]
-                ]
-            }
-        });
+  if (!window.quill) {
+    window.quill = new Quill("#noteEditor", {
+      theme: "snow",
+      placeholder: "Write your note here...",
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ["bold", "italic", "underline", "strike"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ indent: "-1" }, { indent: "+1" }],
+          [{ direction: "rtl" }],
+          [{ color: [] }, { background: [] }],
+          [{ align: [] }],
+          ["link", "image"],
+          ["clean"]
+        ]
+      }
+    });
 
-        console.log("✅ Quill inizializzato");
+    console.log("✅ Quill inizializzato");
 
-        // ✅ Inserisci bottone emoji tra toolbar e editor
-        const container = document.querySelector("#noteEditor .ql-container");
-        const toolbar = container?.querySelector(".ql-toolbar");
-        const editor = container?.querySelector(".ql-editor");
+    // ✅ Inserisci bottone emoji tra toolbar e editor
+    const container = document.querySelector("#noteEditor .ql-container");
+    const toolbar = container?.querySelector(".ql-toolbar");
+    const editor = container?.querySelector(".ql-editor");
 
-        if (toolbar && editor && !document.getElementById("emojiEditorBtn")) {
-            const emojiWrapper = document.createElement("div");
-            emojiWrapper.className = "editor-toolbar-extension";
-            emojiWrapper.innerHTML = `<button id="emojiEditorBtn" title="Emoji">😊</button>`;
-            toolbar.insertAdjacentElement("afterend", emojiWrapper);
-        }
-
-        // ➕ Collega picker al bottone appena creato
-        document.addEventListener("click", (e) => {
-            if (!emojiPickerForQuill.contains(e.target) && !e.target.closest("#emojiEditorBtn")) {
-                emojiPickerForQuill.style.display = "none";
-            }
-        });
-
-        document.addEventListener("click", () => {
-            const btn = document.getElementById("emojiEditorBtn");
-            btn?.addEventListener("click", () => {
-                const rect = btn.getBoundingClientRect();
-                const pickerWidth = 300;
-                const spaceRight = window.innerWidth - rect.left;
-
-                emojiPickerForQuill.style.left =
-                    spaceRight < pickerWidth ? `${rect.right - pickerWidth}px` : `${rect.left}px`;
-                emojiPickerForQuill.style.top = `${rect.bottom + 8}px`;
-                emojiPickerForQuill.style.display = emojiPickerForQuill.style.display === "block" ? "none" : "block";
-            });
-        });
+    if (toolbar && editor && !document.getElementById("emojiEditorBtn")) {
+      const emojiWrapper = document.createElement("div");
+      emojiWrapper.className = "editor-toolbar-extension";
+      emojiWrapper.innerHTML = `<button id="emojiEditorBtn" title="Emoji">😊</button>`;
+      toolbar.insertAdjacentElement("afterend", emojiWrapper);
     }
 
-    if (noteId) {
-        onSnapshot(doc(db, "notes", noteId), (docSnap) => {
-            if (docSnap.exists()) {
-                titleInput.value = docSnap.data().title || "";
-                window.quill.root.innerHTML = docSnap.data().content || "<p></p>";
-            }
-        });
-    } else {
-        titleInput.value = "";
-        window.quill.setContents([]);
-    }
+    // ✅ Collega emojiPickerForQuill al bottone
+    const emojiBtn = document.getElementById("emojiEditorBtn");
+
+    emojiBtn?.addEventListener("click", () => {
+      const rect = emojiBtn.getBoundingClientRect();
+      const pickerWidth = 300;
+      const spaceRight = window.innerWidth - rect.left;
+
+      emojiPickerForQuill.style.left =
+        spaceRight < pickerWidth
+          ? `${rect.right - pickerWidth}px`
+          : `${rect.left}px`;
+
+      emojiPickerForQuill.style.top = `${rect.bottom + 8}px`;
+      emojiPickerForQuill.style.display =
+        emojiPickerForQuill.style.display === "block" ? "none" : "block";
+    });
+
+    // ✅ Chiudi picker cliccando altrove
+    document.addEventListener("click", (e) => {
+      if (
+        !emojiPickerForQuill.contains(e.target) &&
+        !e.target.closest("#emojiEditorBtn")
+      ) {
+        emojiPickerForQuill.style.display = "none";
+      }
+    });
+  }
+
+  if (noteId) {
+    onSnapshot(doc(db, "notes", noteId), (docSnap) => {
+      if (docSnap.exists()) {
+        titleInput.value = docSnap.data().title || "";
+        window.quill.root.innerHTML = docSnap.data().content || "<p></p>";
+      }
+    });
+  } else {
+    titleInput.value = "";
+    window.quill.setContents([]);
+  }
 }
+
 
 function closeEditorModal() {
     document.getElementById("noteEditorModal").style.display = "none";
