@@ -29,20 +29,28 @@ document.addEventListener("DOMContentLoaded", () => {
         noteList.innerHTML = ""; // 🔄 Reset lista
 
         snapshot.docs.forEach((docSnap, index) => {
-            const li = document.createElement("li");
+            const li = document.createElement("div");
+
             li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
             li.setAttribute("data-content", docSnap.data().content);
+            li.setAttribute("data-id", docSnap.id);
+            li.addEventListener("click", (e) => {
+                // Evita di aprire la nota se si sta cliccando sui 3 puntini
+                if (!e.target.closest(".options-button") && !e.target.closest(".options-menu")) {
+                    openEditorModal(docSnap.id);
+                }
+            });
 
             li.innerHTML = `
-                <div class="note-options">
-                    <button class="options-button" data-id="${docSnap.id}">⋮</button>
-                    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-                        <button class="menu-edit">✏ Modifica</button>
-                        <button class="menu-delete">🗑 Elimina</button>
-                    </div>
-                </div>
-                <h3>${docSnap.data().title}</h3>
-            `;
+    <h3>${docSnap.data().title}</h3>
+    <div class="note-options">
+        <button class="options-button" data-id="${docSnap.id}">⋮</button>
+        <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+            
+            <button class="menu-delete">🗑 Delete</button>
+        </div>
+    </div>
+`;
 
             noteList.appendChild(li);
 
@@ -52,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
             menuButton.addEventListener("click", (event) => {
                 event.stopPropagation();
                 const isVisible = optionsMenu.style.display === "block";
-                document.querySelectorAll(".options-menu").forEach(menu => menu.style.display = "none");
+                document.querySelectorAll(".options-menu").forEach((menu) => (menu.style.display = "none"));
                 optionsMenu.style.display = isVisible ? "none" : "block";
             });
 
@@ -169,4 +177,18 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
 
     alert("✅ Nota salvata!");
     closeEditorModal();
+});
+
+// 🔍 Cerca note in tempo reale per titolo o contenuto
+document.getElementById("searchNotes").addEventListener("input", () => {
+    const searchTerm = document.getElementById("searchNotes").value.toLowerCase();
+    const noteBoxes = document.querySelectorAll(".note-box");
+
+    noteBoxes.forEach((box) => {
+        const title = box.querySelector("h3")?.textContent.toLowerCase() || "";
+        const content = box.getAttribute("data-content")?.toLowerCase() || "";
+
+        const matches = title.includes(searchTerm) || content.includes(searchTerm);
+        box.style.display = matches ? "flex" : "none";
+    });
 });

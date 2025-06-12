@@ -2,25 +2,30 @@
 /* 🔥 Stile per il contenitore delle note */
 /* 🔥 Layout verticale per le note */
 #noteList {
-    list-style: none; /* ✅ Rimuove i puntini neri */
+    list-style: none;
     display: flex;
-    flex-direction: column; /* ✅ Disposizione verticale */
-    gap: 10px; /* 🔄 Spazio tra le note */
+    flex-direction: column;
+    
     padding: 0;
+    max-width: 600px;
+    margin: 0 auto; /* ✅ Centra il contenitore orizzontalmente */
 }
+
 
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
     position: relative;
-    padding: 15px;
-    margin: 10px 0;
+    padding: 1px;
+    
     border-radius: 8px;
-    background-color: #ffffff; /* ✅ Sfondo bianco del box */
     border: 1px solid #ddd; /* ✅ Bordo leggero */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* ✅ Ombra leggera per staccarla dallo sfondo */
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 2px;
+    
+    
 }
 /* Alternanza colori: bianco / grigio */
 .note-box.even {
@@ -28,17 +33,19 @@
 }
 
 .note-box.odd {
-    background-color: #f7f7f7;
+    background-color: #cdcdcd;
 }
-
-
-
 
 /* 📝 Stile del titolo della nota */
 .note-box h3 {
-    margin: 0; /* Rimuove margine predefinito */
-    flex: 1; /* Occupa tutto lo spazio disponibile prima del menu */
-    font-size: 1.1rem; /* Dimensione leggermente più grande */
+    margin: 0;
+    flex: 1;
+    font-size: 12px; /* 🔽 Ridotto leggermente */
+    font-weight: 500; /* 🔤 Più elegante */
+    line-height: 1.3; /* 📏 Migliore leggibilità */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* 📍 Contenitore del menu dei 3 puntini */
@@ -53,6 +60,12 @@
     font-size: 20px; /* Grandezza visibile dei 3 puntini */
     cursor: pointer; /* Mostra il cursore interattivo */
     padding: 5px 10px; /* Spaziatura intorno */
+    color: #666; /* 🎨 Colore visivamente sobrio */
+    transition: color 0.2s ease;
+}
+
+.options-button:hover {
+    color: #333; /* 🎯 Colore più scuro al passaggio del mouse */
 }
 
 /* 🔽 Menu a tendina che compare cliccando sui 3 puntini */
@@ -72,7 +85,8 @@
 
 /* 🔘 Bottoni dentro il menu (Modifica / Elimina) */
 .options-menu button {
-    background: none; /* Nessuno sfondo iniziale */
+    background-color: #007bff;
+    
     border: none; /* Nessun bordo */
     padding: 10px 15px; /* Spaziatura interna */
     text-align: left; /* Allinea il testo a sinistra */
@@ -83,9 +97,8 @@
 
 /* 🎨 Hover sui bottoni del menu */
 .options-menu button:hover {
-    background-color: #f0f0f0; /* Colore di evidenziazione al passaggio del mouse */
+    background-color: #a0a0a0; /* Colore di evidenziazione al passaggio del mouse */
 }
-
 
 /* 🔥 pop up creazione e modifica NOTE */
 #noteEditorModal {
@@ -115,7 +128,6 @@
     font-size: 16px;
     padding: 10px;
 }
-
 
 .close {
     position: absolute;
