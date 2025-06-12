@@ -824,6 +824,7 @@ textarea {
     padding: 12px;
     margin-top: 10px;
     border-radius: 10px;
+    margin-bottom: 10px;
 }
 
 .note-preview-box {
@@ -847,4 +848,11 @@ textarea {
     margin-bottom: 3px;
     font-size: 12px;
     color: #333;
+}
+
+/* 🔥 WIDGET METEO */
+.weather-box {
+    border-radius: 6px;
+    max-width: 620px; /* o 100%, 400px, ecc. */
+    margin: 0 auto; /* per centrare */
 }
