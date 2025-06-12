@@ -153,21 +153,21 @@ document.getElementById("createNoteButton").addEventListener("click", () => {
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
-    if (!user) return alert("⚠ Devi essere loggato!");
+    if (!user) return alert("⚠ You must be logged in!");
 
     const noteId = document.getElementById("saveNoteEditorButton").getAttribute("data-id");
     const title = document.getElementById("noteEditorTitle").value.trim();
     const content = window.quill.root.innerHTML.trim();
 
     if (!title && content === "<p>Inizia a scrivere qui...</p>") {
-        alert("⚠ Nota vuota! Non verrà salvata.");
+        alert("⚠ Empty note! It will not be saved!");
         closeEditorModal();
         return;
     }
 
     if (noteId === "new") {
         await addDoc(collection(db, "notes"), {
-            title: title || "Nuova Nota",
+            title: title || "New Note",
             content: content,
             userId: user.uid,
             timestamp: new Date()
@@ -180,7 +180,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
         });
     }
 
-    alert("✅ Nota salvata!");
+    alert("✅ Saved!");
     closeEditorModal();
 });
 
