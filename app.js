@@ -25,65 +25,46 @@ document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
 
     onSnapshot(query(collection(db, "notes"), orderBy("timestamp", "desc")), (snapshot) => {
-        console.log("✅ Lista aggiornata con", snapshot.docs.length, "note.");
         noteList.innerHTML = ""; // 🔄 Reset lista
 
         snapshot.docs.forEach((docSnap, index) => {
             const data = docSnap.data();
-            const timestamp = data.timestamp?.toDate?.();
-            const dateStr = timestamp ? timestamp.toLocaleDateString("it-IT") : "—";
-            const timeStr = timestamp
-                ? timestamp.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
-                : "";
-            const userId = data.userId || "—";
+            const noteTitle = data.title || "Senza titolo";
+            const noteContent = data.content ? data.content.replace(/<[^>]+>/g, "") : "No content";
+
+            // 🔥 Limita il titolo a 25 caratteri con "..."
+            const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
+
+            // 🔥 Limita il contenuto della nota per evitare overflow
+            const previewContent = noteContent.length > 180 ? noteContent.slice(0, 180) + "..." : noteContent;
 
             const li = document.createElement("div");
             li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
             li.setAttribute("data-content", data.content);
             li.setAttribute("data-id", docSnap.id);
-            li.addEventListener("click", (e) => {
-                if (!e.target.closest(".options-button") && !e.target.closest(".options-menu")) {
-                    openEditorModal(docSnap.id);
-                }
-            });
+            li.addEventListener("click", () => openEditorModal(docSnap.id));
 
             li.innerHTML = `
-    <div class="note-content">
-        <h3>${data.title}</h3>
-        <div class="note-meta">🕒 ${dateStr} - ${timeStr}</div>
-    </div>
-    <div class="note-options">
-        <button class="options-button" data-id="${docSnap.id}">⋮</button>
-        <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-            <button class="menu-delete">🗑 Delete</button>
-        </div>
-    </div>
-`;
+                <div class="note-content">
+                    <h3 class="note-preview-title">${shortTitle}</h3>
+                    <p class="note-preview-content">${previewContent}</p> <!-- 🔥 Anteprima del contenuto -->
+                    <div class="note-meta">🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}</div>
+                </div>
+                <div class="note-options">
+                    <button class="options-button" data-id="${docSnap.id}">⋮</button>
+                    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+                        <button class="menu-delete">🗑 Delete</button>
+                    </div>
+                </div>
+            `;
+
             noteList.appendChild(li);
-
-            const menuButton = li.querySelector(".options-button");
-            const optionsMenu = li.querySelector(".options-menu");
-
-            menuButton.addEventListener("click", (event) => {
-                event.stopPropagation();
-                const isVisible = optionsMenu.style.display === "block";
-                document.querySelectorAll(".options-menu").forEach((menu) => (menu.style.display = "none"));
-                optionsMenu.style.display = isVisible ? "none" : "block";
-            });
-
-            document.addEventListener("click", () => {
-                optionsMenu.style.display = "none";
-            });
-
-            optionsMenu.querySelector(".menu-delete").addEventListener("click", async () => {
-                if (confirm("🗑 Do you want to delete the note?")) {
-                    await deleteDoc(doc(db, "notes", docSnap.id));
-                    console.log("✅ Nota eliminata:", docSnap.id);
-                }
-            });
         });
     });
 });
+
+
+
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
@@ -152,23 +133,21 @@ document.getElementById("deleteNoteEditorButton").addEventListener("click", asyn
     const noteId = document.getElementById("saveNoteEditorButton").getAttribute("data-id");
 
     if (!noteId || noteId === "new") {
-        alert("❌ Errore: questa nota non è ancora salvata!");
+        alert("❌ Error: This note is not saved yet!");
         return;
     }
 
-    if (confirm("🗑 Vuoi eliminare questa nota definitivamente?")) {
+    if (confirm("🗑 Do you want to delete this note permanently?")) {
         try {
             await deleteDoc(doc(db, "notes", noteId));
-            alert("✅ Nota eliminata!");
+            alert("✅ Note deleted!");
             document.getElementById("noteEditorModal").style.display = "none";
         } catch (error) {
-            console.error("❌ Errore eliminazione:", error);
-            alert("Errore durante la cancellazione della nota.");
+            console.error("❌ Error deleting:", error);
+            alert("Error deleting note.");
         }
     }
 });
-
-
 
 function closeEditorModal() {
     document.getElementById("noteEditorModal").style.display = "none";
@@ -221,7 +200,6 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     alert("✅ Note saved successfully!");
     closeEditorModal();
 });
-
 
 // 🔍 Cerca note in tempo reale per titolo o contenuto
 document.getElementById("searchNotes").addEventListener("input", () => {
@@ -283,7 +261,6 @@ emojiEditorBtn?.addEventListener("click", () => {
     emojiPickerForQuill.style.top = `${rect.bottom + 8}px`;
     emojiPickerForQuill.style.display = emojiPickerForQuill.style.display === "block" ? "none" : "block";
 });
-
 
 // 🔥 Gestione logout
 async function logoutUser() {

@@ -259,14 +259,24 @@ document.addEventListener("DOMContentLoaded", async function () {
       notesPreviewList.innerHTML = "<p>❌ Nessuna nota disponibile.</p>";
     } else {
       notesPreviewList.innerHTML = notesArray
-        .map(
-          (note) => `
-          <div class="note-preview-box">
-            <h4 class="note-preview-title">${note.title || "Senza titolo"}</h4>
-            <p class="note-preview-content">${note.content?.replace(/<[^>]+>/g, "").slice(0, 120) || ""}...</p>
-          </div>
-        `
-        )
+        .map((note) => {
+          const noteTitle = note.title || "Senza titolo"; 
+
+          // 🔥 Limita il titolo a 25 caratteri con "..." se troppo lungo
+          const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
+
+          // 🔥 Limita il contenuto della nota a 2 righe visibili nel widget
+          const previewContent = note.content
+            ? note.content.replace(/<[^>]+>/g, "").slice(0, 180) // 🔥 Mantiene circa 180 caratteri per evitare il taglio visivo
+            : "No content";
+
+          return `
+            <div class="note-preview-box">
+              <h4 class="note-preview-title">${shortTitle}</h4> 
+              <p class="note-preview-content">${previewContent}</p>
+            </div>
+          `;
+        })
         .join("");
     }
   } catch (error) {

@@ -53,6 +53,7 @@ body {
 }
 
 .menu-button {
+    padding: 5px 20px; /* Spaziatura intorno */
     background: none;
     border: none;
     font-size: 30px;
@@ -66,20 +67,7 @@ body {
     color: red; /* Cambia solo il colore dei tre puntini */
 }
 
-.menu {
-    display: none; /* Nasconde il menu inizialmente */
-    position: absolute;
-    top: 0;
-    right: 28px;
-    background: #2b8ae5;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 5px;
-    border-radius: 5px;
-    flex-direction: column;
-    z-index: 9999; /* Assicura che il menu sia sopra gli altri elementi */
-    min-width: 80px;
-}
+
 
 /* Modifica: assicura che il menu venga reso visibile */
 .menu.active {
@@ -91,6 +79,7 @@ body {
         transform 0.2s ease-in-out;
 }
 
+/* 🔥🔥 MENU DEI TRE PUNTINI CHECK, EDIT, DELETE🔥🔥 */
 .menu {
     display: none; /* Nasconde il menu inizialmente */
     position: absolute;
@@ -108,7 +97,7 @@ body {
 
 .menu button:hover {
     background: #f1f1f1; /* 🔥 Cambia colore quando ci passi sopra */
-    color: #007bff; /* 🔥 Cambia il colore del testo */
+    color: #2b8ae5; /* 🔥 Cambia il colore del testo */
 }
 
 /* Modifica: assicura che il menu venga reso visibile */
@@ -132,14 +121,7 @@ body {
     text-align: left;
 }
 
-/* Aggiunge un'animazione di apertura */
-.menu.active {
-    opacity: 1;
-    transform: scale(1);
-    transition:
-        opacity 0.3s ease-in-out,
-        transform 0.2s ease-in-out;
-}
+
 
 /* 🔥TEXT INPUT ELEMENTO */
 #namePriorityContainer {
@@ -153,15 +135,17 @@ body {
     width: auto;
     padding: 8px 16px;
     text-align: center;
-    background-color: #007bff;
+    background-color: #247fd8;
     color: white;
-    border: none;
+   
+    border: 3px solid #247fd8;
     border-radius: 5px;
     cursor: pointer;
 }
 
 #addButton:hover {
-    background-color: #0056b3;
+    background-color: #ffffff;
+    color: #247fd8;
 }
 
 #priorityLabel {
@@ -214,6 +198,9 @@ button:hover {
     gap: 10px;
     justify-content: center;
 }
+
+
+/* 📍📍📍📍📍Alternanza colori: bianco / grigio */
 .task-item:nth-child(odd) {
     background: #ffffff;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
@@ -222,6 +209,7 @@ button:hover {
     background: #f0f0f0;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
+
 .task-item {
     display: flex;
     justify-content: center;
@@ -285,7 +273,7 @@ input {
     transform: translate(-50%, 0);
     background: #fff;
     border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
     width: 90%;
     max-width: 600px;
@@ -851,6 +839,18 @@ textarea {
     font-size: 12px;
     color: #333;
 }
+
+.note-preview-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 🔥 Mostra massimo 2 righe */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* 🔥 Nasconde il testo in eccesso */
+  text-overflow: ellipsis; /* 🔥 Aggiunge "..." per il troncamento */
+  font-size: 14px;
+  line-height: 1.5;
+  max-height: 3em; /* 🔥 Mantiene solo 2 righe di altezza */
+}
+
 
 /* 🔥 WIDGET METEO */
 .weather-box {

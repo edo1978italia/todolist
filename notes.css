@@ -14,38 +14,41 @@
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
     position: relative;
-    padding: 10px;
+    padding: 15px;
     border-radius: 8px;
     border: 1px solid #ddd; /* ✅ Bordo leggero */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* ✅ Ombra leggera per staccarla dallo sfondo */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
-/* Alternanza colori: bianco / grigio */
+/* 📍📍📍📍📍Alternanza colori: bianco / grigio */
 .note-box.even {
-    background-color: #ffffff;
+    background: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .note-box.odd {
-    background-color: #e7e7e7;
+    background: #f0f0f0;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* 📝 Stile del titolo della nota */
+/* 📝 Stile del TITOLO della nota Nella lista NOTE */
 .note-box h3 {
-    text-align: left; /* ✅ Forza l'allineamento a sinistra */
+    text-align: left; /* ✅ Mantiene l'allineamento */
     margin: 0;
     padding: 5px;
     flex: 1;
-    font-size: 16px; /* 🔽 Ridotto leggermente */
-    font-weight: 500; /* 🔤 Più elegante */
-    line-height: 1.3; /* 📏 Migliore leggibilità */
+    font-size: 16px; /* 📏 Dimensione leggibile */
+    font-weight: bold; /* 🔥 Ora il titolo è in grassetto */
+    line-height: 1.3; /* 📐 Migliore leggibilità */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 
 /* 📍 Contenitore del menu dei 3 puntini */
 .note-options {
@@ -58,7 +61,7 @@
     border: none; /* Nessun bordo */
     font-size: 30px; /* Grandezza visibile dei 3 puntini */
     cursor: pointer; /* Mostra il cursore interattivo */
-    padding: 5px 10px; /* Spaziatura intorno */
+    padding: 5px 20px; /* Spaziatura intorno */
     color: #8f8f8f; /* 🎨 Colore visivamente sobrio */
     transition: color 0.2s ease;
 }
@@ -195,6 +198,30 @@
     margin-bottom: 1px;
 }
 
+
+
+
+/* 📌 Note listate impostazione preview lunghezza testo*/
+.note-preview-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 🔥 Mostra massimo 3 righe */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* 🔥 Nasconde il testo in eccesso */
+  text-overflow: ellipsis; /* 🔥 Aggiunge "..." per indicare il taglio */
+  font-size: 14px;
+  line-height: 1.5;
+  max-height: 4.5em; /* 🔥 Mantiene solo 3 righe visibili */
+  word-wrap: break-word; /* 🔥 Impedisce che il testo esca lateralmente */
+  white-space: normal; /* 🔥 Assicura che il testo vada a capo */
+  width: 100%; /* 🔥 Mantiene il contenuto dentro il box */
+  max-width: 100%; /* 🔥 Evita sbordamenti */
+}
+
+
+
+
+
+
 /* 🎯 Emoticon accanto al Titolo nella toolbar del modale */
 .noteEditorTitleWrap {
     display: flex; /* 🔄 Dispone emoji e input sulla stessa linea */
@@ -249,7 +276,8 @@
 .note-options {
     position: relative; /* Permette di posizionare il menu a comparsa rispetto al pulsante dei 3 pallini */
     display: flex; /* Allinea gli elementi orizzontalmente */
-    justify-content: flex-end; /* Posiziona il pulsante sulla destra */
+    justify-content: flex-end;
+    min-width: 50px;/* Posiziona il pulsante sulla destra */
 }
 
 /* 🎯📌📌📌📌📌 Stile del pulsante dei 3 pallini puntini */
@@ -259,7 +287,7 @@
     border: none; /* Elimina i bordi per un design minimalista */
     font-size: 30px; /* Dimensione del testo per rendere visibili i 3 pallini */
     cursor: pointer; /* Cambia il cursore per indicare interattività */
-    padding: 4px 10px; /* Spaziatura per migliorare la cliccabilità */
+    padding: 4px 20px; /* Spaziatura per migliorare la cliccabilità */
     margin-bottom: 7px;
 }
 
@@ -274,8 +302,9 @@
     position: absolute; /* Posiziona il menu rispetto al pulsante */
     right: 0; /* Allinea il menu a destra */
     top: 100%; /* Posiziona il menu appena sotto il pulsante */
-    background: #bbbbbb; /* Sfondo bianco per migliorare la leggibilità */
-    border: 1px solid #ffffff; /* Bordo grigio per separarlo visivamente */
+    background-color: #247fd8;
+    color: white;
+    border: 3px solid #247fd8;
     border-radius: 6px; /* Angoli arrotondati per un design moderno */
     display: none; /* Il menu è inizialmente nascosto */
     flex-direction: column; /* Disposizione verticale dei pulsanti */
@@ -284,10 +313,10 @@
     z-index: 10; /* Assicura che il menu rimanga sopra gli altri elementi */
 }
 
-/* 🎯 Stile dei pulsanti dentro il menu */
+/* 🎯🎯🎯 Stile dei pulsanti del menu dei 3 punitni NOTE LISTATE E NUOVA NOTA*/
 .options-menu button {
     border: none; /* Rimuove i bordi */
-    background: #9a9292; /* Design semplice senza sfondo */
+    background: #247fd8; /* Design semplice senza sfondo */
     padding: 8px; /* Aumenta lo spazio interno per migliorare la cliccabilità */
     margin-bottom: 2px;
     width: 100%; /* Ogni pulsante occupa l'intera larghezza del menu */
@@ -299,5 +328,7 @@
 
 /* 🔥 Effetto hover sui pulsanti SAVE E DELITE di nuova nota */
 .options-menu button:hover {
-    background-color: #b0adad; /* Cambia colore quando il pulsante viene evidenziato */
+    background-color: white;
+    color: #247fd8;
+    
 }
