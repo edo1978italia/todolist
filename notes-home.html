@@ -21,13 +21,12 @@
                 .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
                 .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
         </script>
-        
-        
+
         <button id="logoutButton">Logout</button>
 
         <!-- 🔥 Area gestione note -->
         <h3>Notes</h3>
-        <button id="createNoteButton">➕ New Note</button>
+        <button id="createNoteButton">➕ NEW NOTE</button>
         <input type="text" id="searchNotes" placeholder="🔎 Search a note" />
         <div id="noteList"></div>
 
@@ -40,7 +39,15 @@
                         <button id="emojiTitleBtn" type="button" title="Emoji">😊</button>
                         <input id="noteEditorTitle" type="text" placeholder="Title" />
                     </div>
-                    <button id="saveNoteEditorButton">Save</button>
+
+                    <!-- 🔥 Menu Opzioni con i 3 pallini -->
+                    <div class="note-options">
+                        <button id="noteOptionsButton">⋮</button>
+                        <div id="noteOptionsMenu" class="options-menu" style="display: none;">
+                            <button id="saveNoteEditorButton">Save</button>
+                            <button id="deleteNoteEditorButton">Delete</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="noteEditorContent">

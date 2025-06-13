@@ -1,6 +1,3 @@
-
-
-
 /* 🔥🔥🔥🔥🔥🔥PAGINA NOTE🔥🔥🔥🔥🔥🔥 */
 /* 🔥 Stile per il contenitore delle note */
 /* 🔥 Layout verticale per le note */
@@ -8,12 +5,11 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    
+
     padding: 0;
     max-width: 600px;
     margin: 0 auto; /* ✅ Centra il contenitore orizzontalmente */
 }
-
 
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
@@ -56,14 +52,14 @@
     position: relative; /* Serve per posizionare il menu a tendina assolutamente rispetto a questo */
 }
 
-/* ☰ Stile del pulsante dei 3 puntini */
+/* ☰ Stile del pulsante dei 3 puntini delle note listate */
 .options-button {
     background: none; /* Nessun colore di sfondo */
     border: none; /* Nessun bordo */
-    font-size: 20px; /* Grandezza visibile dei 3 puntini */
+    font-size: 30px; /* Grandezza visibile dei 3 puntini */
     cursor: pointer; /* Mostra il cursore interattivo */
     padding: 5px 10px; /* Spaziatura intorno */
-    color: #666; /* 🎨 Colore visivamente sobrio */
+    color: #8f8f8f; /* 🎨 Colore visivamente sobrio */
     transition: color 0.2s ease;
 }
 
@@ -71,7 +67,7 @@
     color: #333; /* 🎯 Colore più scuro al passaggio del mouse */
 }
 
-/* 🔽 Menu a tendina che compare cliccando sui 3 puntini */
+/* 🔽 3 PUNTINI DENTRO NUOVA NOTA Menu a tendina che compare cliccando sui 3 puntini */
 .options-menu {
     position: absolute; /* Posizionato rispetto a .note-options */
     top: 30px; /* Distanza verticale dal pulsante */
@@ -88,8 +84,8 @@
 
 /* 🔘 Bottoni dentro il menu (Modifica / Elimina) */
 .options-menu button {
-    background-color: #007bff;
-    
+    background-color: #889099;
+
     border: none; /* Nessun bordo */
     padding: 10px 15px; /* Spaziatura interna */
     text-align: left; /* Allinea il testo a sinistra */
@@ -102,8 +98,6 @@
 .options-menu button:hover {
     background-color: #a0a0a0; /* Colore di evidenziazione al passaggio del mouse */
 }
-
-
 
 /* 🎨 CAMPO TOOLS EDITOR QUILL BARRA STRUMENTI */
 .noteEditorContent .ql-toolbar {
@@ -125,13 +119,13 @@
     right: 15px;
     cursor: pointer;
     font-size: 30px;
+    
 }
-
 
 /* 🔥 Cerca NOTE */
 #searchNotes {
-    max-width: 600px;        /* 📏 Larghezza massima */
-    width: 100%;             /* 📐 Occupa tutto lo spazio disponibile fino a 600px */
+    max-width: 600px; /* 📏 Larghezza massima */
+    width: 100%; /* 📐 Occupa tutto lo spazio disponibile fino a 600px */
     display: block;
     margin: 0 auto 16px auto; /* ✅ Centrato e con spazio sotto */
     padding: 8px 12px;
@@ -162,14 +156,12 @@
     position: fixed;
     inset: 0;
     display: flex;
-    justify-content: center;   /* ➡️ Centro orizzontale */
-    align-items: center;       /* ⬇️ Centro verticale */
+    justify-content: center; /* ➡️ Centro orizzontale */
+    align-items: center; /* ⬇️ Centro verticale */
     background: rgba(0, 0, 0, 0.3);
     z-index: 1000;
     overflow: hidden;
-    
 }
-
 
 /* Contenitore della nota */
 .noteEditorInner {
@@ -184,10 +176,7 @@
     /* ✅ Questo lo centra dentro il contenitore flex */
     margin: auto;
     margin-top: 40px;
-    
-    
 }
-
 
 /* 📌 Intestazione fissa: X, Titolo, Salva */
 .noteEditorHeader {
@@ -206,42 +195,40 @@
     margin-bottom: 1px;
 }
 
-
 /* 🎯 Emoticon accanto al Titolo nella toolbar del modale */
 .noteEditorTitleWrap {
-  display: flex;              /* 🔄 Dispone emoji e input sulla stessa linea */
-  align-items: center;        /* ↕️ Allinea verticalmente al centro */
-  flex: 1;                    /* 📐 Si espande per occupare spazio disponibile */
-  gap: 6px;                   /* 🌬️ Spazio tra il pulsante e l’input */
+    display: flex; /* 🔄 Dispone emoji e input sulla stessa linea */
+    align-items: center; /* ↕️ Allinea verticalmente al centro */
+    flex: 1; /* 📐 Si espande per occupare spazio disponibile */
+    gap: 6px; /* 🌬️ Spazio tra il pulsante e l’input */
 }
 
 /* 📝 Campo di input per il titolo della nota */
 #noteEditorTitle {
-  flex: 1;                    /* ↔️ Occupa tutto lo spazio residuo */
-  font-size: 1rem;
-  padding: 6px 10px;
+    flex: 1; /* ↔️ Occupa tutto lo spazio residuo */
+    font-size: 1rem;
+    padding: 6px 10px;
 }
 
 /* 😊 Pulsante per aprire il selettore di emoticon */
 #emojiTitleBtn {
-  font-size: 20px;            /* 👁️ Emoji ben visibile */
-  background: none;           /* ❌ Nessun colore di sfondo */
-  border: none;               /* ❌ Nessun bordo */
-  cursor: pointer;            /* 👉 Mostra il cursore "mano" */
-  padding: 4px 6px;
-  line-height: 1;
+    font-size: 25px; /* 👁️ Emoji ben visibile */
+    background: none; /* ❌ Nessun colore di sfondo */
+    border: none; /* ❌ Nessun bordo */
+    cursor: pointer; /* 👉 Mostra il cursore "mano" */
+    padding: 4px 6px;
+    line-height: 1;
+    margin-bottom: 10px;
 }
 
 .ql-toolbar .ql-emoji {
-  font-size: 18px;
-  padding: 4px 6px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  line-height: 1;
+    font-size: 18px;
+    padding: 4px 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    line-height: 1;
 }
-
-
 
 /* ✍️ Input titolo */
 .noteEditorHeader input {
@@ -258,5 +245,59 @@
     flex: 1; /* Permette di espandersi fino al limite dello scroll di .noteEditorInner */
 }
 
+/* 📌 Contenitore delle opzioni del menu */
+.note-options {
+    position: relative; /* Permette di posizionare il menu a comparsa rispetto al pulsante dei 3 pallini */
+    display: flex; /* Allinea gli elementi orizzontalmente */
+    justify-content: flex-end; /* Posiziona il pulsante sulla destra */
+}
 
+/* 🎯📌📌📌📌📌 Stile del pulsante dei 3 pallini puntini */
+#noteOptionsButton {
+    color: #7f7f7f;
+    background: none; /* Rimuove il colore di sfondo */
+    border: none; /* Elimina i bordi per un design minimalista */
+    font-size: 30px; /* Dimensione del testo per rendere visibili i 3 pallini */
+    cursor: pointer; /* Cambia il cursore per indicare interattività */
+    padding: 4px 10px; /* Spaziatura per migliorare la cliccabilità */
+    margin-bottom: 7px;
+}
 
+/* 🔥 Effetto hover sul pulsante */
+#noteOptionsButton:hover {
+    color: #434343; /* Cambia il colore del testo quando l'utente passa sopra */
+}
+
+/* 📌 Contenitore del menu a tendina dopo il click dei 3 puntini*/
+/* 📌 MENU SAVE E DELETE*/
+.options-menu {
+    position: absolute; /* Posiziona il menu rispetto al pulsante */
+    right: 0; /* Allinea il menu a destra */
+    top: 100%; /* Posiziona il menu appena sotto il pulsante */
+    background: #bbbbbb; /* Sfondo bianco per migliorare la leggibilità */
+    border: 1px solid #ffffff; /* Bordo grigio per separarlo visivamente */
+    border-radius: 6px; /* Angoli arrotondati per un design moderno */
+    display: none; /* Il menu è inizialmente nascosto */
+    flex-direction: column; /* Disposizione verticale dei pulsanti */
+    padding: 2px; /* Spaziatura interna */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombra leggera per profondità */
+    z-index: 10; /* Assicura che il menu rimanga sopra gli altri elementi */
+}
+
+/* 🎯 Stile dei pulsanti dentro il menu */
+.options-menu button {
+    border: none; /* Rimuove i bordi */
+    background: #9a9292; /* Design semplice senza sfondo */
+    padding: 8px; /* Aumenta lo spazio interno per migliorare la cliccabilità */
+    margin-bottom: 2px;
+    width: 100%; /* Ogni pulsante occupa l'intera larghezza del menu */
+    text-align: left; /* Allinea il testo a sinistra */
+    cursor: pointer; /* Indica interattività */
+    font-size: 15px; /* Mantiene il testo leggibile */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔥 Effetto hover sui pulsanti SAVE E DELITE di nuova nota */
+.options-menu button:hover {
+    background-color: #b0adad; /* Cambia colore quando il pulsante viene evidenziato */
+}

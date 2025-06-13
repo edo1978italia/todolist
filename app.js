@@ -20,9 +20,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-
-
-
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
@@ -88,34 +85,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-
-
-
-
-
-
-
-
-document.addEventListener("click", function (e) {
-  if (e.target.matches("#openSidebar")) {
-    window.toggleSidebar();
-  }
-});
-
-
-
-
-
-
-
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
     const modal = document.getElementById("noteEditorModal");
     const titleInput = document.getElementById("noteEditorTitle");
-    const saveButton = document.getElementById("saveNoteEditorButton");
 
     modal.style.display = "block";
-    saveButton.setAttribute("data-id", noteId || "new");
+
+    document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
+    document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
 
     if (!window.quill) {
         window.quill = new Quill("#noteEditor", {
@@ -123,7 +101,7 @@ function openEditorModal(noteId = null) {
             placeholder: "Write your note here...",
             modules: {
                 toolbar: [
-                    ["emoji"], // 🧡 Questo riattiva il bottone emoji originale
+                    ["emoji"],
                     [{ header: [1, 2, false] }],
                     ["bold", "italic", "underline", "strike"],
                     [{ list: "ordered" }, { list: "bullet" }],
@@ -137,13 +115,6 @@ function openEditorModal(noteId = null) {
                 "emoji-toolbar": true,
                 "emoji-textarea": false,
                 "emoji-shortname": true
-            }
-        });
-
-        // 🔒 Chiude il picker cliccando altrove
-        document.addEventListener("click", (e) => {
-            if (!emojiPickerForQuill.contains(e.target) && !e.target.closest("#emojiEditorBtn")) {
-                emojiPickerForQuill.style.display = "none";
             }
         });
     }
@@ -160,6 +131,42 @@ function openEditorModal(noteId = null) {
         window.quill.setContents([]);
     }
 }
+
+// 🔥 Mostra/Nasconde il menu del modale
+document.addEventListener("DOMContentLoaded", () => {
+    const optionsButton = document.getElementById("noteOptionsButton");
+    const optionsMenu = document.getElementById("noteOptionsMenu");
+
+    optionsButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", () => {
+        optionsMenu.style.display = "none";
+    });
+});
+
+// 🔥 Gestione eliminazione note dal modale
+document.getElementById("deleteNoteEditorButton").addEventListener("click", async () => {
+    const noteId = document.getElementById("saveNoteEditorButton").getAttribute("data-id");
+
+    if (!noteId || noteId === "new") {
+        alert("❌ Errore: questa nota non è ancora salvata!");
+        return;
+    }
+
+    if (confirm("🗑 Vuoi eliminare questa nota definitivamente?")) {
+        try {
+            await deleteDoc(doc(db, "notes", noteId));
+            alert("✅ Nota eliminata!");
+            document.getElementById("noteEditorModal").style.display = "none";
+        } catch (error) {
+            console.error("❌ Errore eliminazione:", error);
+            alert("Errore durante la cancellazione della nota.");
+        }
+    }
+});
 
 
 
@@ -190,30 +197,31 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     const title = document.getElementById("noteEditorTitle").value.trim();
     const content = window.quill.root.innerHTML.trim();
 
-    if (!title && window.quill.getText().trim() === "") {
-        alert("⚠ Empty note! It will not be saved!");
-        closeEditorModal();
+    // 🔥 Nuova validazione: entrambi i campi devono essere compilati
+    if (!title || window.quill.getText().trim() === "") {
+        alert("❌ Error: The title and body of the note must be filled in!");
         return;
     }
 
     if (noteId === "new") {
         await addDoc(collection(db, "notes"), {
-            title: title || "New Note",
-            content: content,
+            title,
+            content,
             userId: user.uid,
             timestamp: new Date()
         });
     } else {
         await updateDoc(doc(db, "notes", noteId), {
-            title: title,
-            content: content,
+            title,
+            content,
             timestamp: new Date()
         });
     }
 
-    alert("✅ Saved!");
+    alert("✅ Note saved successfully!");
     closeEditorModal();
 });
+
 
 // 🔍 Cerca note in tempo reale per titolo o contenuto
 document.getElementById("searchNotes").addEventListener("input", () => {
