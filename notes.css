@@ -49,7 +49,6 @@
     white-space: nowrap;
 }
 
-
 /* 📍 Contenitore del menu dei 3 puntini */
 .note-options {
     position: relative; /* Serve per posizionare il menu a tendina assolutamente rispetto a questo */
@@ -122,7 +121,6 @@
     right: 15px;
     cursor: pointer;
     font-size: 30px;
-    
 }
 
 /* 🔥 Cerca NOTE */
@@ -198,29 +196,23 @@
     margin-bottom: 1px;
 }
 
-
-
-
 /* 📌 Note listate impostazione preview lunghezza testo*/
 .note-preview-content {
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* 🔥 Mostra massimo 3 righe */
-  -webkit-box-orient: vertical;
-  overflow: hidden; /* 🔥 Nasconde il testo in eccesso */
-  text-overflow: ellipsis; /* 🔥 Aggiunge "..." per indicare il taglio */
-  font-size: 14px;
-  line-height: 1.5;
-  max-height: 4.5em; /* 🔥 Mantiene solo 3 righe visibili */
-  word-wrap: break-word; /* 🔥 Impedisce che il testo esca lateralmente */
-  white-space: normal; /* 🔥 Assicura che il testo vada a capo */
-  width: 100%; /* 🔥 Mantiene il contenuto dentro il box */
-  max-width: 100%; /* 🔥 Evita sbordamenti */
+    font-size: 15px !important; /* 🔥 Forza l'aumento della dimensione */
+    line-height: 1.8; /* 🔥 Migliora la leggibilità */
+    max-height: 5.4em; /* 🔥 Regola la visualizzazione per mantenere le 3 righe */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    white-space: normal;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+    margin-left: 5px;
 }
-
-
-
-
-
 
 /* 🎯 Emoticon accanto al Titolo nella toolbar del modale */
 .noteEditorTitleWrap {
@@ -277,7 +269,7 @@
     position: relative; /* Permette di posizionare il menu a comparsa rispetto al pulsante dei 3 pallini */
     display: flex; /* Allinea gli elementi orizzontalmente */
     justify-content: flex-end;
-    min-width: 50px;/* Posiziona il pulsante sulla destra */
+    min-width: 50px; /* Posiziona il pulsante sulla destra */
 }
 
 /* 🎯📌📌📌📌📌 Stile del pulsante dei 3 pallini puntini */
@@ -330,5 +322,4 @@
 .options-menu button:hover {
     background-color: white;
     color: #247fd8;
-    
 }
