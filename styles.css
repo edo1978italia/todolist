@@ -55,9 +55,10 @@ body {
 .menu-button {
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 30px;
+    font-family: inherit; /* Mantieni il font del genitore */
     cursor: pointer;
-    color: #8f8f8f; /* Mantiene i tre puntini bianchi di default */
+    color: #8f8f8f; /* i tre puntini  */
 }
 
 /* ✅ Se il task ha un link, i tre puntini diventano rossi */
