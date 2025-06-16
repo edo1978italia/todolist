@@ -1,105 +1,113 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Profilo Utente</title>
-        <link rel="stylesheet" href="styles.css" />
+<head>
+  <meta charset="UTF-8" />
+  <title>Profilo Utente</title>
+  <link rel="stylesheet" href="styles.css" />
 
-        <!-- Firebase compat -->
-        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-        <!-- Cloudinary -->
-        <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+  <!-- Cloudinary -->
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 
-        <style>
-            .avatar {
-                width: 96px;
-                height: 96px;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 2px solid #ccc;
-                margin: 12px 0;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="profile-container">
-            <h2>Your Profile</h2>
-            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+  <style>
+    .avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ccc;
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="profile-container">
+    <h2>Your Profile</h2>
+    <p><strong>Email:</strong> <span id="userEmail"></span></p>
 
-            <label for="displayName">Set your name:</label><br />
-            <input type="text" id="displayName" placeholder="Enter your name" /><br /><br />
+    <label for="displayName">Set your name:</label><br />
+    <input type="text" id="displayName" placeholder="Enter your name" /><br /><br />
 
-            <img id="avatarPreview" src="https://via.placeholder.com/96?text=👤" alt="Avatar" class="avatar" /><br />
-            <button id="upload_widget">📷 Change your profile picture</button><br /><br />
-            <button id="saveProfile">💾 Save</button><br /><br />
-            <button id="goBackButton">↩️ Back</button>
-        </div>
+    <img id="avatarPreview" src="https://via.placeholder.com/96?text=👤" alt="Avatar" class="avatar" /><br />
+    <button id="upload_widget">📷 Change your profile picture</button><br /><br />
+    <button id="saveProfile">💾 Save</button><br /><br />
+    <button id="goBackButton">↩️ Back</button>
+  </div>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
-                    authDomain: "todolistedo.firebaseapp.com",
-                    projectId: "todolistedo",
-                    storageBucket: "todolistedo.appspot.com",
-                    messagingSenderId: "700684050233",
-                    appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
-                    measurementId: "G-HR8GGBGQTJ"
-                };
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const firebaseConfig = {
+        apiKey: "API_KEY",
+        authDomain: "PROJECT_ID.firebaseapp.com",
+        projectId: "PROJECT_ID",
+        storageBucket: "PROJECT_ID.appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
+      };
 
-                firebase.initializeApp(firebaseConfig);
-                const auth = firebase.auth();
-                const db = firebase.firestore();
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
 
-                const emailEl = document.getElementById("userEmail");
-                const avatarEl = document.getElementById("avatarPreview");
-                const nameEl = document.getElementById("displayName");
+      const emailEl = document.getElementById("userEmail");
+      const avatarEl = document.getElementById("avatarPreview");
+      const nameEl = document.getElementById("displayName");
+      const uploadBtn = document.getElementById("upload_widget");
+      const saveBtn = document.getElementById("saveProfile");
 
-                document.getElementById("goBackButton").addEventListener("click", () => {
-                    if (document.referrer && !document.referrer.includes("profile.html")) {
-                        history.back();
-                    } else {
-                        window.location.href = "index.html";
-                    }
-                });
+      document.getElementById("goBackButton").addEventListener("click", () => {
+        if (document.referrer && !document.referrer.includes("profile.html")) {
+          history.back();
+        } else {
+          window.location.href = "index.html";
+        }
+      });
 
-                auth.onAuthStateChanged(async (user) => {
-                    if (!user) return;
+      let widget = null;
 
-                    // ...codice profilo...
+      auth.onAuthStateChanged(async user => {
+        if (!user) return;
 
-                    let widget;
+        emailEl.textContent = user.email;
+        const userRef = db.collection("users").doc(user.uid);
+        const snap = await userRef.get();
+        const data = snap.data();
 
-                    // Inizializza solo una volta
-                    if (!widget) {
-                        widget = cloudinary.createUploadWidget(
-                            {
-                                cloudName: "dpj6s7xvh",
-                                uploadPreset: "avatar_unsigned",
-                                cropping: true,
-                                multiple: false,
-                                folder: "avatars"
-                            },
-                            async (err, result) => {
-                                if (!err && result?.event === "success") {
-                                    const imageUrl = result.info.secure_url;
-                                    avatarEl.src = imageUrl;
-                                    await userRef.set({ photoURL: imageUrl }, { merge: true });
-                                    alert("✅ Foto aggiornata!");
-                                }
-                            }
-                        );
-                    }
+        if (data?.displayName) nameEl.value = data.displayName;
+        if (data?.photoURL) avatarEl.src = data.photoURL;
 
-                    uploadBtn.addEventListener("click", () => {
-                        if (widget) widget.open();
-                        else alert("⚠️ Cloudinary non è pronto. Riprova fra qualche secondo.");
-                    });
-                });
-            });
-        </script>
-    </body>
+        widget = cloudinary.createUploadWidget({
+          cloudName: "dpj6s7xvh",
+          uploadPreset: "avatar_unsigned",
+          cropping: true,
+          multiple: false,
+          folder: "avatars"
+        }, async (err, result) => {
+          if (!err && result?.event === "success") {
+            const imageUrl = result.info.secure_url;
+            avatarEl.src = imageUrl;
+            await userRef.set({ photoURL: imageUrl }, { merge: true });
+            alert("✅ Foto aggiornata!");
+          }
+        });
+
+        uploadBtn.addEventListener("click", () => {
+          if (widget) widget.open();
+          else alert("⚠️ Cloudinary non è pronto. Riprova fra un momento.");
+        });
+
+        saveBtn.addEventListener("click", async () => {
+          const newName = nameEl.value.trim();
+          if (!newName) return alert("⚠️ Inserisci un nome valido.");
+          await userRef.set({ displayName: newName }, { merge: true });
+          alert("✅ Nome aggiornato!");
+        });
+      });
+    });
+  </script>
+</body>
 </html>
