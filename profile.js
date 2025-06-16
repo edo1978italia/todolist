@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
-import { app } from "./config.js"; // Assicurati che esporta `app`
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { app } from "./config.js"; // Assicurati che esporta correttamente `app`
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -40,10 +40,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
       const user = auth.currentUser;
       if (user) {
-        await updateDoc(doc(db, "users", user.uid), {
+        await setDoc(doc(db, "users", user.uid), {
           photoURL: imageUrl
-        });
-        console.log("✅ Foto profilo aggiornata!");
+        }, { merge: true });
+
+        alert("✅ Foto aggiornata!");
+        console.log("✅ Foto profilo salvata in Firestore.");
       }
     }
   });
@@ -60,9 +62,11 @@ document.getElementById("saveProfile").addEventListener("click", async () => {
   const newName = document.getElementById("displayName").value.trim();
 
   if (user && newName) {
-    await updateDoc(doc(db, "users", user.uid), {
+    await setDoc(doc(db, "users", user.uid), {
       displayName: newName
-    });
+    }, { merge: true });
+
     alert("✅ Nome utente aggiornato!");
+    console.log("✅ displayName aggiornato in Firestore.");
   }
 });
