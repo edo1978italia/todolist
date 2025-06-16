@@ -12,9 +12,6 @@
 
         <!-- Cloudinary -->
         <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
-        <script>
-            alert("✅ Script eseguito!");
-        </script>
 
         <style>
             .avatar {
@@ -46,78 +43,73 @@
         </div>
 
         <script>
-            const firebaseConfig = {
-                apiKey: "API_KEY",
-                authDomain: "PROJECT_ID.firebaseapp.com",
-                projectId: "PROJECT_ID",
-                storageBucket: "PROJECT_ID.appspot.com",
-                messagingSenderId: "SENDER_ID",
-                appId: "APP_ID"
-            };
+                document.addEventListener("DOMContentLoaded", () => {
+                  const firebaseConfig = {
+                    apiKey: "API_KEY",
+                    authDomain: "PROJECT_ID.firebaseapp.com",
+                    projectId: "PROJECT_ID",
+                    storageBucket: "PROJECT_ID.appspot.com",
+                    messagingSenderId: "SENDER_ID",
+                    appId: "APP_ID"
+                  };
 
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+                  firebase.initializeApp(firebaseConfig);
+                  const auth = firebase.auth();
+                  const db = firebase.firestore();
 
-            document.getElementById("goBackButton").addEventListener("click", () => {
-                if (document.referrer && !document.referrer.includes("profile.html")) {
-                    history.back();
-                } else {
-                    window.location.href = "index.html";
-                }
+                  const emailEl = document.getElementById("userEmail");
+                  const avatarEl = document.getElementById("avatarPreview");
+                  const nameEl = document.getElementById("displayName");
+
+                  document.getElementById("goBackButton").addEventListener("click", () => {
+                    if (document.referrer && !document.referrer.includes("profile.html")) {
+                      history.back();
+                    } else {
+                      window.location.href = "index.html";
+                    }
+                  });
+
+                  auth.onAuthStateChanged(async user => {
+              if (!user) return; // 🔄 aspetta senza fare nulla
+              // ...caricamento profilo
             });
 
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    document.getElementById("userEmail").textContent = user.email;
-                    const ref = db.collection("users").doc(user.uid);
-                    const snap = await ref.get();
+
+                    emailEl.textContent = user.email;
+                    const userRef = db.collection("users").doc(user.uid);
+                    const snap = await userRef.get();
                     const data = snap.data();
-                    if (data) {
-                        if (data.displayName) {
-                            document.getElementById("displayName").value = data.displayName;
-                        }
-                        if (data.photoURL) {
-                            document.getElementById("avatarPreview").src = data.photoURL;
-                        }
-                    }
-                }
-            });
+                    if (data?.displayName) nameEl.value = data.displayName;
+                    if (data?.photoURL) avatarEl.src = data.photoURL;
 
-            const widget = cloudinary.createUploadWidget(
-                {
-                    cloudName: "dpj6s7xvh",
-                    uploadPreset: "avatar_unsigned",
-                    cropping: true,
-                    multiple: false,
-                    folder: "avatars"
-                },
-                async (err, result) => {
-                    if (!err && result?.event === "success") {
+                    // 📸 Cloudinary widget
+                    const widget = cloudinary.createUploadWidget({
+                      cloudName: "dpj6s7xvh",
+                      uploadPreset: "avatar_unsigned",
+                      cropping: true,
+                      multiple: false,
+                      folder: "avatars"
+                    }, async (err, result) => {
+                      if (!err && result?.event === "success") {
                         const imageUrl = result.info.secure_url;
-                        document.getElementById("avatarPreview").src = imageUrl;
+                        avatarEl.src = imageUrl;
+                        await userRef.set({ photoURL: imageUrl }, { merge: true });
+                        alert("✅ Foto aggiornata!");
+                      }
+                    });
 
-                        const user = auth.currentUser;
-                        if (user) {
-                            await db.collection("users").doc(user.uid).set({ photoURL: imageUrl }, { merge: true });
-                            alert("✅ Foto aggiornata!");
-                        }
-                    }
-                }
-            );
+                    document.getElementById("upload_widget").addEventListener("click", () => {
+                      widget.open();
+                    });
 
-            document.getElementById("upload_widget").addEventListener("click", () => {
-                widget.open();
-            });
-
-            document.getElementById("saveProfile").addEventListener("click", async () => {
-                const newName = document.getElementById("displayName").value.trim();
-                const user = auth.currentUser;
-                if (user && newName) {
-                    await db.collection("users").doc(user.uid).set({ displayName: newName }, { merge: true });
-                    alert("✅ Nome aggiornato!");
-                }
-            });
+                    document.getElementById("saveProfile").addEventListener("click", async () => {
+                      const newName = nameEl.value.trim();
+                      if (!newName) return alert("⚠️ Inserisci un nome valido.");
+                      await userRef.set({ displayName: newName }, { merge: true });
+                      alert("✅ Nome aggiornato!");
+                    });
+                  });
+                });
         </script>
     </body>
 </html>
