@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const li = document.createElement("div");
             li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
+            if (data.pinned) li.classList.add("pinned");
+
             li.setAttribute("data-content", data.content);
             li.setAttribute("data-id", docSnap.id);
             li.addEventListener("click", (event) => {
