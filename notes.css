@@ -52,6 +52,7 @@
 /* 📍 Contenitore del menu dei 3 puntini */
 .note-options {
     position: relative; /* Serve per posizionare il menu a tendina assolutamente rispetto a questo */
+    
 }
 
 /* ☰ Stile del pulsante dei 3 puntini delle note listate */
@@ -63,6 +64,7 @@
     padding: 5px 20px; /* Spaziatura intorno */
     color: #8f8f8f; /* 🎨 Colore visivamente sobrio */
     transition: color 0.2s ease;
+    
 }
 
 .options-button:hover {
@@ -302,7 +304,7 @@
     flex-direction: column; /* Disposizione verticale dei pulsanti */
     padding: 2px; /* Spaziatura interna */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombra leggera per profondità */
-    z-index: 10; /* Assicura che il menu rimanga sopra gli altri elementi */
+    z-index: 120; /* Assicura che il menu rimanga sopra gli altri elementi */
 }
 
 /* 🎯🎯🎯 Stile dei pulsanti del menu dei 3 punitni NOTE LISTATE E NUOVA NOTA*/
@@ -322,4 +324,12 @@
 .options-menu button:hover {
     background-color: white;
     color: #247fd8;
+}
+
+/* 🔥 PIN nota */
+.pin-indicator {
+    margin-left: 6px;
+    font-size: 16px;
+    color: red;
+    vertical-align: middle;
 }

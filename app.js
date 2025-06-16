@@ -24,7 +24,7 @@ const auth = getAuth(app);
 document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
 
-    onSnapshot(query(collection(db, "notes"), orderBy("timestamp", "desc")), (snapshot) => {
+    onSnapshot(query(collection(db, "notes"), orderBy("pinned", "desc"), orderBy("timestamp", "desc")), (snapshot) => {
         noteList.innerHTML = ""; // 🔄 Reset lista
 
         snapshot.docs.forEach((docSnap, index) => {
@@ -42,29 +42,84 @@ document.addEventListener("DOMContentLoaded", () => {
             li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
             li.setAttribute("data-content", data.content);
             li.setAttribute("data-id", docSnap.id);
-            li.addEventListener("click", () => openEditorModal(docSnap.id));
+            li.addEventListener("click", (event) => {
+                if (event.target.closest(".options-button") || event.target.closest(".options-menu")) {
+                    return; // 🔥 Non aprire l'editor se clicco su pulsanti/menu
+                }
+                openEditorModal(docSnap.id);
+            });
 
             li.innerHTML = `
                 <div class="note-content">
                     <h3 class="note-preview-title">${shortTitle}</h3>
                     <p class="note-preview-content">${previewContent}</p> <!-- 🔥 Anteprima del contenuto -->
-                    <div class="note-meta">🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}</div>
+                    <div class="note-meta">
+                    🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
+                    ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
+                    </div>
                 </div>
                 <div class="note-options">
                     <button class="options-button" data-id="${docSnap.id}">⋮</button>
                     <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+                    <button class="menu-pin">${data.pinned ? "Unpin" : "Pin"}</button>
                         <button class="menu-delete">🗑 Delete</button>
                     </div>
                 </div>
             `;
 
+            const deleteButton = li.querySelector(".menu-delete");
+
+            deleteButton.addEventListener("click", async (event) => {
+                event.stopPropagation(); // 🔥 Impedisce che venga aperta la nota
+
+                if (confirm("🗑 Vuoi davvero eliminare questa nota?")) {
+                    try {
+                        await deleteDoc(doc(db, "notes", docSnap.id));
+                        alert("✅ Nota eliminata con successo!");
+                    } catch (error) {
+                        console.error("❌ Errore durante l'eliminazione:", error);
+                        alert("Errore durante l'eliminazione.");
+                    }
+                }
+            });
+
             noteList.appendChild(li);
+            // Bottone PIN/UNPIN
+            const pinBtn = li.querySelector(".menu-pin");
+
+            pinBtn.addEventListener("click", async (event) => {
+                event.stopPropagation();
+                const noteRef = doc(db, "notes", docSnap.id);
+                try {
+                    await updateDoc(noteRef, { pinned: !data.pinned });
+                } catch (error) {
+                    console.error("❌ Errore nel fissare/sfissare la nota:", error);
+                }
+            });
+
+            const optionsBtn = li.querySelector(".options-button");
+            const optionsMenu = li.querySelector(".options-menu");
+
+            optionsBtn.addEventListener("click", (event) => {
+                event.stopPropagation(); // 🔥 Blocca il click del box
+                // 🔁 Chiude altri eventuali menu aperti
+                document.querySelectorAll(".options-menu").forEach((menu) => {
+                    if (menu !== optionsMenu) menu.style.display = "none";
+                });
+
+                optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
+            });
         });
     });
 });
 
-
-
+document.addEventListener("click", (event) => {
+    if (!event.target.closest(".options-menu") && !event.target.closest(".options-button")) {
+        document.querySelectorAll(".options-menu").forEach((menu) => {
+            menu.style.display = "none";
+        });
+    }
+});
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
@@ -177,7 +232,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     const content = window.quill.root.innerHTML.trim();
 
     // 🔥 Nuova validazione: entrambi i campi devono essere compilati
-    if (!title || window.quill.getText().trim() === "") {
+    if (!title || window.quill.getLength() <= 1) {
         alert("❌ Error: The title and body of the note must be filled in!");
         return;
     }
@@ -187,6 +242,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             title,
             content,
             userId: user.uid,
+            pinned: false, // 📌 Aggiunto campo per fissare
             timestamp: new Date()
         });
     } else {
