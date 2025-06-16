@@ -3,18 +3,22 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
+console.log("🔥 Inizio esecuzione sidebar.js...");
+
 const app = initializeApp(firebaseConfig);
+console.log("[✓] Firebase inizializzato:", app);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-console.log("🔥 Firebase inizializzato:", app);
-
 document.addEventListener("DOMContentLoaded", async function () {
+    console.log("[✓] DOM completamente caricato");
+
     const userPhotoContainer = document.getElementById("userPhotoContainer");
     const userEmailElement = document.getElementById("userEmail");
     const sidebarContainer = document.getElementById("sidebar-container");
     const openSidebarButton = document.getElementById("openSidebar");
-    const logoutButton = document.getElementById("logoutButton"); // 🔥 Pulsante logout
+    const logoutButton = document.getElementById("logoutButton");
 
     if (!userPhotoContainer || !userEmailElement || !sidebarContainer || !openSidebarButton || !logoutButton) {
         console.warn("⚠ Elementi necessari non trovati nel DOM!");
@@ -22,6 +26,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     onAuthStateChanged(auth, async (user) => {
+        console.log("[✓] Evento onAuthStateChanged attivato");
+
         if (user) {
             console.log("[✓] Utente autenticato:", user.email);
 
@@ -31,11 +37,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             const avatarEl = document.getElementById("userAvatar");
             if (avatarEl) {
+                console.log("[✓] Elemento avatar trovato nel DOM");
+
                 // 🔥 Usa prima la foto di Firebase Auth, poi il fallback Firestore
                 avatarEl.src = user.photoURL || "default.png"; 
-                console.log("[✓] Foto di auth.currentUser:", user.photoURL);
+                console.log("[✓] Foto impostata da auth.currentUser:", user.photoURL);
 
                 try {
+                    console.log("[✓] Tentativo di recupero dati utente da Firestore...");
                     const userRef = doc(db, "users", user.uid);
                     const snap = await getDoc(userRef);
                     const data = snap.data();
@@ -49,9 +58,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                 } catch (err) {
                     console.error("❌ Errore nel recuperare la photoURL:", err);
                 }
+            } else {
+                console.warn("⚠ Avatar non trovato nel DOM!");
             }
         } else {
-            console.warn("⚠ Utente non autenticato!");
+            console.warn("⚠ Nessun utente autenticato!");
             sidebarContainer.style.display = "none";
             openSidebarButton.style.display = "none";
             userEmailElement.innerText = "Non autenticato";
@@ -64,8 +75,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 🔥 Gestione logout - Nasconde sidebar e pulsante immediatamente
     logoutButton.addEventListener("click", async () => {
+        console.log("[✓] Bottone Logout cliccato");
         try {
             await signOut(auth);
             console.log("✅ Logout completato!");
@@ -77,7 +88,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 });
 
-// 🔥 Sidebar toggle
 document.addEventListener("DOMContentLoaded", () => {
     const openSidebarButton = document.getElementById("openSidebar");
     if (openSidebarButton) {
@@ -89,18 +99,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.toggleSidebar = function () {
+    console.log("[✓] Funzione toggleSidebar attivata");
     const sidebar = document.getElementById("sidebar");
+
     if (!sidebar) {
         console.warn("⚠ Sidebar non trovata!");
         return;
     }
+
     sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
     console.log("🔄 Sidebar toggled:", sidebar.style.left);
 };
 
-// 🔥 Debug: Logga i pulsanti cliccati
 document.querySelectorAll("nav button").forEach((button) => {
     button.addEventListener("click", function () {
-        console.log("Pulsante cliccato:", button.innerText);
+        console.log("Pulsante navigazione cliccato:", button.innerText);
     });
 });
