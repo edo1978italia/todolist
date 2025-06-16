@@ -1,7 +1,8 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
 
 console.log("🔥 Inizio esecuzione sidebar.js...");
 
@@ -37,29 +38,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             const avatarEl = document.getElementById("userAvatar");
             if (avatarEl) {
-                console.log("[✓] Elemento avatar trovato nel DOM");
-
-                // 🔥 Usa prima la foto di Firebase Auth, poi il fallback Firestore
-                avatarEl.src = user.photoURL || "default.png"; 
-                console.log("[✓] Foto impostata da auth.currentUser:", user.photoURL);
+                console.log("[✓] Tentativo di recupero foto da Firestore...");
 
                 try {
-                    console.log("[✓] Tentativo di recupero dati utente da Firestore...");
-                    const userRef = doc(db, "users", user.uid);
-                    const snap = await getDoc(userRef);
-                    const data = snap.data();
+                    const usersRef = collection(db, "users");
+                    const q = query(usersRef, where("email", "==", user.email)); // 🔥 Cerca per email
+                    const snapshot = await getDocs(q);
 
-                    if (data?.photoURL) {
-                        avatarEl.src = data.photoURL; // 🔥 Aggiornamento forzato
-                        console.log("[✓] Foto aggiornata da Firestore:", data.photoURL);
+                    if (!snapshot.empty) {
+                        const userData = snapshot.docs[0].data();
+                        if (userData.photoURL) {
+                            avatarEl.src = userData.photoURL; // 🔥 Aggiornamento diretto
+                            console.log("[✓] Foto caricata correttamente:", userData.photoURL);
+                        } else {
+                            console.warn("⚠ Foto non trovata in Firestore, mantiene default.");
+                        }
                     } else {
-                        console.warn("⚠ Nessuna photoURL trovata in Firestore, mantiene default.");
+                        console.warn("⚠ Nessun documento trovato per l'email:", user.email);
                     }
                 } catch (err) {
-                    console.error("❌ Errore nel recuperare la photoURL:", err);
+                    console.error("❌ Errore nel recuperare la photoURL da Firestore:", err);
                 }
-            } else {
-                console.warn("⚠ Avatar non trovato nel DOM!");
             }
         } else {
             console.warn("⚠ Nessun utente autenticato!");
