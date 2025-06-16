@@ -80,9 +80,14 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("[✓] Upload riuscito:", imageUrl);
 
         avatarEl.src = imageUrl;
+
         try {
-          await userRef.set({ photoURL: imageUrl }, { merge: true });
-          console.log("[✓] URL immagine salvato su Firestore");
+          await userRef.set({ photoURL: imageUrl, email: user.email }, { merge: true });
+          console.log("[✓] Foto salvata su Firestore e email registrata");
+
+          await user.updateProfile({ photoURL: imageUrl });
+          console.log("[✓] Foto sincronizzata in auth.currentUser:", user.photoURL);
+
           alert("✅ Foto aggiornata!");
         } catch (e) {
           console.error("[!] Errore salvataggio foto su Firestore:", e);
@@ -108,8 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("[log] Nome da salvare:", newName);
 
       try {
-        await userRef.set({ displayName: newName }, { merge: true });
+        await userRef.set({ displayName: newName, email: user.email }, { merge: true });
         console.log("[✓] Nome salvato su Firestore");
+
+        await user.updateProfile({ displayName: newName });
+        console.log("[✓] Nome sincronizzato in auth.currentUser:", user.displayName);
+
         alert("✅ Nome aggiornato!");
       } catch (e) {
         console.error("[!] Errore durante il salvataggio del nome:", e);

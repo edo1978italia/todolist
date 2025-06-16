@@ -30,14 +30,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             // 🔥 Aggiorna immagine profilo
             const avatarEl = document.getElementById("userAvatar");
             if (avatarEl) {
+                avatarEl.src = user.photoURL || "default.png"; // 🔥 Priorità a auth.currentUser
+
                 try {
                     const userRef = doc(db, "users", user.uid);
                     const snap = await getDoc(userRef);
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        if (data.photoURL) {
-                            avatarEl.src = data.photoURL;
-                        }
+                    const data = snap.data();
+
+                    if (data?.photoURL && data.photoURL !== user.photoURL) {
+                        avatarEl.src = data.photoURL;
+                        console.log("[✓] Foto aggiornata dalla raccolta users:", data.photoURL);
                     }
                 } catch (err) {
                     console.warn("⚠ Errore nel recuperare la photoURL:", err);
