@@ -29,6 +29,23 @@
 
         <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
         <script type="module" src="sidebar.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const sidebar = document.getElementById("sidebar");
+                const openSidebarButton = document.getElementById("openSidebar");
 
+                if (!sidebar || !openSidebarButton) {
+                    console.warn("⚠ Sidebar o pulsante non trovati!");
+                    return;
+                }
+
+                openSidebarButton.addEventListener("click", function () {
+                    sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
+                    console.log("🔄 Sidebar toggled:", sidebar.style.left);
+                });
+
+                console.log("[✓] Sidebar attivata manualmente in sidebar.html");
+            });
+        </script>
     </body>
 </html>
