@@ -67,8 +67,6 @@ body {
     color: red; /* Cambia solo il colore dei tre puntini */
 }
 
-
-
 /* Modifica: assicura che il menu venga reso visibile */
 .menu.active {
     display: block;
@@ -121,8 +119,6 @@ body {
     text-align: left;
 }
 
-
-
 /* 🔥TEXT INPUT ELEMENTO */
 #namePriorityContainer {
     display: flex;
@@ -137,7 +133,7 @@ body {
     text-align: center;
     background-color: #247fd8;
     color: white;
-   
+
     border: 3px solid #247fd8;
     border-radius: 5px;
     cursor: pointer;
@@ -198,7 +194,6 @@ button:hover {
     gap: 10px;
     justify-content: center;
 }
-
 
 /* 📍📍📍📍📍Alternanza colori: bianco / grigio */
 .task-item:nth-child(odd) {
@@ -822,8 +817,8 @@ textarea {
     border: 1px solid #ddd;
     border-radius: 6px;
     padding: 10px;
-    margin-bottom: 1px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 3px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
 }
 
 .note-preview-title {
@@ -841,20 +836,72 @@ textarea {
 }
 
 .note-preview-content {
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* 🔥 Mostra massimo 2 righe */
-  -webkit-box-orient: vertical;
-  overflow: hidden; /* 🔥 Nasconde il testo in eccesso */
-  text-overflow: ellipsis; /* 🔥 Aggiunge "..." per il troncamento */
-  font-size: 14px;
-  line-height: 1.5;
-  max-height: 3em; /* 🔥 Mantiene solo 2 righe di altezza */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 🔥 Mostra massimo 2 righe */
+    -webkit-box-orient: vertical;
+    overflow: hidden; /* 🔥 Nasconde il testo in eccesso */
+    text-overflow: ellipsis; /* 🔥 Aggiunge "..." per il troncamento */
+    font-size: 12px;
+    line-height: 1.5;
+    max-height: 3em; /* 🔥 Mantiene solo 2 righe di altezza */
 }
-
 
 /* 🔥 WIDGET METEO */
 .weather-box {
     border-radius: 6px;
     max-width: 620px; /* o 100%, 400px, ecc. */
     margin: 0 auto; /* per centrare */
+}
+
+#profile-container {
+    max-width: 400px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+/* 🔥 UTENTE foto USER photo */
+#userPhotoContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+}
+
+#userAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+    margin: 12px 0;
+}
+
+/* 🔥 ingranaggio setting / impostazioni utentew */
+#settings-link {
+    position: absolute;
+    bottom: 70px;
+    left: 30px;
+    font-size: 18px;
+    cursor: pointer;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(-50%);
+    padding: 10px;
+    border: none;
+    
+}
+
+#settings-link:hover {
+    color: #000;
+    font-weight: bold;
 }

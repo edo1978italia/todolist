@@ -24,15 +24,36 @@ document.addEventListener("DOMContentLoaded", async function () {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             userEmailElement.innerText = user.email;
-            sidebarContainer.style.display = "block"; // ✅ Mostra sidebar se loggato
-            openSidebarButton.style.display = "block"; // ✅ Mostra pulsante di apertura
+            sidebarContainer.style.display = "block";
+            openSidebarButton.style.display = "block";
+
+            // 🔥 Aggiorna immagine profilo
+            const avatarEl = document.getElementById("userAvatar");
+            if (avatarEl) {
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    const snap = await getDoc(userRef);
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.photoURL) {
+                            avatarEl.src = data.photoURL;
+                        }
+                    }
+                } catch (err) {
+                    console.warn("⚠ Errore nel recuperare la photoURL:", err);
+                }
+            }
         } else {
             console.warn("⚠ Utente non autenticato!");
-
-            // 🔥 Nasconde sidebar e pulsante di apertura dopo il logout
             sidebarContainer.style.display = "none";
             openSidebarButton.style.display = "none";
             userEmailElement.innerText = "Non autenticato";
+
+            // 🔥 Reimposta immagine default (se esiste)
+            const avatarEl = document.getElementById("userAvatar");
+            if (avatarEl) {
+                avatarEl.src = "default.png";
+            }
         }
     });
 

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Profilo Utente</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div id="profile-container">
+            <h2>Your Profile</h2>
+
+            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+
+            <label for="displayName">Set your name:</label><br />
+            <input type="text" id="displayName" placeholder="Enter your name" /><br /><br />
+
+            <img id="avatarPreview" src="default.png" alt="Avatar" class="avatar" />
+            <br />
+            <button id="upload_widget">📷 Change your profile picture</button>
+            <br /><br />
+            <br /><br />
+            <button id="saveProfile">💾 Save</button>
+            <br /><br />
+            <button id="goBackButton">↩️ Back</button>
+
+            <script>
+                document.getElementById("goBackButton").addEventListener("click", () => {
+                    if (document.referrer && !document.referrer.includes("profile.html")) {
+                        history.back();
+                    } else {
+                        window.location.href = "index.html"; // rotta fallback
+                    }
+                });
+            </script>
+
+            <br /><br />
+        </div>
+
+        <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+        <script type="module" src="profile.js"></script>
+    </body>
+</html>

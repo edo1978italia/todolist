@@ -1,30 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
-<head>
-    <title>Sidebar</title>
-    <link rel="stylesheet" href="styles.css">
-    
-</head>
-<body>
-    <div id="sidebar">
-        <div id="userInfo">
-            <!-- 🔥 L'immagine viene aggiornata con la foto profilo dell'utente -->
-            <div id="userPhotoContainer"></div>
-            <p>Welcome, <span id="userEmail"></span></p>
+    <head>
+        <title>Sidebar</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div id="sidebar">
+            <div id="userInfo">
+                <!-- 🔥 L'immagine viene aggiornata con la foto profilo dell'utente -->
+                <div id="userPhotoContainer">
+                    <img id="userAvatar" src="default.png" alt="Avatar" class="avatar" />
+                    <p>Welcome, <span id="userEmail"></span></p>
+                </div>
+            </div>
+            <nav>
+                <button onclick="navigateTo('index.html')">HOME</button>
+                <button onclick="navigateTo('todolist.html')">TO-BUY LIST</button>
+                <button onclick="navigateTo('notes-home.html')">NOTE</button>
+                <button onclick="navigateTo('ricettelista.html')">RECIPES</button>
+            </nav>
+
+            <button id="closeSidebar" onclick="toggleSidebar()">✖ Close</button>
+            <div id="settings-link" onclick="navigateTo('profile.html')" title="Impostazioni">
+                <span style="font-size: 24px">⚙️</span>
+            </div>
         </div>
-        <nav>
-            <button onclick="navigateTo('index.html')">HOME</button>
-            <button onclick="navigateTo('todolist.html')">TO-BUY LIST</button>
-            <button onclick="navigateTo('notes-home.html')">NOTE</button>
-            <button onclick="navigateTo('ricettelista.html')">RECIPES</button>
-        </nav>
-        
-        <button id="closeSidebar" onclick="toggleSidebar()">✖ Close</button>
-    </div>
-    <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
-    
-    <script type="module" defer src="sidebar.js"></script>
-
-</body>
+        <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
+        <script type="module" defer src="sidebar.js"></script>
+    </body>
 </html>
-
