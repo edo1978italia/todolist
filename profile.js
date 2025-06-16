@@ -1,9 +1,10 @@
-// Includi sempre: config.js, firebase-app, firebase-auth, firebase-firestore e cloudinary prima di questo file
-document.addEventListener("DOMContentLoaded", () => {
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+import firebaseConfig from "./config.js";
 
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+document.addEventListener("DOMContentLoaded", () => {
   const emailEl = document.getElementById("userEmail");
   const avatarEl = document.getElementById("avatarPreview");
   const nameEl = document.getElementById("displayName");
