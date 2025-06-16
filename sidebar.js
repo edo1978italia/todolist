@@ -23,26 +23,31 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            console.log("[✓] Utente autenticato:", user.email);
+
             userEmailElement.innerText = user.email;
             sidebarContainer.style.display = "block";
             openSidebarButton.style.display = "block";
 
-            // 🔥 Aggiorna immagine profilo
             const avatarEl = document.getElementById("userAvatar");
             if (avatarEl) {
-                avatarEl.src = user.photoURL || "default.png"; // 🔥 Priorità a auth.currentUser
+                // 🔥 Usa prima la foto di Firebase Auth, poi il fallback Firestore
+                avatarEl.src = user.photoURL || "default.png"; 
+                console.log("[✓] Foto di auth.currentUser:", user.photoURL);
 
                 try {
                     const userRef = doc(db, "users", user.uid);
                     const snap = await getDoc(userRef);
                     const data = snap.data();
 
-                    if (data?.photoURL && data.photoURL !== user.photoURL) {
-                        avatarEl.src = data.photoURL;
-                        console.log("[✓] Foto aggiornata dalla raccolta users:", data.photoURL);
+                    if (data?.photoURL) {
+                        avatarEl.src = data.photoURL; // 🔥 Aggiornamento forzato
+                        console.log("[✓] Foto aggiornata da Firestore:", data.photoURL);
+                    } else {
+                        console.warn("⚠ Nessuna photoURL trovata in Firestore, mantiene default.");
                     }
                 } catch (err) {
-                    console.warn("⚠ Errore nel recuperare la photoURL:", err);
+                    console.error("❌ Errore nel recuperare la photoURL:", err);
                 }
             }
         } else {
@@ -51,10 +56,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             openSidebarButton.style.display = "none";
             userEmailElement.innerText = "Non autenticato";
 
-            // 🔥 Reimposta immagine default (se esiste)
             const avatarEl = document.getElementById("userAvatar");
             if (avatarEl) {
                 avatarEl.src = "default.png";
+                console.log("[✓] Foto impostata su default.");
             }
         }
     });
@@ -64,9 +69,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             await signOut(auth);
             console.log("✅ Logout completato!");
-
-            sidebarContainer.style.display = "none"; // ✅ Nasconde sidebar
-            openSidebarButton.style.display = "none"; // ✅ Nasconde pulsante
+            sidebarContainer.style.display = "none";
+            openSidebarButton.style.display = "none";
         } catch (error) {
             console.error("❌ Errore nel logout:", error);
         }
