@@ -283,15 +283,6 @@ input {
     cursor: pointer;
 }
 
-#welcomeMessage {
-    display: none; /* 🔥 Nascondi di default */
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: black;
-    margin-top: 10px;
-}
-
 /* 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥PANNELLO LATERALE SIDE BAR */
 #sidebar {
     position: fixed;
@@ -872,7 +863,8 @@ textarea {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #ccc;
+    border: 4px solid #ccc;
+    margin-bottom: 5px;
 }
 
 .avatar {
@@ -880,9 +872,38 @@ textarea {
     height: 96px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ccc;
-    margin: 12px 0;
+    border: 4px solid #ccc;
+    
+    
 }
+
+#userProfileContainer {
+    display: flex;
+    flex-direction: column; /* Disposizione verticale */
+    align-items: center; /* Allinea tutto centralmente */
+    text-align: center; /* Centra il testo */
+    padding: 10px;
+}
+
+
+#welcomeMessage {
+    display: block; /* 🔥 Nascondi di default */
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+
+#userAvatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* Forma rotonda */
+    margin: 10px 0;
+}
+
 
 /* 🔥 ingranaggio setting / impostazioni utentew */
 #settings-link {

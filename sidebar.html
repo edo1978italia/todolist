@@ -7,12 +7,13 @@
     <body>
         <div id="sidebar">
             <div id="userInfo">
-                <!-- 🔥 L'immagine viene aggiornata con la foto profilo dell'utente -->
-                <div id="userPhotoContainer">
+                <div id="userProfileContainer">
+                    <p id="welcomeMessage">Welcome</p>
                     <img id="userAvatar" src="default.png" alt="Avatar" class="avatar" />
-                    <p>Welcome, <span id="userEmail"></span></p>
+                    <p id="userEmail">Email</p>
                 </div>
             </div>
+
             <nav>
                 <button onclick="navigateTo('index.html')">HOME</button>
                 <button onclick="navigateTo('todolist.html')">TO-BUY LIST</button>
@@ -25,6 +26,7 @@
                 <span style="font-size: 24px">⚙️</span>
             </div>
         </div>
+
         <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
         <script type="module" defer src="sidebar.js"></script>
     </body>
