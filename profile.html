@@ -67,45 +67,36 @@
                 });
 
                 auth.onAuthStateChanged(async (user) => {
-                    if (!user) return; // 🔒 Silenzioso se non loggato
+                    if (!user) return;
 
-                    emailEl.textContent = user.email;
+                    // ...codice profilo...
 
-                    const userRef = db.collection("users").doc(user.uid);
-                    const snap = await userRef.get();
-                    const data = snap.data();
+                    let widget;
 
-                    if (data?.displayName) nameEl.value = data.displayName;
-                    if (data?.photoURL) avatarEl.src = data.photoURL;
-
-                    // 📸 Cloudinary
-                    const widget = cloudinary.createUploadWidget(
-                        {
-                            cloudName: "dpj6s7xvh",
-                            uploadPreset: "avatar_unsigned",
-                            cropping: true,
-                            multiple: false,
-                            folder: "avatars"
-                        },
-                        async (err, result) => {
-                            if (!err && result?.event === "success") {
-                                const imageUrl = result.info.secure_url;
-                                avatarEl.src = imageUrl;
-                                await userRef.set({ photoURL: imageUrl }, { merge: true });
-                                alert("✅ Foto aggiornata!");
+                    // Inizializza solo una volta
+                    if (!widget) {
+                        widget = cloudinary.createUploadWidget(
+                            {
+                                cloudName: "dpj6s7xvh",
+                                uploadPreset: "avatar_unsigned",
+                                cropping: true,
+                                multiple: false,
+                                folder: "avatars"
+                            },
+                            async (err, result) => {
+                                if (!err && result?.event === "success") {
+                                    const imageUrl = result.info.secure_url;
+                                    avatarEl.src = imageUrl;
+                                    await userRef.set({ photoURL: imageUrl }, { merge: true });
+                                    alert("✅ Foto aggiornata!");
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
 
-                    document.getElementById("upload_widget").addEventListener("click", () => {
-                        widget.open();
-                    });
-
-                    document.getElementById("saveProfile").addEventListener("click", async () => {
-                        const newName = nameEl.value.trim();
-                        if (!newName) return alert("⚠️ Inserisci un nome valido.");
-                        await userRef.set({ displayName: newName }, { merge: true });
-                        alert("✅ Nome aggiornato!");
+                    uploadBtn.addEventListener("click", () => {
+                        if (widget) widget.open();
+                        else alert("⚠️ Cloudinary non è pronto. Riprova fra qualche secondo.");
                     });
                 });
             });
