@@ -41,13 +41,12 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const firebaseConfig = {
-        apiKey: "AIzaSyCLg-Z9YOrjsqe3PTN0Nr2C1jZotVKfI38",
-    authDomain: "todolistedo.firebaseapp.com",
-    projectId: "todolistedo",
-    storageBucket: "todolistedo.appspot.com",
-    messagingSenderId: "700684050233",
-    appId: "1:700684050233:web:755d10254e8c2cf222d2e8",
-    measurementId: "G-HR8GGBGQTJ"
+        apiKey: "API_KEY",
+        authDomain: "PROJECT_ID.firebaseapp.com",
+        projectId: "PROJECT_ID",
+        storageBucket: "PROJECT_ID.appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
       };
 
       firebase.initializeApp(firebaseConfig);
@@ -68,8 +67,6 @@
         }
       });
 
-      let widget = null;
-
       auth.onAuthStateChanged(async user => {
         if (!user) return;
 
@@ -81,7 +78,7 @@
         if (data?.displayName) nameEl.value = data.displayName;
         if (data?.photoURL) avatarEl.src = data.photoURL;
 
-        widget = cloudinary.createUploadWidget({
+        const widget = cloudinary.createUploadWidget({
           cloudName: "dpj6s7xvh",
           uploadPreset: "avatar_unsigned",
           cropping: true,
@@ -97,8 +94,7 @@
         });
 
         uploadBtn.addEventListener("click", () => {
-          if (widget) widget.open();
-          else alert("⚠️ Cloudinary non è pronto. Riprova fra un momento.");
+          widget.open();
         });
 
         saveBtn.addEventListener("click", async () => {
