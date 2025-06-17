@@ -1,117 +1,88 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-
-console.log("🔥 Inizio esecuzione sidebar.js...");
+console.log("🔥 Avvio sidebar.js...");
 
 const app = initializeApp(firebaseConfig);
-console.log("[✓] Firebase inizializzato:", app);
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-document.addEventListener("DOMContentLoaded", async function () {
-    console.log("[✓] DOM completamente caricato");
-
-    const userPhotoContainer = document.getElementById("userPhotoContainer");
-    const userEmailElement = document.getElementById("userEmail");
-    const sidebarContainer = document.getElementById("sidebar-container");
-    const openSidebarButton = document.getElementById("openSidebar");
-    const logoutButton = document.getElementById("logoutButton");
-
-    if (!userPhotoContainer || !userEmailElement || !sidebarContainer || !openSidebarButton || !logoutButton) {
-        console.warn("⚠ Elementi necessari non trovati nel DOM!");
-        return;
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-        console.log("[✓] Evento onAuthStateChanged attivato");
-
-        if (user) {
-            console.log("[✓] Utente autenticato:", user.email);
-
-            userEmailElement.innerText = user.email;
-            sidebarContainer.style.display = "block";
-            openSidebarButton.style.display = "block";
-
-            const avatarEl = document.getElementById("userAvatar");
-            if (avatarEl) {
-                console.log("[✓] Tentativo di recupero foto da Firestore...");
-
-                try {
-                    const usersRef = collection(db, "users");
-                    const q = query(usersRef, where("email", "==", user.email)); // 🔥 Cerca per email
-                    const snapshot = await getDocs(q);
-
-                    if (!snapshot.empty) {
-                        const userData = snapshot.docs[0].data();
-                        if (userData.photoURL) {
-                            avatarEl.src = userData.photoURL; // 🔥 Aggiornamento diretto
-                            console.log("[✓] Foto caricata correttamente:", userData.photoURL);
-                        } else {
-                            console.warn("⚠ Foto non trovata in Firestore, mantiene default.");
-                        }
-                    } else {
-                        console.warn("⚠ Nessun documento trovato per l'email:", user.email);
-                    }
-                } catch (err) {
-                    console.error("❌ Errore nel recuperare la photoURL da Firestore:", err);
-                }
-            }
-        } else {
-            console.warn("⚠ Nessun utente autenticato!");
-            sidebarContainer.style.display = "none";
-            openSidebarButton.style.display = "none";
-            userEmailElement.innerText = "Non autenticato";
-
-            const avatarEl = document.getElementById("userAvatar");
-            if (avatarEl) {
-                avatarEl.src = "default.png";
-                console.log("[✓] Foto impostata su default.");
-            }
-        }
-    });
-
-    logoutButton.addEventListener("click", async () => {
-        console.log("[✓] Bottone Logout cliccato");
-        try {
-            await signOut(auth);
-            console.log("✅ Logout completato!");
-            sidebarContainer.style.display = "none";
-            openSidebarButton.style.display = "none";
-        } catch (error) {
-            console.error("❌ Errore nel logout:", error);
-        }
-    });
-});
-
 document.addEventListener("DOMContentLoaded", () => {
-    const openSidebarButton = document.getElementById("openSidebar");
-    if (openSidebarButton) {
-        openSidebarButton.addEventListener("click", () => {
-            toggleSidebar();
-            console.log("✅ Click rilevato e sidebar aperta!");
-        });
+  console.log("[✓] DOM caricato");
+
+  const avatarEl = document.getElementById("userAvatar");
+  const emailEl = document.getElementById("userEmail");
+  const nameEl = document.getElementById("welcomeMessage");
+  const logoutBtn = document.getElementById("logoutButton");
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      console.warn("⚠ Nessun utente autenticato");
+      return;
     }
+
+    console.log("[✓] Utente autenticato:", user.email);
+    emailEl.textContent = user.email;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+
+      if (data?.photoURL && avatarEl) {
+        avatarEl.src = data.photoURL;
+        console.log("[✓] Foto caricata:", data.photoURL);
+      } else {
+        console.warn("⚠ Nessuna foto trovata in Firestore");
+      }
+
+      if (data?.displayName && nameEl) {
+        nameEl.textContent = "Welcome, " + data.displayName;
+        console.log("[✓] Nome mostrato:", data.displayName);
+      } else {
+        console.warn("⚠ Nessun nome trovato in Firestore");
+      }
+    } catch (err) {
+      console.error("❌ Errore lettura Firestore:", err);
+    }
+  });
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        console.log("✅ Logout eseguito");
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("❌ Errore durante il logout:", error);
+      }
+    });
+  }
+
+  const toggleBtn = document.getElementById("openSidebar");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      toggleSidebar();
+    });
+  }
 });
 
 window.toggleSidebar = function () {
-    console.log("[✓] Funzione toggleSidebar attivata");
-    const sidebar = document.getElementById("sidebar");
-
-    if (!sidebar) {
-        console.warn("⚠ Sidebar non trovata!");
-        return;
-    }
-
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
     sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
-    console.log("🔄 Sidebar toggled:", sidebar.style.left);
+    console.log("🔁 Toggle sidebar:", sidebar.style.left);
+  } else {
+    console.warn("⚠ Sidebar non trovata");
+  }
 };
-
-document.querySelectorAll("nav button").forEach((button) => {
-    button.addEventListener("click", function () {
-        console.log("Pulsante navigazione cliccato:", button.innerText);
-    });
-});
