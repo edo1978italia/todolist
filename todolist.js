@@ -299,3 +299,31 @@ window.toggleSidebar = function () {
 window.navigateTo = function (page) {
     window.location.href = page;
 };
+
+// 🔥 Caricamento dinamico della sidebar
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebarContainer = document.getElementById("sidebar-container");
+  if (!sidebarContainer) {
+    console.warn("⚠ sidebar-container non trovato!");
+    return;
+  }
+
+  fetch("sidebar.html")
+    .then((res) => res.text())
+    .then((html) => {
+      sidebarContainer.innerHTML = html;
+      console.log("[✓] Sidebar caricata dinamicamente");
+
+      // Dopo che il DOM della sidebar è stato inserito, carichiamo sidebar.js
+      const script = document.createElement("script");
+      script.type = "module";
+      script.src = "sidebar.js";
+      document.body.appendChild(script);
+
+      // Facoltativo: piccolo delay per confermare nel log
+      script.onload = () => console.log("[✓] sidebar.js caricato correttamente");
+    })
+    .catch((err) => {
+      console.error("❌ Errore nel caricamento di sidebar.html:", err);
+    });
+});
