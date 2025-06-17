@@ -26,34 +26,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutButton");
 
   onAuthStateChanged(auth, async (user) => {
+    console.log("[DEBUG] onAuthStateChanged triggerato");
+
     if (!user) {
       console.warn("⚠ Nessun utente autenticato");
       return;
     }
 
-    console.log("[✓] Utente autenticato:", user.email);
+    console.log("[DEBUG] Utente:", user.uid, user.email);
     emailEl.textContent = user.email;
+
+    console.log("[DEBUG] avatarEl trovato?", !!avatarEl);
+    console.log("[DEBUG] nameEl trovato?", !!nameEl);
 
     try {
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
       const data = snap.data();
 
+      console.log("[DEBUG] Dati da Firestore:", data);
+
       if (data?.photoURL && avatarEl) {
         avatarEl.src = data.photoURL;
-        console.log("[✓] Foto caricata:", data.photoURL);
+        console.log("Foto caricata:", data.photoURL);
       } else {
-        console.warn("⚠ Nessuna foto trovata in Firestore");
+        console.warn("⚠ Nessuna foto trovata o elemento mancante");
       }
 
       if (data?.displayName && nameEl) {
         nameEl.textContent = "Welcome, " + data.displayName;
-        console.log("[✓] Nome mostrato:", data.displayName);
+        console.log("Nome mostrato:", data.displayName);
       } else {
-        console.warn("⚠ Nessun nome trovato in Firestore");
+        console.warn("⚠ Nessun nome trovato o elemento mancante");
       }
     } catch (err) {
-      console.error("❌ Errore lettura Firestore:", err);
+      console.error("[DEBUG] Errore durante recupero dati:", err);
     }
   });
 
