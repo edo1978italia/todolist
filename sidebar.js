@@ -120,20 +120,16 @@ window.toggleSidebar = function () {
 };
 
 
-// Attiva subito il pulsante toggle, anche prima dei dati utente
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("openSidebar");
-  const closeBtn = document.getElementById("closeSidebar");
+// ✅ Collega subito i pulsanti di toggle, senza attendere eventi DOM
+const sidebar = document.getElementById("sidebar");
+const toggleBtn = document.getElementById("openSidebar");
+const closeBtn = document.getElementById("closeSidebar");
 
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      toggleSidebar();
-    });
-  }
+if (toggleBtn && sidebar) {
+  toggleBtn.addEventListener("click", toggleSidebar);
+}
 
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      toggleSidebar();
-    });
-  }
-});
+if (closeBtn && sidebar) {
+  closeBtn.addEventListener("click", toggleSidebar);
+}
+
