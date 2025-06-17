@@ -323,7 +323,7 @@ input {
     transform: none; /* 🔥 Rimuove l'ingrandimento */
 }
 #openSidebar {
-    position: fixed;
+    position: fixed !important;
     font-size: 25px;
     top: 2px;
     left: 13px;
@@ -846,11 +846,34 @@ textarea {
 
 /* 🔥 UTENTE foto USER photo - PROFILE.HTML */
 #profile-container {
-    max-width: 400px;
-    margin: 40px auto;
-    text-align: center;
+    max-width: 480px;
+    margin: 48px auto;
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 64px; 
 }
 
+@media (max-width: 600px) {
+    #profile-container {
+        width: 92vw;
+        margin: 24px auto;
+        padding: 16px;
+        margin-top: 64px; 
+    }
+
+    #profile-container input,
+    #profile-container button {
+        width: 100%;
+        font-size: 15px;
+    }
+
+    #profile-container .avatar {
+        width: 80px;
+        height: 80px;
+    }
+}
 
 #userPhotoContainer {
     display: flex;
@@ -874,8 +897,6 @@ textarea {
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid #ffffff;
-    
-    
 }
 
 #userProfileContainer {
@@ -885,7 +906,6 @@ textarea {
     text-align: center; /* Centra il testo */
     padding: 10px;
 }
-
 
 #welcomeMessage {
     display: block; /* 🔥 Nascondi di default */
@@ -897,14 +917,12 @@ textarea {
     margin-bottom: 1px;
 }
 
-
 #userAvatar {
     width: 80px;
     height: 80px;
     border-radius: 50%; /* Forma rotonda */
     margin: 10px 0;
 }
-
 
 /* 🔥 ingranaggio setting / impostazioni utentew */
 #settings-link {
@@ -920,7 +938,6 @@ textarea {
     transform: translateX(-50%);
     padding: 10px;
     border: none;
-    
 }
 
 #settings-link:hover {
