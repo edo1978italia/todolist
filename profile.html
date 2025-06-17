@@ -1,50 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Profilo Utente</title>
-  <link rel="stylesheet" href="styles.css" />
+    <title>Profilo Utente</title>
+    <link rel="stylesheet" href="styles.css" />
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js" type="module"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js" type="module"></script>
 
-  <!-- Cloudinary -->
-  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+    <!-- Cloudinary -->
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 
-  <!-- Il tuo script -->
-  <script type="module" src="profile.js"></script>
+    <!-- Il tuo script -->
+    <script type="module" src="profile.js"></script>
 
-  <style>
-    .avatar {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #ccc;
-      margin: 12px 0;
-    }
-    
+    <style>
+      .avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ccc;
+        margin: 12px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Your Profile</h3>
+    <div id="profile-container">
+      <p><strong>Email:</strong> <span id="userEmail"></span></p>
 
-  </style>
-  
-</head>
-<body>
-  <h3>Your Profile</h3>
-  <div id="profile-container">
-    
-    <p><strong>Email:</strong> <span id="userEmail"></span></p>
+      <label for="displayName">Set your name:</label><br />
+      <input type="text" id="displayName" placeholder="Enter your name" /><br />
+      <button id="saveProfile">💾 Save your name</button><br /><br /><br /><br />
+      <img id="avatarPreview" alt="Avatar" class="avatar" />
 
-    <label for="displayName">Set your name:</label><br />
-    <input type="text" id="displayName" placeholder="Enter your name" /><br /><br />
-
-    <img id="avatarPreview" alt="Avatar" class="avatar" /><br /><br />
-
-    <button id="upload_widget">📷 Change your profile picture</button><br /><br />
-    <button id="saveProfile">💾 Save</button><br /><br />
-    <button id="goBackButton">↩️ Back</button>
-  </div>
-</body>
+      <button id="upload_widget">📷 Change your profile picture</button><br /><br /><br /><br />
+      <button id="goBackButton">↩️ Back</button>
+    </div>
+  </body>
 </html>
