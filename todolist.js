@@ -302,28 +302,28 @@ window.navigateTo = function (page) {
 
 // 🔥 Caricamento dinamico della sidebar
 document.addEventListener("DOMContentLoaded", () => {
-  const sidebarContainer = document.getElementById("sidebar-container");
-  if (!sidebarContainer) {
-    console.warn("⚠ sidebar-container non trovato!");
-    return;
-  }
+    const sidebarContainer = document.getElementById("sidebar-container");
+    if (!sidebarContainer) {
+        console.warn("⚠ sidebar-container non trovato!");
+        return;
+    }
 
-  fetch("sidebar.html")
-    .then((res) => res.text())
-    .then((html) => {
-      sidebarContainer.innerHTML = html;
-      console.log("[✓] Sidebar caricata dinamicamente");
+    fetch("sidebar.html")
+        .then((res) => res.text())
+        .then((html) => {
+            sidebarContainer.innerHTML = html;
+            console.log("[✓] Sidebar inserita nel DOM");
 
-      // Dopo che il DOM della sidebar è stato inserito, carichiamo sidebar.js
-      const script = document.createElement("script");
-      script.type = "module";
-      script.src = "sidebar.js";
-      document.body.appendChild(script);
-
-      // Facoltativo: piccolo delay per confermare nel log
-      script.onload = () => console.log("[✓] sidebar.js caricato correttamente");
-    })
-    .catch((err) => {
-      console.error("❌ Errore nel caricamento di sidebar.html:", err);
-    });
+            // ✅ Aspetta il ciclo successivo prima di eseguire sidebar.js
+            requestAnimationFrame(() => {
+                const script = document.createElement("script");
+                script.type = "module";
+                script.src = "sidebar.js";
+                script.onload = () => console.log("[✓] sidebar.js caricato correttamente");
+                document.body.appendChild(script);
+            });
+        })
+        .catch((err) => {
+            console.error("❌ Errore nel caricamento di sidebar.html:", err);
+        });
 });
