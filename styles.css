@@ -927,7 +927,7 @@ textarea {
 /* 🔥 ingranaggio setting / impostazioni utentew */
 #settings-link {
     position: absolute;
-    bottom: 70px;
+    bottom: 150px;
     left: 30px;
     font-size: 18px;
     cursor: pointer;
