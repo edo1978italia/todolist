@@ -63,37 +63,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("[log] Inizializzazione Cloudinary...");
 
-    const widget = cloudinary.createUploadWidget({
-      cloudName: "dpj6s7xvh",
-      uploadPreset: "avatar_unsigned",
-      cropping: true,
-      multiple: false,
-      folder: "avatars"
-    }, async (err, result) => {
-      if (err) {
-        console.error("[!] Errore nel widget Cloudinary:", err);
-        return;
-      }
+    const widget = cloudinary.createUploadWidget(
+      {
+        cloudName: "dpj6s7xvh",
+        uploadPreset: "avatar_unsigned",
+        cropping: true,
+        multiple: false,
+        folder: "avatars"
+      },
+      async (err, result) => {
+        if (err) {
+          console.error("[!] Errore nel widget Cloudinary:", err);
+          return;
+        }
 
-      if (result?.event === "success") {
-        const imageUrl = result.info.secure_url;
-        console.log("[✓] Upload riuscito:", imageUrl);
+        if (result?.event === "success") {
+          const imageUrl = result.info.secure_url;
+          console.log("[✓] Upload riuscito:", imageUrl);
 
-        avatarEl.src = imageUrl;
+          avatarEl.src = imageUrl;
 
-        try {
-          await userRef.set({ photoURL: imageUrl, email: user.email }, { merge: true });
-          console.log("[✓] Foto salvata su Firestore e email registrata");
+          try {
+            await userRef.set({ photoURL: imageUrl, email: user.email }, { merge: true });
+            console.log("[✓] Foto salvata su Firestore e email registrata");
 
-          await user.updateProfile({ photoURL: imageUrl });
-          console.log("[✓] Foto sincronizzata in auth.currentUser:", user.photoURL);
+            await user.updateProfile({ photoURL: imageUrl });
+            console.log("[✓] Foto sincronizzata in auth.currentUser:", user.photoURL);
 
-          alert("✅ Foto aggiornata!");
-        } catch (e) {
-          console.error("[!] Errore salvataggio foto su Firestore:", e);
+            alert("✅ Foto aggiornata!");
+          } catch (e) {
+            console.error("[!] Errore salvataggio foto su Firestore:", e);
+          }
         }
       }
-    });
+    );
 
     uploadBtn.addEventListener("click", () => {
       console.log("[log] Bottone 📷 cliccato → apertura widget...");
@@ -126,3 +129,60 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+// 🔁 Caricamento dinamico della sidebar
+const sidebarContainer = document.createElement("div");
+sidebarContainer.id = "sidebar-container";
+document.body.insertBefore(sidebarContainer, document.getElementById("profile-container"));
+
+fetch("sidebar.html")
+  .then((res) => res.text())
+  .then((html) => {
+    sidebarContainer.innerHTML = html;
+    console.log("[✓] Sidebar inserita nel DOM");
+
+    requestAnimationFrame(() => {
+      const script = document.createElement("script");
+      script.type = "module";
+      script.src = "sidebar.js";
+      script.onload = () => {
+        console.log("[✓] sidebar.js caricato correttamente");
+        if (typeof aggiornaEmail === "function") aggiornaEmail();
+      };
+      document.body.appendChild(script);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Errore nel caricamento della sidebar:", err);
+  });
+
+// 🌐 Navigazione e apertura sidebar
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    const isVisible = sidebar.style.left === "0px";
+    sidebar.style.left = isVisible ? "-350px" : "0px";
+  }
+};
+
+window.navigateTo = function (page) {
+  window.location.href = page;
+};
+
+window.aggiornaEmail = function () {
+  const userEmailElement = document.getElementById("userEmail");
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("openSidebar");
+
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user && userEmailElement) {
+      userEmailElement.innerText = user.email;
+      if (sidebar) sidebar.style.display = "block";
+      if (toggleBtn) toggleBtn.style.display = "block";
+    } else {
+      if (userEmailElement) userEmailElement.innerText = "Non autenticato";
+      if (sidebar) sidebar.style.display = "none";
+      if (toggleBtn) toggleBtn.style.display = "none";
+    }
+  });
+};
