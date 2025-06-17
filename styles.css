@@ -856,24 +856,27 @@ textarea {
 }
 
 @media (max-width: 600px) {
-    #profile-container {
-        width: 92vw;
-        margin: 24px auto;
-        padding: 16px;
-        margin-top: 64px; 
-    }
+  #profile-container {
+    width: 92%;
+    max-width: 100%;
+    margin: 80px auto 24px auto;
+    padding: 16px;
+  }
 
-    #profile-container input,
-    #profile-container button {
-        width: 100%;
-        font-size: 15px;
-    }
+  #profile-container input,
+  #profile-container button {
+    width: 100%;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
 
-    #profile-container .avatar {
-        width: 80px;
-        height: 80px;
-    }
+  #profile-container .avatar {
+    width: 80px;
+    height: 80px;
+    margin: 12px auto;
+  }
 }
+
 
 #userPhotoContainer {
     display: flex;
