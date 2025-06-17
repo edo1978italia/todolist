@@ -1,46 +1,45 @@
 <!doctype html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Recipe</title>
-    <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-    <!-- 🔥 Sidebar pulsante e contenitore -->
-    <button id="openSidebar">☰</button>
-    <div id="sidebar-container"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Recipe</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <h3 id="recipeTitle">Recipe</h3>
+        <img id="recipeImage" src="" alt="Recipe Image" />
 
-    <h3 id="recipeTitle">Recipe</h3>
-    <img id="recipeImage" src="" alt="Recipe Image" />
-
-    <div class="recipe-info-box">
-        <div class="recipe-info-container">
-            <div class="recipe-column">
-                <p><strong>Category:</strong> <span id="recipeCategory"></span></p>
-                <p><strong>Prep. Time:</strong> <span id="recipePreparationTime"></span> min</p>
-                <p><strong>Cook Time:</strong> <span id="recipeCookingTime"></span> min</p>
-            </div>
-            <div class="recipe-column">
-                <p><strong>Doses for:</strong> <span id="recipeServings"></span> people</p>
-                <p><strong>Difficulty:</strong> <span id="recipeDifficulty"></span></p>
+        <div class="recipe-info-box">
+            <div class="recipe-info-container">
+                <div class="recipe-column">
+                    <p><strong>Category:</strong> <span id="recipeCategory"></span></p>
+                    <p><strong>Prep. Time:</strong> <span id="recipePreparationTime"></span> min</p>
+                    <p><strong>Cook Time:</strong> <span id="recipeCookingTime"></span> min</p>
+                </div>
+                <div class="recipe-column">
+                    <p><strong>Doses for:</strong> <span id="recipeServings"></span> people</p>
+                    <p><strong>Difficulty:</strong> <span id="recipeDifficulty"></span></p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="ingredients-box">
-        <h3>Ingredients</h3>
-        <div id="ingredientsEditor"></div>
-    </div>
+        <div class="ingredients-box">
+            <h3>Ingredients</h3>
+            <div id="ingredientsEditor"></div>
+        </div>
 
-    <div class="procedure-box">
-        <h3>Preparation</h3>
-        <div id="procedureEditor"></div>
-    </div>
+        <div class="procedure-box">
+            <h3>Preparation</h3>
+            <div id="procedureEditor"></div>
+        </div>
 
-    <button id="backButton" onclick="goBack()">Back</button>
-    <button id="editRecipeButton" onclick="editRecipe()">Edit Recipe</button>
+        <button id="backButton" onclick="goBack()">Back</button>
+        <button id="editRecipeButton" onclick="editRecipe()">Edit Recipe</button>
 
-    <script type="module" src="ricetta.js"></script>
-</body>
+        <!-- 🔥 Nuovo pulsante -->
+        <div id="sidebar-container"></div>
+        <script type="module" defer src="ricetta.js"></script>
+        <script src="sidebar.js"></script>
+    </body>
 </html>
