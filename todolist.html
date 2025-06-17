@@ -9,13 +9,10 @@
     </head>
     <body>
         <!-- 🔥 Sidebar inclusa dinamicamente -->
-        <div id="sidebarContainer"></div>
-        <script>
-            fetch("sidebar.html")
-                .then((response) => response.text())
-                .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
-                .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-        </script>
+        <div id="sidebar-container"></div>
+
+   
+
         <button id="logoutButton">Logout</button>
 
         <h3>TO-BUY LIST</h3>
@@ -38,7 +35,6 @@
             <div id="listContainer">
                 <ul id="taskList"></ul>
             </div>
-            <div id="sidebar-container"></div>
 
             <div id="extraBox">
                 <p>E IO PAGO!</p>
