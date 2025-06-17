@@ -14,7 +14,7 @@ body {
 }
 #mainContainer {
     display: none;
-    margin-top: 50px;
+    margin-top: 15px;
 }
 
 #header button {
@@ -852,14 +852,14 @@ textarea {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    margin-top: 64px; 
+    margin-top: 15px; 
 }
 
 @media (max-width: 600px) {
   #profile-container {
     width: 92%;
     max-width: 100%;
-    margin: 80px auto 24px auto;
+    margin: 15px auto 24px auto;
     padding: 16px;
   }
 
@@ -871,8 +871,8 @@ textarea {
   }
 
   #profile-container .avatar {
-    width: 80px;
-    height: 80px;
+    width: 130px;
+    height: 130px;
     margin: 12px auto;
   }
 }
@@ -921,8 +921,8 @@ textarea {
 }
 
 #userAvatar {
-    width: 80px;
-    height: 80px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%; /* Forma rotonda */
     margin: 10px 0;
 }
