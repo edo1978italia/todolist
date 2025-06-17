@@ -1,43 +1,39 @@
 <!doctype html>
 <html lang="it">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Recipes</title>
-        <link rel="stylesheet" href="styles.css" />
-    </head>
-    <body>
-        <!-- 🔥 Sidebar inclusa dinamicamente -->
-        <div id="sidebarContainer"></div>
-        <script>
-            fetch("sidebar.html")
-                .then((response) => response.text())
-                .then((data) => (document.getElementById("sidebarContainer").innerHTML = data))
-                .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-        </script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipes</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- 🔥 Pulsante apertura sidebar -->
+    <button id="openSidebar">☰</button>
 
-        <h3>RECIPES</h3>
+    <!-- 🔥 Sidebar caricata dinamicamente -->
+    <div id="sidebar-container"></div>
 
-        <!-- 🔥 Sezione di ricerca e filtri -->
-        <div id="filterContainer">
-            <input type="text" id="searchRecipe" placeholder="Search for a recipe..." onkeyup="filterRecipes()" />
-            <button onclick="filterRecipes()">Search</button>
-            <select id="categoryFilter" onchange="filterRecipes()">
-                <option value="">All category</option>
-                <option value="Appetizer">Appetizer</option>
-                <option value="Pasta">Pasta</option>
-                <option value="Dessert">Dessert</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
+    <h3>RECIPES</h3>
 
-        <!-- 🔥 Contenitore delle ricette (ora supporta riquadri separati) -->
-        <div id="recipeListContainer">
-            <!-- 🔥 I riquadri delle ricette saranno generati dinamicamente da `ricettelista.js` -->
-        </div>
-        <button id="logoutButton">Logout</button>
+    <!-- 🔎 Ricerca e filtri -->
+    <div id="filterContainer">
+      <input type="text" id="searchRecipe" placeholder="Search for a recipe..." onkeyup="filterRecipes()" />
+      <button onclick="filterRecipes()">Search</button>
+      <select id="categoryFilter" onchange="filterRecipes()">
+        <option value="">All category</option>
+        <option value="Appetizer">Appetizer</option>
+        <option value="Pasta">Pasta</option>
+        <option value="Dessert">Dessert</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
 
-        <script type="module" src="ricettelista.js"></script>
+    <!-- 🔥 Contenitore ricette -->
+    <div id="recipeListContainer"></div>
 
-    </body>
+    <button id="logoutButton">Logout</button>
+
+    <!-- 🔥 Script principale -->
+    <script type="module" src="ricettelista.js"></script>
+  </body>
 </html>

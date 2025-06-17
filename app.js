@@ -392,3 +392,49 @@ window.toggleSidebar = function () {
 window.navigateTo = function (page) {
     window.location.href = page;
 };
+
+// 🔁 Carica sidebar dinamicamente
+const sidebarContainer = document.getElementById("sidebar-container");
+
+if (sidebarContainer) {
+  fetch("sidebar.html")
+    .then((res) => res.text())
+    .then((html) => {
+      sidebarContainer.innerHTML = html;
+      console.log("[✓] Sidebar inserita nel DOM");
+
+      requestAnimationFrame(() => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = "sidebar.js";
+        script.onload = () => {
+          console.log("[✓] sidebar.js caricato correttamente");
+          if (typeof aggiornaEmail === "function") aggiornaEmail();
+        };
+        document.body.appendChild(script);
+      });
+    })
+    .catch((err) => {
+      console.error("❌ Errore nel caricamento di sidebar.html:", err);
+    });
+}
+
+// 🔁 aggiornaEmail globale per sidebar
+window.aggiornaEmail = function aggiornaEmail() {
+  const userEmailElement = document.getElementById("userEmail");
+  const openSidebarButton = document.getElementById("openSidebar");
+  const sidebar = document.getElementById("sidebar");
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && userEmailElement) {
+      userEmailElement.innerText = user.email;
+      if (openSidebarButton) openSidebarButton.style.display = "block";
+      if (sidebar) sidebar.style.display = "block";
+    } else {
+      if (userEmailElement) userEmailElement.innerText = "Non autenticato";
+      if (openSidebarButton) openSidebarButton.style.display = "none";
+      if (sidebar) sidebar.style.display = "none";
+    }
+  });
+};
+

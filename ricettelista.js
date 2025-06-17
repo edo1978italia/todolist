@@ -141,16 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 window.logoutUser = logoutUser;
 
-// 🔥 Gestione della sidebar con caricamento email utente
-document.addEventListener("DOMContentLoaded", function () {
-    fetch("sidebar.html")
-        .then((response) => response.text())
-        .then((data) => {
-            document.getElementById("sidebarContainer").innerHTML = data;
-            updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
-        })
-        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
-});
+
+
 
 function updateUserInfo() {
     const userEmailElement = document.getElementById("userEmail");
@@ -183,4 +175,49 @@ window.toggleSidebar = function () {
 // 🔥 Funzione per navigare tra le pagine dalla sidebar
 window.navigateTo = function (page) {
     window.location.href = page;
+};
+
+// 🔁 Caricamento dinamico della sidebar
+const sidebarContainer = document.getElementById("sidebar-container");
+
+if (sidebarContainer) {
+  fetch("sidebar.html")
+    .then((res) => res.text())
+    .then((html) => {
+      sidebarContainer.innerHTML = html;
+      console.log("[✓] Sidebar inserita nel DOM");
+
+      requestAnimationFrame(() => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = "sidebar.js";
+        script.onload = () => {
+          console.log("[✓] sidebar.js caricato correttamente");
+          if (typeof aggiornaEmail === "function") aggiornaEmail();
+        };
+        document.body.appendChild(script);
+      });
+    })
+    .catch((err) => {
+      console.error("❌ Errore nel caricamento della sidebar:", err);
+    });
+}
+
+// 🔁 Funzione per mostrare/nascondere elementi in base all'autenticazione
+window.aggiornaEmail = function aggiornaEmail() {
+  const userEmailElement = document.getElementById("userEmail");
+  const openSidebarButton = document.getElementById("openSidebar");
+  const sidebar = document.getElementById("sidebar");
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && userEmailElement) {
+      userEmailElement.innerText = user.email;
+      if (openSidebarButton) openSidebarButton.style.display = "block";
+      if (sidebar) sidebar.style.display = "block";
+    } else {
+      if (userEmailElement) userEmailElement.innerText = "Non autenticato";
+      if (openSidebarButton) openSidebarButton.style.display = "none";
+      if (sidebar) sidebar.style.display = "none";
+    }
+  });
 };

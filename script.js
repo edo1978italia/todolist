@@ -284,3 +284,73 @@ document.addEventListener("DOMContentLoaded", async function () {
     notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note.</p>";
   }
 });
+
+// 🔄 Gestione navigazione e apertura sidebar
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    const isVisible = sidebar.style.left === "0px";
+    sidebar.style.left = isVisible ? "-350px" : "0px";
+    console.log("🔁 Sidebar toggled:", sidebar.style.left);
+  } else {
+    console.warn("⚠ Sidebar non trovata");
+  }
+};
+
+window.navigateTo = function (page) {
+  window.location.href = page;
+};
+
+// 🔁 Espone aggiornaEmail globalmente
+window.aggiornaEmail = function aggiornaEmail() {
+  const userEmailElement = document.getElementById("userEmail");
+  const sidebarContainer = document.getElementById("sidebar-container");
+  const openSidebarButton = document.getElementById("openSidebar");
+
+  if (!userEmailElement) {
+    console.warn("⚠ Elemento userEmail non trovato nel DOM. Attendo il caricamento...");
+    return;
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userEmailElement.innerText = user.email;
+      if (sidebarContainer) sidebarContainer.style.display = "block";
+      if (openSidebarButton) openSidebarButton.style.display = "block";
+    } else {
+      if (sidebarContainer) {
+        sidebarContainer.innerHTML = "";
+        sidebarContainer.style.display = "none";
+      }
+      if (openSidebarButton) openSidebarButton.style.display = "none";
+      console.log("✅ Sidebar e pulsante rimossi correttamente dopo il logout!");
+    }
+  });
+};
+
+// 📥 Carica dinamicamente sidebar e sidebar.js
+const sidebarContainer = document.getElementById("sidebar-container");
+
+if (sidebarContainer) {
+  fetch("sidebar.html")
+    .then((res) => res.text())
+    .then((html) => {
+      sidebarContainer.innerHTML = html;
+      console.log("[✓] Sidebar inserita nel DOM");
+
+      requestAnimationFrame(() => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = "sidebar.js";
+        script.onload = () => {
+          console.log("[✓] sidebar.js caricato correttamente");
+          if (typeof aggiornaEmail === "function") aggiornaEmail();
+        };
+        document.body.appendChild(script);
+      });
+    })
+    .catch((err) => {
+      console.error("❌ Errore nel caricamento di sidebar.html:", err);
+    });
+}
+
