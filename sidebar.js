@@ -1,15 +1,7 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 console.log("🔥 Avvio sidebar.js...");
 
@@ -119,7 +111,6 @@ window.toggleSidebar = function () {
   }
 };
 
-
 // ✅ Collega subito i pulsanti di toggle, senza attendere eventi DOM
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("openSidebar");
@@ -133,3 +124,17 @@ if (closeBtn && sidebar) {
   closeBtn.addEventListener("click", toggleSidebar);
 }
 
+// ✅ Chiusura automatica sidebar se clicco esterno
+document.addEventListener("click", function (event) {
+  const sidebar = document.getElementById("sidebar");
+  const openButton = document.getElementById("openSidebar");
+
+  // Se sidebar non è visibile, non fare nulla
+  if (!sidebar || sidebar.style.left !== "0px") return;
+
+  // Se il click è dentro la sidebar o sul pulsante di apertura, ignora
+  if (sidebar.contains(event.target) || openButton.contains(event.target)) return;
+
+  // Altrimenti, chiudi la sidebar
+  sidebar.style.left = "-300px";
+});

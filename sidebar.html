@@ -32,19 +32,20 @@
 
             <button class="sidebar-button" onclick="navigateTo('ricettelista.html')">
                 <img src="/todolist/icone/recipe.svg" class="menu-icon" alt="Recipes" />
-                Recipes
-            </button><br />
+                Recipes</button
+            ><br />
             <button class="sidebar-button" onclick="navigateTo('profile.html')">
                 <img src="/todolist/icone/settings.svg" class="menu-icon" alt="Settings" />
-                
+                Settings
             </button>
-             <button class="sidebar-button" onclick="toggleSidebar()">
+            <button class="sidebar-button" onclick="toggleSidebar()">
                 <img src="/todolist/icone/close.svg" class="menu-icon" alt="Close" />
-                
+                Close the bar
+            </button><br />
+            <button class="sidebar-button" onclick="logoutUser()" title="Logout">
+                <img src="/todolist/icone/log_out.svg" class="menu-icon" alt="Logout" />
+                Logout
             </button>
-
-
-            
         </div>
 
         <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
@@ -66,6 +67,7 @@
 
                 console.log("[✓] Sidebar attivata manualmente in sidebar.html");
             });
+            
         </script>
     </body>
 </html>

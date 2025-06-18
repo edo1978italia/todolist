@@ -291,7 +291,7 @@ input {
     width: 250px;
     height: 100vh;
     overflow-y: auto; /* 🔥 Abilita lo scrolling */
-    background: #f2f2f2;
+    background: #fafafa;
     color: white;
     padding: none;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
@@ -353,7 +353,7 @@ input {
 }
 
 #userEmail {
-  font-size: 13px; /* oppure 0.8em, o quello che preferisci */
+  font-size: 14px; /* oppure 0.8em, o quello che preferisci */
     margin-top: 3px;
 }
 
