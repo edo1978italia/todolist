@@ -324,7 +324,7 @@ input {
 
 /* Box utente in testata blu */
 #userBox {
-    background: linear-gradient(135deg, #2b8ae5, #6dd5ed); /* Blu oceano sfumato */
+    background: linear-gradient(135deg, #0082ff, #44c1fc); /* Blu oceano sfumato */
     border-radius: 0 0 12px 12px;
     padding: 20px;
     text-align: center;
