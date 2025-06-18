@@ -1,3 +1,4 @@
+
 import firebaseConfig from "./config.js";
 
 console.log("[log] Inizio esecuzione profile.js");
@@ -8,6 +9,68 @@ try {
 } catch (error) {
   console.error("[!] Errore inizializzazione Firebase:", error);
 }
+
+
+
+
+
+
+
+
+
+
+// 🔥 Gestione logout (versione più sicura)
+async function logoutUser() {
+  try {
+    await auth.signOut();
+    localStorage.clear();
+    console.log("✅ Logout completato, utente disconnesso!");
+
+    setTimeout(() => {
+      if (!auth.currentUser) {
+        console.log("✅ Conferma: utente disconnesso.");
+        window.location.href = "index.html";
+      } else {
+        console.warn("⚠ L'utente risulta ancora autenticato, ricarico la pagina.");
+        window.location.reload();
+      }
+    }, 1000);
+  } catch (error) {
+    console.error("❌ Errore nel logout:", error);
+    alert("Errore nel logout: " + error.message);
+  }
+}
+
+
+// 🔥 Registra il pulsante logout al caricamento della pagina
+document.addEventListener("DOMContentLoaded", function () {
+  const logoutButton = document.getElementById("logoutButton");
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", logoutUser);
+    console.log("✅ Pulsante logout registrato correttamente!");
+  } else {
+    console.warn("⚠ Pulsante logout non trovato!");
+  }
+});
+
+window.logoutUser = logoutUser;
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const logoutButton = document.getElementById("logoutButton");
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", logoutUser);
+    console.log("✅ Pulsante logout registrato correttamente!");
+  } else {
+    console.warn("⚠ Pulsante logout non trovato!");
+  }
+});
 
 const auth = firebase.auth();
 const db = firebase.firestore();
