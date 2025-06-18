@@ -338,11 +338,28 @@ input {
     height: 120px;
     border-radius: 50%;
     border: 2px solid white;
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 3px;
 }
 
+#welcomeMessage {
+    display: block; /* 🔥 Nascondi di default */
+    text-align: center;
+    font-size: 14px;
+
+    color: #ffffff;
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+#userEmail {
+  font-size: 13px; /* oppure 0.8em, o quello che preferisci */
+    margin-top: 3px;
+}
+
+
 #userBox p {
-    margin: 10px 0;
+    margin: 2px 0;
     color: white;
 }
 
@@ -967,15 +984,7 @@ textarea {
     padding: 10px;
 }
 
-#welcomeMessage {
-    display: block; /* 🔥 Nascondi di default */
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-top: 10px;
-    margin-bottom: 1px;
-}
+
 
 #userAvatar {
     width: 130px;
