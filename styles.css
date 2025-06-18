@@ -291,7 +291,7 @@ input {
     width: 250px;
     height: 100vh;
     overflow-y: auto; /* 🔥 Abilita lo scrolling */
-    background: #e3e3e3;
+    background: #f2f2f2;
     color: white;
     padding: none;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
@@ -306,12 +306,13 @@ input {
     justify-content: flex-start;
     width: 100%;
     margin: 5px 0;
-    padding: 10px 10px;
+    padding: 15px 10px;
     border: none;
     color: #737373;
     text-align: left;
     cursor: pointer;
     font-family: inherit;
+    font-size: 13px;
     box-sizing: border-box;
     border-bottom: 1px solid #ccc;
 }
@@ -347,8 +348,8 @@ input {
 
 /* 🔥🔥🔥ICONE SIDE BAR */
 .menu-icon {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     vertical-align: middle;
     margin-right: 8px;
     filter: brightness(0) saturate(100%) invert(20%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%)
@@ -987,7 +988,7 @@ textarea {
 #settings-link {
     position: absolute;
     bottom: 150px;
-    left: 20px;
+    left: 25px;
     font-size: 18px;
     cursor: pointer;
     color: #444;
