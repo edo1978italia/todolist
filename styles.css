@@ -299,6 +299,15 @@ input {
     z-index: 9999;
 }
 
+
+.menu-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+
 #sidebar nav button {
     display: block;
     width: 100%;

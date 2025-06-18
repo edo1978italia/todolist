@@ -15,10 +15,25 @@
             </div>
 
             <nav>
-                <button onclick="navigateTo('index.html')">HOME</button>
-                <button onclick="navigateTo('todolist.html')">TO-BUY LIST</button>
-                <button onclick="navigateTo('notes-home.html')">NOTE</button>
-                <button onclick="navigateTo('ricettelista.html')">RECIPES</button>
+                <button onclick="navigateTo('index.html')">
+                    <img src="/todolist/icone/home.svg" class="menu-icon" alt="Home" />
+                    HOME
+                </button>
+
+                <button onclick="navigateTo('todolist.html')">
+                    <img src="/todolist/icone/shopping_list.svg" class="menu-icon" alt="To-Buy" />
+                    TO-BUY LIST
+                </button>
+
+                <button onclick="navigateTo('notes-home.html')">
+                    <img src="/todolist/icone/note.svg" class="menu-icon" alt="Note" />
+                    NOTE
+                </button>
+
+                <button onclick="navigateTo('ricettelista.html')">
+                    <img src="/todolist/icone/recipe.svg" class="menu-icon" alt="Recipes" />
+                    RECIPES
+                </button>
             </nav>
 
             <button id="closeSidebar" onclick="toggleSidebar()">✖ Close</button>
