@@ -353,10 +353,9 @@ input {
 }
 
 #userEmail {
-  font-size: 14px; /* oppure 0.8em, o quello che preferisci */
+    font-size: 14px; /* oppure 0.8em, o quello che preferisci */
     margin-top: 3px;
 }
-
 
 #userBox p {
     margin: 2px 0;
@@ -938,17 +937,31 @@ textarea {
         padding: 16px;
     }
 
-    #profile-container input,
-    #profile-container button {
-        width: 100%;
+    #profile-container input {
+        width: 80%;
         font-size: 16px;
         box-sizing: border-box;
+    }
+
+    #profile-container button {
+        width: 80%;
+        font-size: 14px;
+        box-sizing: border-box;
+        padding-bottom: 10px;
+        
+    }
+
+    .button-separator {
+        height: 1px;
+        margin: 20px auto;
+        width: 80%;
+        background-color: #ccc;
     }
 
     #profile-container .avatar {
         width: 130px;
         height: 130px;
-        margin: 12px auto;
+        margin: 1px auto;
     }
 }
 
@@ -983,8 +996,6 @@ textarea {
     text-align: center; /* Centra il testo */
     padding: 10px;
 }
-
-
 
 #userAvatar {
     width: 130px;
