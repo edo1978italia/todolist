@@ -6,39 +6,39 @@
     </head>
     <body>
         <div id="sidebar">
-            <div id="userInfo">
-                <div id="userProfileContainer">
-                    <p id="welcomeMessage">Welcome</p>
-                    <img id="userAvatar" src="default-avatar.png" alt="Avatar" class="avatar" />
-                    <p id="userEmail">Email</p>
-                </div>
+            <!-- 🔷 Testata utente -->
+            <div id="userBox">
+                <br /><br />
+                <p id="welcomeMessage">Welcome</p>
+                <img id="userAvatar" src="default-avatar.png" alt="Avatar" class="avatar" />
+                <p id="userEmail">Email</p>
             </div>
 
-            <nav>
-                <button onclick="navigateTo('index.html')">
-                    <img src="/todolist/icone/home.svg" class="menu-icon" alt="Home" />
-                    HOME
-                </button>
+            <!-- ✅ Tutto sotto: invariato -->
+            <button class="sidebar-button" onclick="navigateTo('index.html')">
+                <img src="/todolist/icone/home.svg" class="menu-icon" alt="Home" />
+                Home
+            </button>
 
-                <button onclick="navigateTo('todolist.html')">
-                    <img src="/todolist/icone/shopping_list.svg" class="menu-icon" alt="To-Buy" />
-                    TO-BUY LIST
-                </button>
+            <button class="sidebar-button" onclick="navigateTo('todolist.html')">
+                <img src="/todolist/icone/shopping_list.svg" class="menu-icon" alt="To-Buy" />
+                Shopping list
+            </button>
 
-                <button onclick="navigateTo('notes-home.html')">
-                    <img src="/todolist/icone/note.svg" class="menu-icon" alt="Note" />
-                    NOTE
-                </button>
+            <button class="sidebar-button" onclick="navigateTo('notes-home.html')">
+                <img src="/todolist/icone/note.svg" class="menu-icon" alt="Note" />
+                Notes
+            </button>
 
-                <button onclick="navigateTo('ricettelista.html')">
-                    <img src="/todolist/icone/recipe.svg" class="menu-icon" alt="Recipes" />
-                    RECIPES
-                </button>
-            </nav>
+            <button class="sidebar-button" onclick="navigateTo('ricettelista.html')">
+                <img src="/todolist/icone/recipe.svg" class="menu-icon" alt="Recipes" />
+                Recipes
+            </button>
 
             <button id="closeSidebar" onclick="toggleSidebar()">✖ Close</button>
+
             <div id="settings-link" onclick="navigateTo('profile.html')" title="Impostazioni">
-                <span style="font-size: 24px">⚙️</span>
+                <img src="/todolist/icone/settings.svg" class="menu-icon" alt="Settings" />
             </div>
         </div>
 
