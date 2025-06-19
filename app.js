@@ -55,6 +55,8 @@ async function patchOldNotesWithAuthorData() {
 
 
 window.patchOldNotesWithAuthorData = patchOldNotesWithAuthorData;
+console.log("🧪 patchOldNotesWithAuthorData disponibile!", window.patchOldNotesWithAuthorData);
+
 
 // 🔥 FINE TEMPORANEO
 
