@@ -914,6 +914,8 @@ textarea {
     margin-bottom: 3px;
     font-size: 11px;
     color: #333;
+    margin-left: 35px;
+    margin-right: 35px;
 }
 
 .note-preview-content {
@@ -922,8 +924,8 @@ textarea {
     -webkit-box-orient: vertical;
     overflow: hidden; /* 🔥 Nasconde il testo in eccesso */
     text-overflow: ellipsis; /* 🔥 Aggiunge "..." per il troncamento */
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 11px;
+    line-height: 1.3;
     max-height: 3em; /* 🔥 Mantiene solo 2 righe di altezza */
 }
 
@@ -936,11 +938,12 @@ textarea {
 }
 
 .note-preview-avatar {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
 }
 
 .note-preview-avatar-placeholder {
