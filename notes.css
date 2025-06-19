@@ -64,16 +64,16 @@
 }
 
 .note-avatar {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .note-avatar-placeholder {
-    width: 32px;
-    height: 32px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background-color: #ccc;
     display: flex;
