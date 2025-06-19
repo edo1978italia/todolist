@@ -877,26 +877,42 @@ textarea {
     margin-bottom: 10px;
 }
 
+.note-preview-avatar-wrap {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 24px;
+  height: 24px;
+}
+
 .note-preview-box {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 3px;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+  position: relative;               /* 🔥 serve per .avatar-wrap */
+  padding-left: 40px;              /* spazio a sinistra per avatar */
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 3px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+  text-align: center;              /* 🔥 centra titolo + contenuto */
 }
 
 .note-preview-title {
-    font-weight: bold;
-    margin-bottom: 6px;
-    margin-top: 3px;
-    font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  margin-top: 3px;
+  font-size: 11px;
+  text-align: center;                 /* 🔥 Centra il testo */
+  white-space: nowrap;               /* 🔒 Evita a capo */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 .note-preview-content {
     margin-top: 3px;
     margin-bottom: 3px;
-    font-size: 12px;
+    font-size: 11px;
     color: #333;
 }
 
@@ -910,6 +926,35 @@ textarea {
     line-height: 1.5;
     max-height: 3em; /* 🔥 Mantiene solo 2 righe di altezza */
 }
+
+/* 🔥 AVATAR widget note */
+.note-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.note-preview-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.note-preview-avatar-placeholder {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #fff;
+}
+
 
 /* 🔥 WIDGET METEO */
 .weather-box {
@@ -1052,3 +1097,4 @@ textarea {
     color: #000;
     font-weight: bold;
 }
+

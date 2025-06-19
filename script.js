@@ -242,115 +242,121 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 // 🔥 Recupero dati da Firebase per il widget della lista To-Do
 document.addEventListener("DOMContentLoaded", async function () {
-  const notesPreviewList = document.getElementById("notesPreviewList");
+    const notesPreviewList = document.getElementById("notesPreviewList");
 
-  if (!notesPreviewList) {
-    console.error("❌ Elemento 'notesPreviewList' non trovato nel DOM!");
-    return;
-  }
-
-  try {
-    const notesQuery = query(collection(db, "notes"), orderBy("timestamp", "desc"), limit(3));
-    const notesSnapshot = await getDocs(notesQuery);
-
-    const notesArray = notesSnapshot.docs.map((doc) => doc.data());
-
-    if (notesArray.length === 0) {
-      notesPreviewList.innerHTML = "<p>❌ Nessuna nota disponibile.</p>";
-    } else {
-      notesPreviewList.innerHTML = notesArray
-        .map((note) => {
-          const noteTitle = note.title || "Senza titolo"; 
-
-          // 🔥 Limita il titolo a 25 caratteri con "..." se troppo lungo
-          const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
-
-          // 🔥 Limita il contenuto della nota a 2 righe visibili nel widget
-          const previewContent = note.content
-            ? note.content.replace(/<[^>]+>/g, "").slice(0, 180) // 🔥 Mantiene circa 180 caratteri per evitare il taglio visivo
-            : "No content";
-
-          return `
-            <div class="note-preview-box">
-              <h4 class="note-preview-title">${shortTitle}</h4> 
-              <p class="note-preview-content">${previewContent}</p>
-            </div>
-          `;
-        })
-        .join("");
+    if (!notesPreviewList) {
+        console.error("❌ Elemento 'notesPreviewList' non trovato nel DOM!");
+        return;
     }
-  } catch (error) {
-    console.error("❌ Errore nel recupero delle note:", error);
-    notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note.</p>";
-  }
+
+    try {
+        const notesQuery = query(collection(db, "notes"), orderBy("timestamp", "desc"), limit(3));
+        const notesSnapshot = await getDocs(notesQuery);
+
+        const notesArray = notesSnapshot.docs.map((doc) => doc.data());
+
+        if (notesArray.length === 0) {
+            notesPreviewList.innerHTML = "<p>❌ Nessuna nota disponibile.</p>";
+        } else {
+            notesPreviewList.innerHTML = notesArray
+                .map((note) => {
+                    const noteTitle = note.title || "Senza titolo";
+
+                    // 🔥 Limita il titolo a 25 caratteri con ".." se troppo lungo
+                    const shortTitle = noteTitle.length > 15 ? noteTitle.slice(0, 15) + ".." : noteTitle;
+
+                    // 🔥 Limita il contenuto della nota a 2 righe visibili nel widget
+                    const previewContent = note.content
+                        ? note.content.replace(/<[^>]+>/g, "").slice(0, 180) // 🔥 Mantiene circa 180 caratteri per evitare il taglio visivo
+                        : "No content";
+
+                    return `
+  <div class="note-preview-box">
+    <div class="note-preview-avatar-wrap">
+      ${
+          note.createdBy?.photoURL
+              ? `<img src="${note.createdBy.photoURL}" alt="Avatar" class="note-preview-avatar">`
+              : `<div class="note-preview-avatar-placeholder">👤</div>`
+      }
+    </div>
+    <h4 class="note-preview-title">${shortTitle}</h4>
+    <p class="note-preview-content">${previewContent}</p>
+  </div>
+`;
+                })
+                .join("");
+        }
+    } catch (error) {
+        console.error("❌ Errore nel recupero delle note:", error);
+        notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note.</p>";
+    }
 });
 
 // 🔄 Gestione navigazione e apertura sidebar
 window.toggleSidebar = function () {
-  const sidebar = document.getElementById("sidebar");
-  if (sidebar) {
-    const isVisible = sidebar.style.left === "0px";
-    sidebar.style.left = isVisible ? "-350px" : "0px";
-    console.log("🔁 Sidebar toggled:", sidebar.style.left);
-  } else {
-    console.warn("⚠ Sidebar non trovata");
-  }
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+        const isVisible = sidebar.style.left === "0px";
+        sidebar.style.left = isVisible ? "-350px" : "0px";
+        console.log("🔁 Sidebar toggled:", sidebar.style.left);
+    } else {
+        console.warn("⚠ Sidebar non trovata");
+    }
 };
 
 window.navigateTo = function (page) {
-  window.location.href = page;
+    window.location.href = page;
 };
 
 // 🔁 Espone aggiornaEmail globalmente
 window.aggiornaEmail = function aggiornaEmail() {
-  const userEmailElement = document.getElementById("userEmail");
-  const sidebarContainer = document.getElementById("sidebar-container");
-  const openSidebarButton = document.getElementById("openSidebar");
+    const userEmailElement = document.getElementById("userEmail");
+    const sidebarContainer = document.getElementById("sidebar-container");
+    const openSidebarButton = document.getElementById("openSidebar");
 
-  if (!userEmailElement) {
-    console.warn("⚠ Elemento userEmail non trovato nel DOM. Attendo il caricamento...");
-    return;
-  }
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      userEmailElement.innerText = user.email;
-      if (sidebarContainer) sidebarContainer.style.display = "block";
-      if (openSidebarButton) openSidebarButton.style.display = "block";
-    } else {
-      if (sidebarContainer) {
-        sidebarContainer.innerHTML = "";
-        sidebarContainer.style.display = "none";
-      }
-      if (openSidebarButton) openSidebarButton.style.display = "none";
-      console.log("✅ Sidebar e pulsante rimossi correttamente dopo il logout!");
+    if (!userEmailElement) {
+        console.warn("⚠ Elemento userEmail non trovato nel DOM. Attendo il caricamento...");
+        return;
     }
-  });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userEmailElement.innerText = user.email;
+            if (sidebarContainer) sidebarContainer.style.display = "block";
+            if (openSidebarButton) openSidebarButton.style.display = "block";
+        } else {
+            if (sidebarContainer) {
+                sidebarContainer.innerHTML = "";
+                sidebarContainer.style.display = "none";
+            }
+            if (openSidebarButton) openSidebarButton.style.display = "none";
+            console.log("✅ Sidebar e pulsante rimossi correttamente dopo il logout!");
+        }
+    });
 };
 
 // 📥 Carica dinamicamente sidebar e sidebar.js
 const sidebarContainer = document.getElementById("sidebar-container");
 
 if (sidebarContainer) {
-  fetch("sidebar.html")
-    .then((res) => res.text())
-    .then((html) => {
-      sidebarContainer.innerHTML = html;
-      console.log("[✓] Sidebar inserita nel DOM");
+    fetch("sidebar.html")
+        .then((res) => res.text())
+        .then((html) => {
+            sidebarContainer.innerHTML = html;
+            console.log("[✓] Sidebar inserita nel DOM");
 
-      requestAnimationFrame(() => {
-        const script = document.createElement("script");
-        script.type = "module";
-        script.src = "sidebar.js";
-        script.onload = () => {
-          console.log("[✓] sidebar.js caricato correttamente");
-          if (typeof aggiornaEmail === "function") aggiornaEmail();
-        };
-        document.body.appendChild(script);
-      });
-    })
-    .catch((err) => {
-      console.error("❌ Errore nel caricamento di sidebar.html:", err);
-    });
+            requestAnimationFrame(() => {
+                const script = document.createElement("script");
+                script.type = "module";
+                script.src = "sidebar.js";
+                script.onload = () => {
+                    console.log("[✓] sidebar.js caricato correttamente");
+                    if (typeof aggiornaEmail === "function") aggiornaEmail();
+                };
+                document.body.appendChild(script);
+            });
+        })
+        .catch((err) => {
+            console.error("❌ Errore nel caricamento di sidebar.html:", err);
+        });
 }
-
