@@ -9,9 +9,8 @@ import {
     query,
     orderBy,
     doc,
-  getDoc,
-  getDocs
-    
+    getDoc,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
@@ -22,9 +21,6 @@ import firebaseConfig from "./config.js";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-
-
-
 
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
@@ -141,48 +137,97 @@ document.addEventListener("click", (event) => {
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
-    const modal = document.getElementById("noteEditorModal");
-    const titleInput = document.getElementById("noteEditorTitle");
+  const modal = document.getElementById("noteEditorModal");
+  const titleInput = document.getElementById("noteEditorTitle");
 
-    modal.style.display = "block";
+  modal.style.display = "block";
+  loadCategories(); // 🔥 Popola il <select> dinamicamente
 
-    document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
-    document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
+  // 🧼 Pulizia campo nuova categoria e gestione visibilità
+  setTimeout(() => {
+    const select = document.getElementById("categorySelect");
+    const input = document.getElementById("newCategoryInput");
 
-    if (!window.quill) {
-        window.quill = new Quill("#noteEditor", {
-            theme: "snow",
-            placeholder: "Write your note here...",
-            modules: {
-                toolbar: [
-                    ["emoji"],
-                    [{ header: [1, 2, false] }],
-                    ["bold", "italic", "underline", "strike"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    [{ indent: "-1" }, { indent: "+1" }],
-                    [{ direction: "rtl" }],
-                    [{ color: [] }, { background: [] }],
-                    [{ align: [] }],
-                    ["link", "image"],
-                    ["clean"]
-                ],
-                "emoji-toolbar": true,
-                "emoji-textarea": false,
-                "emoji-shortname": true
-            }
-        });
+    if (input) {
+      input.value = ""; // 🧽 Cancella il testo eventualmente rimasto
+      input.style.display = "none"; // 👻 Nasconde il campo finché non serve
     }
 
-    if (noteId) {
-        onSnapshot(doc(db, "notes", noteId), (docSnap) => {
-            if (docSnap.exists()) {
-                titleInput.value = docSnap.data().title || "";
-                window.quill.root.innerHTML = docSnap.data().content || "<p></p>";
-            }
+    if (select && input) {
+      select.removeEventListener("change", window._categoryChangeHandler); // 🔄 Evita listener doppi
+      window._categoryChangeHandler = () => {
+        input.style.display = select.value === "__new__" ? "block" : "none";
+      };
+      select.addEventListener("change", window._categoryChangeHandler);
+    }
+  }, 200);
+
+  document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
+  document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
+
+  if (!window.quill) {
+    window.quill = new Quill("#noteEditor", {
+      theme: "snow",
+      placeholder: "Write your note here...",
+      modules: {
+        toolbar: [
+          ["emoji"],
+          [{ header: [1, 2, false] }],
+          ["bold", "italic", "underline", "strike"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ indent: "-1" }, { indent: "+1" }],
+          [{ direction: "rtl" }],
+          [{ color: [] }, { background: [] }],
+          [{ align: [] }],
+          ["link", "image"],
+          ["clean"]
+        ],
+        "emoji-toolbar": true,
+        "emoji-textarea": false,
+        "emoji-shortname": true
+      }
+    });
+  }
+
+  if (noteId) {
+    onSnapshot(doc(db, "notes", noteId), (docSnap) => {
+      if (docSnap.exists()) {
+        titleInput.value = docSnap.data().title || "";
+        window.quill.root.innerHTML = docSnap.data().content || "<p></p>";
+      }
+    });
+  } else {
+    titleInput.value = "";
+    window.quill.setContents([]);
+  }
+}
+
+// 🔄 Carica tutte le categorie esistenti da Firebase nella modale
+async function loadCategories() {
+    const select = document.getElementById("categorySelect");
+    if (!select) return;
+
+    // 🔁 Ripulisce le opzioni mantenendo solo la voce fissa e quella "nuova"
+    select.innerHTML = `
+    <option value="">– Select –</option>
+    <option value="__new__">➕ New Category</option>
+  `;
+
+    try {
+        // 🔥 Recupera documenti dalla raccolta "categories"
+        const snap = await getDocs(collection(db, "categories"));
+
+        snap.forEach((doc) => {
+            const name = doc.data().name;
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+
+            // 🧩 Inserisce ogni categoria prima dell'opzione "Nuova categoria..."
+            select.insertBefore(opt, select.querySelector('[value="__new__"]'));
         });
-    } else {
-        titleInput.value = "";
-        window.quill.setContents([]);
+    } catch (err) {
+        console.error("❌ Errore nel caricamento categorie:", err);
     }
 }
 
@@ -242,7 +287,6 @@ document.getElementById("createNoteButton").addEventListener("click", () => {
 
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
 
-
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) return alert("⚠ You must be logged in!");
@@ -250,6 +294,25 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     const noteId = document.getElementById("saveNoteEditorButton").getAttribute("data-id");
     const title = document.getElementById("noteEditorTitle").value.trim();
     const content = window.quill.root.innerHTML.trim();
+    // 📂 Gestisce la categoria selezionata o nuova
+    let category = document.getElementById("categorySelect")?.value || "";
+
+    // 🔧 Se si sta creando una nuova categoria, la salviamo in "categories"
+    const rawCategory = document.getElementById("categorySelect")?.value || "";
+    category = rawCategory;
+
+    if (rawCategory === "__new__") {
+        const customValue = document.getElementById("newCategoryInput").value.trim();
+        if (customValue) {
+            category = customValue;
+            try {
+                console.log("📌 Nuova categoria da salvare:", category);
+                await addDoc(collection(db, "categories"), { name: category });
+            } catch (err) {
+                console.error("❌ Errore nel salvataggio della nuova categoria:", err);
+            }
+        }
+    }
 
     if (!title || window.quill.getLength() <= 1) {
         alert("❌ Error: The title and body of the note must be filled in!");
@@ -277,6 +340,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             content,
             pinned: false,
             timestamp: new Date(),
+            category, // ✅ nuova proprietà della nota
             createdBy: {
                 uid: user.uid,
                 displayName,
@@ -287,7 +351,8 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
         await updateDoc(doc(db, "notes", noteId), {
             title,
             content,
-            timestamp: new Date()
+            timestamp: new Date(),
+            category // ✅ anche nelle modifiche
         });
     }
 
@@ -449,4 +514,16 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch((err) => {
             console.error("❌ Errore nel caricamento di sidebar.html:", err);
         });
+});
+
+// 👀 Mostra l'input testuale solo se si seleziona "nuova categoria"
+document.addEventListener("DOMContentLoaded", () => {
+    const select = document.getElementById("categorySelect");
+    const input = document.getElementById("newCategoryInput");
+
+    if (select && input) {
+        select.addEventListener("change", () => {
+            input.style.display = select.value === "__new__" ? "block" : "none";
+        });
+    }
 });

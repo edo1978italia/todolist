@@ -14,7 +14,7 @@
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
     position: relative;
-    padding: 8px;
+    padding: 4px;
     border-radius: 8px;
     border: 1px solid #ddd; /* ✅ Bordo leggero */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* ✅ Ombra leggera per staccarla dallo sfondo */
@@ -56,11 +56,12 @@
     justify-content: space-between; /* 🔥 Spinge contenuti e opzioni alle estremità */
     gap: 11px;
     width: 100%;
+    margin-bottom: 1px;
 }
 
 .note-author {
     flex-shrink: 0;
-    margin-top: 3%;
+    margin-top: 5px;
 }
 
 .note-avatar {
@@ -155,6 +156,40 @@
     font-size: 30px;
 }
 
+/* 🎨 MENU A TENDINA DI NUOVA NOTA */
+.noteEditorCategoryWrap {
+  margin-top: 16px;
+}
+
+.noteEditorCategoryWrap label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+#categorySelect,
+#newCategoryInput {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+#categorySelect:focus,
+#newCategoryInput:focus {
+  border-color: #5b8dfd;
+  box-shadow: 0 0 0 2px rgba(91, 141, 253, 0.2);
+  outline: none;
+}
+
+#newCategoryInput {
+  margin-top: 6px;
+}
+
 /* 🔥 Cerca NOTE */
 #searchNotes {
     max-width: 600px; /* 📏 Larghezza massima */
@@ -176,6 +211,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+    margin-bottom: 1px;
 }
 
 
