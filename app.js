@@ -8,7 +8,10 @@ import {
     deleteDoc,
     query,
     orderBy,
-    doc
+    doc,
+  getDoc,
+  getDocs
+    
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
@@ -276,7 +279,7 @@ document.getElementById("createNoteButton").addEventListener("click", () => {
 });
 
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
-import { getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
 
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
