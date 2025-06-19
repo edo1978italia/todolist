@@ -248,7 +248,7 @@
     width: 100%;
     max-width: 100%;
     text-align: left;
-    margin-left: 1px;
+    margin-left: 1px !important;
 }
 
 /* 🎯 Emoticon accanto al Titolo nella toolbar del modale */
