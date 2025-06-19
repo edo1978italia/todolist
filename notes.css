@@ -14,7 +14,7 @@
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
     position: relative;
-    padding: 15px;
+    padding: 8px;
     border-radius: 8px;
     border: 1px solid #ddd; /* ✅ Bordo leggero */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* ✅ Ombra leggera per staccarla dallo sfondo */
@@ -39,7 +39,7 @@
 .note-box h3 {
     text-align: left; /* ✅ Mantiene l'allineamento */
     margin: 0;
-    padding: 5px;
+    padding: 1px;
     flex: 1;
     font-size: 16px; /* 📏 Dimensione leggibile */
     font-weight: bold; /* 🔥 Ora il titolo è in grassetto */
@@ -54,12 +54,13 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between; /* 🔥 Spinge contenuti e opzioni alle estremità */
-    gap: 12px;
+    gap: 11px;
     width: 100%;
 }
 
 .note-author {
     flex-shrink: 0;
+    margin-top: 3%;
 }
 
 .note-avatar {
@@ -170,15 +171,20 @@
 
 /* 🔥 data creazione e info singolo box note */
 .note-content {
-    flex: 1;
+  flex: 1;
+  min-width: 0; /* 🔥 NECESSARIO per far funzionare l'ellissi */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+
 
 .note-meta {
     text-align: left; /* ✅ Forza l'allineamento a sinistra */
     font-size: 10px;
     color: #888;
     margin-top: 1px;
-    margin-left: 3px;
+    margin-left: 1px;
     margin-bottom: 1px;
 }
 /* 🔥 pop up creazione e modifica NOTE */
@@ -242,7 +248,7 @@
     width: 100%;
     max-width: 100%;
     text-align: left;
-    margin-left: 5px;
+    margin-left: 1px;
 }
 
 /* 🎯 Emoticon accanto al Titolo nella toolbar del modale */
