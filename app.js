@@ -54,8 +54,9 @@ async function patchOldNotesWithAuthorData() {
 }
 
 
+window.patchOldNotesWithAuthorData = patchOldNotesWithAuthorData;
 
-
+// 🔥 FINE TEMPORANEO
 
 
 
