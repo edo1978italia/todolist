@@ -21,7 +21,6 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // temporaneo
-import { getDocs, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 async function patchOldNotesWithAuthorData() {
   const notesSnapshot = await getDocs(collection(db, "notes"));
@@ -52,7 +51,6 @@ async function patchOldNotesWithAuthorData() {
 
   console.log("✨ Tutte le note legacy sono state patchate");
 }
-
 
 window.patchOldNotesWithAuthorData = patchOldNotesWithAuthorData;
 console.log("🧪 patchOldNotesWithAuthorData disponibile!", window.patchOldNotesWithAuthorData);

@@ -338,3 +338,33 @@
    background: linear-gradient(120deg, #fffbe6, #fff0b3);
 }
 
+/* 🔥 AVATAR utente creazione nota */
+.note-box-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.note-author {
+  flex-shrink: 0;
+}
+
+.note-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.note-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
