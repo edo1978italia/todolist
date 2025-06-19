@@ -137,69 +137,81 @@ document.addEventListener("click", (event) => {
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
-  const modal = document.getElementById("noteEditorModal");
-  const titleInput = document.getElementById("noteEditorTitle");
+    const modal = document.getElementById("noteEditorModal");
+    const titleInput = document.getElementById("noteEditorTitle");
 
-  modal.style.display = "block";
-  loadCategories(); // 🔥 Popola il <select> dinamicamente
+    modal.style.display = "block";
+    loadCategories(); // 🔥 Popola il <select> dinamicamente
 
-  // 🧼 Pulizia campo nuova categoria e gestione visibilità
-  setTimeout(() => {
-    const select = document.getElementById("categorySelect");
-    const input = document.getElementById("newCategoryInput");
+    // 🧼 Pulizia campo nuova categoria e gestione visibilità
+    setTimeout(() => {
+        const select = document.getElementById("categorySelect");
+        const input = document.getElementById("newCategoryInput");
 
-    if (input) {
-      input.value = ""; // 🧽 Cancella il testo eventualmente rimasto
-      input.style.display = "none"; // 👻 Nasconde il campo finché non serve
+        if (input) {
+            input.value = ""; // 🧽 Cancella il testo eventualmente rimasto
+            input.style.display = "none"; // 👻 Nasconde il campo finché non serve
+        }
+
+        if (select && input) {
+            select.removeEventListener("change", window._categoryChangeHandler); // 🔄 Evita listener doppi
+            window._categoryChangeHandler = () => {
+                input.style.display = select.value === "__new__" ? "block" : "none";
+            };
+            select.addEventListener("change", window._categoryChangeHandler);
+        }
+    }, 200);
+
+    document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
+    document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
+
+    if (!window.quill) {
+        window.quill = new Quill("#noteEditor", {
+            theme: "snow",
+            placeholder: "Write your note here...",
+            modules: {
+                toolbar: [
+                    ["emoji"],
+                    [{ header: [1, 2, false] }],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    [{ indent: "-1" }, { indent: "+1" }],
+                    [{ direction: "rtl" }],
+                    [{ color: [] }, { background: [] }],
+                    [{ align: [] }],
+                    ["link", "image"],
+                    ["clean"]
+                ],
+                "emoji-toolbar": true,
+                "emoji-textarea": false,
+                "emoji-shortname": true
+            }
+        });
     }
 
-    if (select && input) {
-      select.removeEventListener("change", window._categoryChangeHandler); // 🔄 Evita listener doppi
-      window._categoryChangeHandler = () => {
-        input.style.display = select.value === "__new__" ? "block" : "none";
-      };
-      select.addEventListener("change", window._categoryChangeHandler);
+    if (noteId) {
+        onSnapshot(doc(db, "notes", noteId), (docSnap) => {
+            if (docSnap.exists()) {
+                const noteData = docSnap.data();
+
+                titleInput.value = noteData.title || "";
+                window.quill.root.innerHTML = noteData.content || "<p></p>";
+
+                const select = document.getElementById("categorySelect");
+                const input = document.getElementById("newCategoryInput");
+
+                if (select && input) {
+                    setTimeout(() => {
+                        select.value = noteData.category || "";
+                        input.style.display = select.value === "__new__" ? "block" : "none";
+                    }, 300); // Attendi che loadCategories abbia popolato le opzioni
+                }
+            }
+        });
+    } else {
+        titleInput.value = "";
+        window.quill.setContents([]);
     }
-  }, 200);
-
-  document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
-  document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
-
-  if (!window.quill) {
-    window.quill = new Quill("#noteEditor", {
-      theme: "snow",
-      placeholder: "Write your note here...",
-      modules: {
-        toolbar: [
-          ["emoji"],
-          [{ header: [1, 2, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          [{ indent: "-1" }, { indent: "+1" }],
-          [{ direction: "rtl" }],
-          [{ color: [] }, { background: [] }],
-          [{ align: [] }],
-          ["link", "image"],
-          ["clean"]
-        ],
-        "emoji-toolbar": true,
-        "emoji-textarea": false,
-        "emoji-shortname": true
-      }
-    });
-  }
-
-  if (noteId) {
-    onSnapshot(doc(db, "notes", noteId), (docSnap) => {
-      if (docSnap.exists()) {
-        titleInput.value = docSnap.data().title || "";
-        window.quill.root.innerHTML = docSnap.data().content || "<p></p>";
-      }
-    });
-  } else {
-    titleInput.value = "";
-    window.quill.setContents([]);
-  }
 }
 
 // 🔄 Carica tutte le categorie esistenti da Firebase nella modale
