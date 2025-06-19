@@ -20,6 +20,46 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// temporaneo
+import { getDocs, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+async function patchOldNotesWithAuthorData() {
+  const notesSnapshot = await getDocs(collection(db, "notes"));
+
+  for (const noteSnap of notesSnapshot.docs) {
+    const note = noteSnap.data();
+
+    if (note.createdBy || !note.userId) continue;
+
+    const userRef = doc(db, "users", note.userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) continue;
+
+    const userData = userSnap.data();
+    const updatedBy = {
+      uid: note.userId,
+      displayName: userData.displayName || "",
+      photoURL: userData.photoURL || ""
+    };
+
+    await updateDoc(doc(db, "notes", noteSnap.id), {
+      createdBy: updatedBy
+    });
+
+    console.log(`✅ Nota ${noteSnap.id} aggiornata con createdBy`);
+  }
+
+  console.log("✨ Tutte le note legacy sono state patchate");
+}
+
+
+
+
+
+
+
+
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
@@ -51,23 +91,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 openEditorModal(docSnap.id);
             });
 
+            const createdBy = data.createdBy || {};
+            const avatarHTML = createdBy.photoURL
+                ? `<img class="note-avatar" src="${createdBy.photoURL}" alt="${createdBy.displayName || ""}" title="${createdBy.displayName || ""}" />`
+                : `<div class="note-avatar-placeholder">👤</div>`;
+
             li.innerHTML = `
-                <div class="note-content">
-                    <h3 class="note-preview-title">${shortTitle}</h3>
-                    <p class="note-preview-content">${previewContent}</p> <!-- 🔥 Anteprima del contenuto -->
-                    <div class="note-meta">
-                    🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
-                    ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
-                    </div>
-                </div>
-                <div class="note-options">
-                    <button class="options-button" data-id="${docSnap.id}">⋮</button>
-                    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-                    <button class="menu-pin">${data.pinned ? "Unpin" : "Pin"}</button>
-                        <button class="menu-delete">🗑 Delete</button>
-                    </div>
-                </div>
-            `;
+  <div class="note-box-inner">
+    <div class="note-author">
+      ${avatarHTML}
+    </div>
+    <div class="note-content">
+      <h3 class="note-preview-title">${shortTitle}</h3>
+      <p class="note-preview-content">${previewContent}</p>
+      <div class="note-meta">
+        🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
+        ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
+      </div>
+    </div>
+    <div class="note-options">
+      <button class="options-button" data-id="${docSnap.id}">⋮</button>
+      <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+        <button class="menu-pin">${data.pinned ? "Unpin" : "Pin"}</button>
+        <button class="menu-delete">🗑 Delete</button>
+      </div>
+    </div>
+  </div>
+`;
 
             const deleteButton = li.querySelector(".menu-delete");
 
@@ -225,6 +275,8 @@ document.getElementById("createNoteButton").addEventListener("click", () => {
 });
 
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
+import { getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) return alert("⚠ You must be logged in!");
@@ -233,19 +285,37 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
     const title = document.getElementById("noteEditorTitle").value.trim();
     const content = window.quill.root.innerHTML.trim();
 
-    // 🔥 Nuova validazione: entrambi i campi devono essere compilati
     if (!title || window.quill.getLength() <= 1) {
         alert("❌ Error: The title and body of the note must be filled in!");
         return;
+    }
+
+    // 🔥 🔎 Recupera dati utente anche da Firestore (fallback se photoURL è nullo)
+    let displayName = user.displayName || "";
+    let photoURL = user.photoURL || "";
+
+    try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.exists() ? userSnap.data() : null;
+
+        if (!displayName && userData?.displayName) displayName = userData.displayName;
+        if (!photoURL && userData?.photoURL) photoURL = userData.photoURL;
+    } catch (err) {
+        console.warn("⚠ Impossibile recuperare dati da Firestore:", err);
     }
 
     if (noteId === "new") {
         await addDoc(collection(db, "notes"), {
             title,
             content,
-            userId: user.uid,
-            pinned: false, // 📌 Aggiunto campo per fissare
-            timestamp: new Date()
+            pinned: false,
+            timestamp: new Date(),
+            createdBy: {
+                uid: user.uid,
+                displayName,
+                photoURL
+            }
         });
     } else {
         await updateDoc(doc(db, "notes", noteId), {
