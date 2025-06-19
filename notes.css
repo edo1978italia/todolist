@@ -49,13 +49,43 @@
     white-space: nowrap;
 }
 
-/* 📍 Contenitore del menu dei 3 puntini */
-.note-options {
-    position: relative; /* Serve per posizionare il menu a tendina assolutamente rispetto a questo */
-    
+/* 🔥 AVATAR utente creazione nota */
+.note-box-inner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between; /* 🔥 Spinge contenuti e opzioni alle estremità */
+    gap: 12px;
+    width: 100%;
 }
 
-/* ☰ Stile del pulsante dei 3 puntini delle note listate */
+.note-author {
+    flex-shrink: 0;
+}
+
+.note-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.note-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+}
+.note-options {
+    position: relative; /* Serve per posizionare il menu a tendina assolutamente rispetto a questo */
+}
+
+/* 📍 Contenitore del menu dei 3 puntini */
+/*  Stile del pulsante dei 3 puntini delle note listate */
 .options-button {
     background: none; /* Nessun colore di sfondo */
     border: none; /* Nessun bordo */
@@ -64,7 +94,6 @@
     padding: 5px 20px; /* Spaziatura intorno */
     color: #8f8f8f; /* 🎨 Colore visivamente sobrio */
     transition: color 0.2s ease;
-    
 }
 
 .options-button:hover {
@@ -254,7 +283,7 @@
 /* ✍️ Input titolo */
 .noteEditorHeader input {
     flex: 1;
-    font-size: 1rem;
+    font-size: 0rem;
     padding: 6px 10px;
 }
 
@@ -335,36 +364,5 @@
 }
 
 .note-box.pinned {
-   background: linear-gradient(120deg, #fffbe6, #fff0b3);
+    background: linear-gradient(120deg, #fffbe6, #fff0b3);
 }
-
-/* 🔥 AVATAR utente creazione nota */
-.note-box-inner {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.note-author {
-  flex-shrink: 0;
-}
-
-.note-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-.note-avatar-placeholder {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-}
-

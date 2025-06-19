@@ -23,44 +23,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// temporaneo
-
-async function patchOldNotesWithAuthorData() {
-  const notesSnapshot = await getDocs(collection(db, "notes"));
-
-  for (const noteSnap of notesSnapshot.docs) {
-    const note = noteSnap.data();
-
-    if (note.createdBy || !note.userId) continue;
-
-    const userRef = doc(db, "users", note.userId);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) continue;
-
-    const userData = userSnap.data();
-    const updatedBy = {
-      uid: note.userId,
-      displayName: userData.displayName || "",
-      photoURL: userData.photoURL || ""
-    };
-
-    await updateDoc(doc(db, "notes", noteSnap.id), {
-      createdBy: updatedBy
-    });
-
-    console.log(`✅ Nota ${noteSnap.id} aggiornata con createdBy`);
-  }
-
-  console.log("✨ Tutte le note legacy sono state patchate");
-}
-
-window.patchOldNotesWithAuthorData = patchOldNotesWithAuthorData;
-console.log("🧪 patchOldNotesWithAuthorData disponibile!", window.patchOldNotesWithAuthorData);
-
-
-// 🔥 FINE TEMPORANEO
-
 
 
 
