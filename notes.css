@@ -294,6 +294,31 @@
   justify-content: center;
 }
 
+#categoryListPanel li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rename-category-btn,
+.delete-category-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.rename-category-btn {
+  color: #007bff;
+}
+
+.category-name {
+  flex: 1;
+  font-weight: 500;
+  color: #333;
+}
 
 
 #categoryListPanel li {
