@@ -218,7 +218,7 @@
 
 .noteFilterWrap label {
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
   white-space: nowrap;
 }
 
@@ -241,8 +241,6 @@
 
 /* 🎨 BOTTONE GESTISCI CATEGORIE LISTA NOTE */
 
-
-
 .noteFilterWrap {
   display: flex;
   align-items: center;
@@ -261,7 +259,7 @@
 #noteCategoryFilter {
   padding: 6px 12px;
   font-size: 15px;
-  min-width: 240px;
+  min-width: 200px;
   max-width: 320px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -297,6 +295,7 @@
 }
 
 
+
 #categoryListPanel li {
   display: flex;
   justify-content: space-between; /* 👈 separa i due elementi */
@@ -322,6 +321,7 @@
   font-weight: 500;
   color: #333;
 }
+
 
 
 /* 🎨 CATEGORIE CHE APPARE IN OGNI BOX LISTA NOTE */
