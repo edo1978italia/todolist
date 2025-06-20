@@ -157,7 +157,7 @@
     font-size: 30px;
 }
 
-/* 🎨 MENU A TENDINA DI NUOVA NOTA */
+/* 🎨 MENU A TENDINA CATEGORIE DI NUOVA NOTA */
 .noteEditorCategoryWrap {
   margin-top: 16px;
 }
@@ -203,6 +203,140 @@
     border-radius: 6px;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
     margin-top: 5px;
+}
+
+/* 🎨 MENU A TENDINA FILTRO CATEGORIE LISTA NOTE */
+.noteFilterWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 👈 centra orizzontalmente */
+  gap: 12px;
+  margin: 24px auto;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.noteFilterWrap label {
+  font-weight: 500;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+#noteCategoryFilter {
+  padding: 6px 12px;
+  font-size: 15px;
+  min-width: 240px;
+  max-width: 320px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+/* 🎨 BOTTONE GESTISCI CATEGORIE LISTA NOTE */
+
+
+
+.noteFilterWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px auto;
+  flex-wrap: wrap;
+}
+
+.noteFilterWrap label {
+  font-weight: 500;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+#noteCategoryFilter {
+  padding: 6px 12px;
+  font-size: 15px;
+  min-width: 240px;
+  max-width: 320px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+.noteFilterWrap button {
+  padding: 6px 12px;
+  font-size: 15px;
+  border: none;
+  background-color: #eee;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 🎨 MODALE GESTISCI CATEGORIE */
+.modal {
+  position: fixed;
+  z-index: 9999; /* 👈 assicurati che sia sopra tutto il resto */
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+#categoryListPanel li {
+  display: flex;
+  justify-content: space-between; /* 👈 separa i due elementi */
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+  gap: 12px;
+}
+
+#categoryListPanel li button.delete-category-btn {
+  background: none;
+  border: none;
+  color: #cc0000;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-right: auto; /* 👈 forza allineamento a sinistra */
+}
+
+#categoryListPanel li span {
+  margin-left: auto; /* 👈 forza allineamento a destra */
+  font-weight: 500;
+  color: #333;
+}
+
+
+/* 🎨 CATEGORIE CHE APPARE IN OGNI BOX LISTA NOTE */
+.note-category-label {
+  font-size: 10px;
+  color: #666;
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-style: italic;
+  pointer-events: none;
+  opacity: 0.8;
 }
 
 /* 🔥 data creazione e info singolo box note */

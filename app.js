@@ -24,48 +24,67 @@ const auth = getAuth(app);
 
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
-    const noteList = document.getElementById("noteList");
+  const noteList = document.getElementById("noteList");
+  const categoryFilter = document.getElementById("noteCategoryFilter");
 
-    onSnapshot(query(collection(db, "notes"), orderBy("pinned", "desc"), orderBy("timestamp", "desc")), (snapshot) => {
-        noteList.innerHTML = ""; // 🔄 Reset lista
+  // 🔄 Carica le categorie nel menu filtro
+  if (categoryFilter) {
+    loadFilterCategories();
 
-        snapshot.docs.forEach((docSnap, index) => {
-            const data = docSnap.data();
-            const noteTitle = data.title || "Senza titolo";
-            const noteContent = data.content ? data.content.replace(/<[^>]+>/g, "") : "No content";
+    categoryFilter.addEventListener("change", () => {
+      renderFilteredNotes();
+    });
+  }
 
-            // 🔥 Limita il titolo a 25 caratteri con "..."
-            const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
+  renderFilteredNotes();
+});
 
-            // 🔥 Limita il contenuto della nota per evitare overflow
-            const previewContent = noteContent.length > 180 ? noteContent.slice(0, 180) + "..." : noteContent;
+function renderFilteredNotes() {
+  const noteList = document.getElementById("noteList");
+  const selected = document.getElementById("noteCategoryFilter")?.value || "";
 
-            const li = document.createElement("div");
-            li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
-            if (data.pinned) li.classList.add("pinned");
+  // 🧼 Cancella listener precedente se esiste
+  if (window._noteUnsubscribe) window._noteUnsubscribe();
 
-            li.setAttribute("data-content", data.content);
-            li.setAttribute("data-id", docSnap.id);
-            li.addEventListener("click", (event) => {
-                if (event.target.closest(".options-button") || event.target.closest(".options-menu")) {
-                    return; // 🔥 Non aprire l'editor se clicco su pulsanti/menu
-                }
-                openEditorModal(docSnap.id);
-            });
+  window._noteUnsubscribe = onSnapshot(
+    query(collection(db, "notes"), orderBy("pinned", "desc"), orderBy("timestamp", "desc")),
+    (snapshot) => {
+      noteList.innerHTML = "";
 
-            const createdBy = data.createdBy || {};
-            const avatarHTML = createdBy.photoURL
-                ? `<img class="note-avatar" src="${createdBy.photoURL}" alt="${createdBy.displayName || ""}" title="${createdBy.displayName || ""}" />`
-                : `<div class="note-avatar-placeholder">👤</div>`;
+      snapshot.docs.forEach((docSnap, index) => {
+        const data = docSnap.data();
 
-            li.innerHTML = `
+        // 🎯 Se c'è un filtro attivo, salta le note non corrispondenti
+        if (selected && data.category !== selected) return;
+
+        const noteTitle = data.title || "Senza titolo";
+        const noteContent = data.content ? data.content.replace(/<[^>]+>/g, "") : "No content";
+        const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
+        const previewContent = noteContent.length > 180 ? noteContent.slice(0, 180) + "..." : noteContent;
+
+        const li = document.createElement("div");
+        li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
+        if (data.pinned) li.classList.add("pinned");
+
+        li.setAttribute("data-content", data.content);
+        li.setAttribute("data-id", docSnap.id);
+        li.addEventListener("click", (event) => {
+          if (event.target.closest(".options-button") || event.target.closest(".options-menu")) return;
+          openEditorModal(docSnap.id);
+        });
+
+        const createdBy = data.createdBy || {};
+        const avatarHTML = createdBy.photoURL
+          ? `<img class="note-avatar" src="${createdBy.photoURL}" alt="${createdBy.displayName || ""}" title="${createdBy.displayName || ""}" />`
+          : `<div class="note-avatar-placeholder">👤</div>`;
+
+        li.innerHTML = `
   <div class="note-box-inner">
-    <div class="note-author">
-      ${avatarHTML}
-    </div>
+    <div class="note-author">${avatarHTML}</div>
     <div class="note-content">
       <h3 class="note-preview-title">${shortTitle}</h3>
       <p class="note-preview-content">${previewContent}</p>
+      <span class="note-category-label">📁 ${data.category || "—"}</span>
       <div class="note-meta">
         🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
         ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
@@ -81,51 +100,47 @@ document.addEventListener("DOMContentLoaded", () => {
   </div>
 `;
 
-            const deleteButton = li.querySelector(".menu-delete");
-
-            deleteButton.addEventListener("click", async (event) => {
-                event.stopPropagation(); // 🔥 Impedisce che venga aperta la nota
-
-                if (confirm("🗑 Vuoi davvero eliminare questa nota?")) {
-                    try {
-                        await deleteDoc(doc(db, "notes", docSnap.id));
-                        alert("✅ Nota eliminata con successo!");
-                    } catch (error) {
-                        console.error("❌ Errore durante l'eliminazione:", error);
-                        alert("Errore durante l'eliminazione.");
-                    }
-                }
-            });
-
-            noteList.appendChild(li);
-            // Bottone PIN/UNPIN
-            const pinBtn = li.querySelector(".menu-pin");
-
-            pinBtn.addEventListener("click", async (event) => {
-                event.stopPropagation();
-                const noteRef = doc(db, "notes", docSnap.id);
-                try {
-                    await updateDoc(noteRef, { pinned: !data.pinned });
-                } catch (error) {
-                    console.error("❌ Errore nel fissare/sfissare la nota:", error);
-                }
-            });
-
-            const optionsBtn = li.querySelector(".options-button");
-            const optionsMenu = li.querySelector(".options-menu");
-
-            optionsBtn.addEventListener("click", (event) => {
-                event.stopPropagation(); // 🔥 Blocca il click del box
-                // 🔁 Chiude altri eventuali menu aperti
-                document.querySelectorAll(".options-menu").forEach((menu) => {
-                    if (menu !== optionsMenu) menu.style.display = "none";
-                });
-
-                optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
-            });
+        // ❌ Delete
+        li.querySelector(".menu-delete").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (confirm("🗑 Vuoi davvero eliminare questa nota?")) {
+            try {
+              await deleteDoc(doc(db, "notes", docSnap.id));
+              alert("✅ Nota eliminata!");
+            } catch (error) {
+              console.error("❌ Errore durante l'eliminazione:", error);
+              alert("Errore durante l'eliminazione.");
+            }
+          }
         });
-    });
-});
+
+        // 📌 Pin/Unpin
+        li.querySelector(".menu-pin").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          try {
+            await updateDoc(doc(db, "notes", docSnap.id), { pinned: !data.pinned });
+          } catch (error) {
+            console.error("❌ Errore nel fissare/sfissare:", error);
+          }
+        });
+
+        // ⋮ Menu opzioni
+        const optionsBtn = li.querySelector(".options-button");
+        const optionsMenu = li.querySelector(".options-menu");
+        optionsBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          document.querySelectorAll(".options-menu").forEach((menu) => {
+            if (menu !== optionsMenu) menu.style.display = "none";
+          });
+          optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
+        });
+
+        noteList.appendChild(li);
+      });
+    }
+  );
+}
+
 
 document.addEventListener("click", (event) => {
     if (!event.target.closest(".options-menu") && !event.target.closest(".options-button")) {
@@ -243,6 +258,36 @@ async function loadCategories() {
     }
 }
 
+// 🔄 Popola il filtro categorie nella home
+async function loadFilterCategories() {
+    const filter = document.getElementById("noteCategoryFilter");
+    if (!filter) return;
+
+    // ✅ Reset completo del contenuto
+    while (filter.firstChild) {
+        filter.removeChild(filter.firstChild);
+    }
+
+    // 🏷️ Ricrea l’opzione iniziale
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "– Tutte –";
+    filter.appendChild(defaultOption);
+
+    try {
+        const snap = await getDocs(collection(db, "categories"));
+        snap.forEach((doc) => {
+            const name = doc.data().name;
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+            filter.appendChild(opt);
+        });
+    } catch (err) {
+        console.error("❌ Errore nel caricamento categorie per filtro:", err);
+    }
+}
+
 // 🔥 Mostra/Nasconde il menu del modale
 document.addEventListener("DOMContentLoaded", () => {
     const optionsButton = document.getElementById("noteOptionsButton");
@@ -298,7 +343,6 @@ document.getElementById("createNoteButton").addEventListener("click", () => {
 });
 
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
-
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) return alert("⚠ You must be logged in!");
@@ -352,7 +396,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             content,
             pinned: false,
             timestamp: new Date(),
-            category, // ✅ nuova proprietà della nota
+            category,
             createdBy: {
                 uid: user.uid,
                 displayName,
@@ -364,13 +408,18 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             title,
             content,
             timestamp: new Date(),
-            category // ✅ anche nelle modifiche
+            category
         });
     }
+
+    // ✅ Aggiorna il filtro categorie nella home se presente
+    const filter = document.getElementById("noteCategoryFilter");
+    if (filter) await loadFilterCategories();
 
     alert("✅ Note saved successfully!");
     closeEditorModal();
 });
+
 
 // 🔍 Cerca note in tempo reale per titolo o contenuto
 document.getElementById("searchNotes").addEventListener("input", () => {
@@ -538,4 +587,100 @@ document.addEventListener("DOMContentLoaded", () => {
             input.style.display = select.value === "__new__" ? "block" : "none";
         });
     }
+});
+
+
+// 🛠️ Apre il modale Gestione Categorie
+document.getElementById("manageCategoriesBtn")?.addEventListener("click", async () => {
+  const modal = document.getElementById("categoryManagerModal");
+  const list = document.getElementById("categoryListPanel");
+  list.innerHTML = "";
+
+  try {
+    const snap = await getDocs(collection(db, "categories"));
+    snap.forEach((docSnap) => {
+      const li = document.createElement("li");
+      const name = docSnap.data().name;
+      const id = docSnap.id;
+
+      li.innerHTML = `
+        <span>${name}</span>
+        <button data-id="${id}" class="delete-category-btn">🗑️</button>
+      `;
+      list.appendChild(li);
+    });
+
+    modal.style.display = "flex";
+  } catch (err) {
+    console.error("❌ Errore caricamento categorie:", err);
+    alert("Errore durante il caricamento delle categorie.");
+  }
+});
+
+// ❌ Chiude il modale
+document.getElementById("closeCategoryManager")?.addEventListener("click", () => {
+  document.getElementById("categoryManagerModal").style.display = "none";
+});
+
+// 🗑️ Gestisce click su elimina categoria
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("delete-category-btn")) {
+    const id = e.target.getAttribute("data-id");
+    const li = e.target.closest("li");
+
+    if (confirm("🗑 Vuoi davvero eliminare questa categoria?")) {
+      try {
+        await deleteDoc(doc(db, "categories", id));
+        li.remove();
+        await loadFilterCategories(); // 🔁 aggiorna il menu filtro
+        alert("✅ Categoria eliminata!");
+      } catch (err) {
+        console.error("❌ Errore eliminando categoria:", err);
+        alert("Errore durante l'eliminazione.");
+      }
+    }
+  }
+});
+
+// 🔒 Chiudi cliccando fuori dal contenuto del modale
+document.addEventListener("click", (event) => {
+  const modal = document.getElementById("categoryManagerModal");
+  const content = document.querySelector("#categoryManagerModal .modal-content");
+
+  if (
+    modal.style.display === "flex" &&
+    !content.contains(event.target) &&
+    !event.target.closest("#manageCategoriesBtn")
+  ) {
+    modal.style.display = "none";
+  }
+});
+
+
+document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
+  const input = document.getElementById("newCategoryInputModal");
+  const name = input.value.trim();
+  if (!name) return alert("❌ Scrivi un nome valido per la categoria.");
+
+  try {
+    // 💾 Aggiunge la nuova categoria in Firestore
+    const docRef = await addDoc(collection(db, "categories"), { name });
+    input.value = "";
+    alert("✅ Categoria aggiunta!");
+
+    // 🔁 Aggiorna dropdown filtro
+    await loadFilterCategories();
+
+    // 🧩 Crea elemento nella lista modale
+    const list = document.getElementById("categoryListPanel");
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span>${name}</span>
+      <button data-id="${docRef.id}" class="delete-category-btn">🗑️</button>
+    `;
+    list.appendChild(li);
+  } catch (err) {
+    console.error("❌ Errore nell'aggiungere categoria:", err);
+    alert("Errore durante il salvataggio.");
+  }
 });
