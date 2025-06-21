@@ -294,16 +294,21 @@
   justify-content: center;
 }
 
+
+
 #categoryListPanel li {
+    margin-top: 1px;
+    margin: none;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 0;
+  gap: 2px;
+  padding: 1px 0;
   border-bottom: 1px solid #eee;
 }
 
 .rename-category-btn,
 .delete-category-btn {
+margin: none;
   background: none;
   border: none;
   cursor: pointer;
@@ -560,8 +565,8 @@
 /* 🔥 PIN nota */
 .pin-indicator {
     margin-left: 6px;
-    font-size: 16px;
-    color: red;
+    font-size: 13px;
+    color: grey;
     vertical-align: middle;
 }
 

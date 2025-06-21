@@ -84,7 +84,7 @@ function renderFilteredNotes() {
     <div class="note-content">
       <h3 class="note-preview-title">${shortTitle}</h3>
       <p class="note-preview-content">${previewContent}</p>
-      <span class="note-category-label">📁 ${data.category || "—"}</span>
+      <span class="note-category-label">.${data.category || "—"}</span>
       <div class="note-meta">
         🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
         ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
@@ -270,7 +270,7 @@ async function loadFilterCategories() {
     // 🏷️ Ricrea l’opzione iniziale
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
-    defaultOption.textContent = "– Tutte –";
+    defaultOption.textContent = "– All –";
     filter.appendChild(defaultOption);
 
     try {
@@ -588,162 +588,157 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 🛠️ Apre il modale Gestione Categorie
+// 📦 Funzione riutilizzabile per creare una riga categoria
+// 📦 Funzione riutilizzabile: crea una riga <li> categoria
+function renderCategoryRow(name, id) {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <button data-id="${id}" class="delete-category-btn">🗑️</button>
+    <span class="category-name" data-id="${id}" data-name="${name}">${name}</span>
+    <button data-id="${id}" class="rename-category-btn">✏️</button>
+  `;
+  return li;
+}
+
+// 🛠️ Apre il modale categorie
 document.getElementById("manageCategoriesBtn")?.addEventListener("click", async () => {
-    const modal = document.getElementById("categoryManagerModal");
-    const list = document.getElementById("categoryListPanel");
-    list.innerHTML = "";
+  const modal = document.getElementById("categoryManagerModal");
+  const list = document.getElementById("categoryListPanel");
+  list.innerHTML = "";
 
-    try {
-        const snap = await getDocs(collection(db, "categories"));
-        snap.forEach((docSnap) => {
-            const li = document.createElement("li");
-            const name = docSnap.data().name;
-            const id = docSnap.id;
+  try {
+    const snap = await getDocs(collection(db, "categories"));
+    snap.forEach((docSnap) => {
+      const name = docSnap.data().name;
+      const id = docSnap.id;
+      const li = renderCategoryRow(name, id);
+      list.appendChild(li);
+    });
 
-            li.innerHTML = `
-  <button data-id="${id}" class="delete-category-btn">🗑️</button>
-  <span class="category-name" data-name="${name}" data-id="${id}">${name}</span>
-  <button data-id="${id}" class="rename-category-btn">✏️</button>
-`;
-
-            list.appendChild(li);
-        });
-
-        modal.style.display = "flex";
-    } catch (err) {
-        console.error("❌ Errore caricamento categorie:", err);
-        alert("Errore durante il caricamento delle categorie.");
-    }
+    modal.style.display = "flex";
+  } catch (err) {
+    console.error("❌ Errore caricamento categorie:", err);
+    alert("Errore durante il caricamento delle categorie.");
+  }
 });
 
 // ❌ Chiude il modale
 document.getElementById("closeCategoryManager")?.addEventListener("click", () => {
-    document.getElementById("categoryManagerModal").style.display = "none";
+  document.getElementById("categoryManagerModal").style.display = "none";
 });
 
-// 🗑️ Gestisce click su elimina categoria
-document.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("delete-category-btn")) {
-        const id = e.target.getAttribute("data-id");
-        const li = e.target.closest("li");
-
-        if (confirm("🗑 Vuoi davvero eliminare questa categoria?")) {
-            try {
-                await deleteDoc(doc(db, "categories", id));
-                li.remove();
-                await loadFilterCategories(); // 🔁 aggiorna il menu filtro
-                alert("✅ Categoria eliminata!");
-            } catch (err) {
-                console.error("❌ Errore eliminando categoria:", err);
-                alert("Errore durante l'eliminazione.");
-            }
-        }
-    }
-});
-
-// 🔒 Chiudi cliccando fuori dal contenuto del modale
+// 🔒 Chiudi cliccando fuori dal contenuto
 document.addEventListener("click", (event) => {
-    const modal = document.getElementById("categoryManagerModal");
-    const content = document.querySelector("#categoryManagerModal .modal-content");
-
-    if (
-        modal.style.display === "flex" &&
-        !content.contains(event.target) &&
-        !event.target.closest("#manageCategoriesBtn")
-    ) {
-        modal.style.display = "none";
-    }
+  const modal = document.getElementById("categoryManagerModal");
+  const content = document.querySelector("#categoryManagerModal .modal-content");
+  if (
+    modal.style.display === "flex" &&
+    !content.contains(event.target) &&
+    !event.target.closest("#manageCategoriesBtn")
+  ) {
+    modal.style.display = "none";
+  }
 });
 
-document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
-    const input = document.getElementById("newCategoryInputModal");
-    const name = input.value.trim();
-    if (!name) return alert("❌ Scrivi un nome valido per la categoria.");
-
-    try {
-        // 💾 Aggiunge la nuova categoria in Firestore
-        const docRef = await addDoc(collection(db, "categories"), { name });
-        input.value = "";
-        alert("✅ Categoria aggiunta!");
-
-        // 🔁 Aggiorna dropdown filtro
-        await loadFilterCategories();
-
-        // 🧩 Crea elemento nella lista modale
-        const list = document.getElementById("categoryListPanel");
-        const li = document.createElement("li");
-li.innerHTML = `
-  <button data-id="${docRef.id}" class="delete-category-btn">🗑️</button>
-  <span class="category-name" data-id="${docRef.id}" data-name="${name}">${name}</span>
-  <button data-id="${docRef.id}" class="rename-category-btn">✏️</button>
-`;
-list.appendChild(li);
-
-        list.appendChild(li);
-    } catch (err) {
-        console.error("❌ Errore nell'aggiungere categoria:", err);
-        alert("Errore durante il salvataggio.");
-    }
-});
-
-
+// 🗑️ Elimina categoria
 document.addEventListener("click", async (e) => {
-  // ✏️ Avvia modifica
-  if (e.target.classList.contains("rename-category-btn")) {
-    const span = e.target.previousElementSibling;
-    const oldName = span.textContent;
+  if (e.target.classList.contains("delete-category-btn")) {
     const id = e.target.getAttribute("data-id");
+    const li = e.target.closest("li");
 
-    // Sostituisci con campo input
+    if (confirm("🗑 Vuoi davvero eliminare questa categoria?")) {
+      try {
+        await deleteDoc(doc(db, "categories", id));
+        li.remove();
+        await loadFilterCategories();
+        alert("✅ Categoria eliminata!");
+      } catch (err) {
+        console.error("❌ Errore eliminando categoria:", err);
+        alert("Errore durante l'eliminazione.");
+      }
+    }
+  }
+});
+
+// ✏️ Rename: apre input o salva modifica
+document.addEventListener("click", async (e) => {
+  const target = e.target;
+
+  // ✏️ Modalità modifica
+  if (target.classList.contains("rename-category-btn") && target.textContent === "✏️") {
+    const li = target.closest("li");
+    const span = li.querySelector(".category-name");
+    const oldName = span.textContent;
+    const id = span.getAttribute("data-id");
+
     const input = document.createElement("input");
     input.type = "text";
     input.value = oldName;
-    input.style.flex = "1";
     input.classList.add("rename-input");
+    input.setAttribute("data-old-name", oldName);
+    input.style.flex = "1";
+
     span.replaceWith(input);
-    e.target.textContent = "💾";
+    target.textContent = "💾";
+  }
 
-    // 👉 Salvataggio al click su 💾
-    e.target.onclick = async () => {
-      const newName = input.value.trim();
-      if (!newName || newName === oldName) {
-        input.replaceWith(span); // annulla
-        e.target.textContent = "✏️";
-        return;
-      }
+  // 💾 Salvataggio
+  else if (target.classList.contains("rename-category-btn") && target.textContent === "💾") {
+    const li = target.closest("li");
+    const input = li.querySelector(".rename-input");
+    const oldName = input.getAttribute("data-old-name");
+    const newName = input.value.trim();
+    const id = target.getAttribute("data-id");
 
-      try {
-        // 🔁 Aggiorna documento categoria
-        const ref = doc(db, "categories", id);
-        await updateDoc(ref, { name: newName });
+    if (!newName || newName === oldName) {
+      const restored = renderCategoryRow(oldName, id);
+      li.replaceWith(restored);
+      return;
+    }
 
-        // 🔄 Aggiorna tutte le note che usano oldName
-        const notesSnap = await getDocs(
-          query(collection(db, "notes"), where("category", "==", oldName))
-        );
+    try {
+      await updateDoc(doc(db, "categories", id), { name: newName });
 
-        const batch = writeBatch(db);
-        notesSnap.forEach((docSnap) => {
-          batch.update(doc(db, "notes", docSnap.id), { category: newName });
-        });
-        await batch.commit();
+      const notesSnap = await getDocs(
+        query(collection(db, "notes"), where("category", "==", oldName))
+      );
 
-        // UI update
-        const newSpan = document.createElement("span");
-        newSpan.classList.add("category-name");
-        newSpan.textContent = newName;
-        newSpan.setAttribute("data-id", id);
-        newSpan.setAttribute("data-name", newName);
-        input.replaceWith(newSpan);
-        e.target.textContent = "✏️";
-        await loadFilterCategories();
+      const batch = writeBatch(db);
+      notesSnap.forEach((docSnap) => {
+        batch.update(doc(db, "notes", docSnap.id), { category: newName });
+      });
+      await batch.commit();
 
-        alert("✅ Categoria aggiornata!");
-      } catch (err) {
-        console.error("❌ Errore durante la rinomina:", err);
-        alert("Errore durante la rinomina.");
-        e.target.textContent = "✏️";
-      }
-    };
+      await loadFilterCategories();
+
+      const updatedLi = renderCategoryRow(newName, id);
+      li.replaceWith(updatedLi);
+      alert("✅ Categoria aggiornata!");
+    } catch (err) {
+      console.error("❌ Errore durante la rinomina:", err);
+      alert("Errore durante la rinomina.");
+      const fallback = renderCategoryRow(oldName, id);
+      li.replaceWith(fallback);
+    }
+  }
+});
+
+// ➕ Aggiunge nuova categoria
+document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
+  const input = document.getElementById("newCategoryInputModal");
+  const name = input.value.trim();
+  if (!name) return alert("❌ Scrivi un nome valido per la categoria.");
+
+  try {
+    const docRef = await addDoc(collection(db, "categories"), { name });
+    input.value = "";
+    alert("✅ Categoria aggiunta!");
+    await loadFilterCategories();
+
+    const li = renderCategoryRow(name, docRef.id);
+    document.getElementById("categoryListPanel").appendChild(li);
+  } catch (err) {
+    console.error("❌ Errore nell'aggiungere categoria:", err);
+    alert("Errore durante il salvataggio.");
   }
 });
