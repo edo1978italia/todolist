@@ -11,7 +11,8 @@ import {
     doc,
     getDoc,
     where,
-    getDocs
+    getDocs,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
@@ -619,7 +620,7 @@ document.getElementById("manageCategoriesBtn")?.addEventListener("click", async 
     modal.style.display = "flex";
   } catch (err) {
     console.error("❌ Errore caricamento categorie:", err);
-    alert("Errore durante il caricamento delle categorie.");
+    alert("Error loading categories.");
   }
 });
 
@@ -647,15 +648,15 @@ document.addEventListener("click", async (e) => {
     const id = e.target.getAttribute("data-id");
     const li = e.target.closest("li");
 
-    if (confirm("🗑 Vuoi davvero eliminare questa categoria?")) {
+    if (confirm("🗑 Do you really want to delete this category?")) {
       try {
         await deleteDoc(doc(db, "categories", id));
         li.remove();
         await loadFilterCategories();
-        alert("✅ Categoria eliminata!");
+        alert("✅ Category deleted!");
       } catch (err) {
         console.error("❌ Errore eliminando categoria:", err);
-        alert("Errore durante l'eliminazione.");
+        alert("Error while deleting.");
       }
     }
   }
@@ -714,10 +715,10 @@ document.addEventListener("click", async (e) => {
 
       const updatedLi = renderCategoryRow(newName, id);
       li.replaceWith(updatedLi);
-      alert("✅ Categoria aggiornata!");
+      alert("✅ Category updated!");
     } catch (err) {
-      console.error("❌ Errore durante la rinomina:", err);
-      alert("Errore durante la rinomina.");
+      console.error("❌ Error while renaming:", err);
+      alert("Error while renaming.");
       const fallback = renderCategoryRow(oldName, id);
       li.replaceWith(fallback);
     }
@@ -728,12 +729,12 @@ document.addEventListener("click", async (e) => {
 document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
   const input = document.getElementById("newCategoryInputModal");
   const name = input.value.trim();
-  if (!name) return alert("❌ Scrivi un nome valido per la categoria.");
+  if (!name) return alert("❌ Please enter a valid name for the category.");
 
   try {
     const docRef = await addDoc(collection(db, "categories"), { name });
     input.value = "";
-    alert("✅ Categoria aggiunta!");
+    alert("✅ Category added!");
     await loadFilterCategories();
 
     const li = renderCategoryRow(name, docRef.id);
