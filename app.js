@@ -10,6 +10,7 @@ import {
     orderBy,
     doc,
     getDoc,
+    where,
     getDocs
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
