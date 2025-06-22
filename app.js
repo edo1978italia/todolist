@@ -555,25 +555,32 @@ window.navigateTo = function (page) {
 };
 
 // 🔥 Caricamento dinamico della sidebar
-function loadSidebar() {
-  const sidebarContainer = document.getElementById("sidebar-container");
-  if (!sidebarContainer) return Promise.resolve(); // fallback silenzioso
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebarContainer = document.getElementById("sidebar-container");
+    if (!sidebarContainer) {
+        console.warn("⚠ sidebar-container non trovato!");
+        return;
+    }
 
-  return fetch("sidebar.html")
-    .then(res => res.text())
-    .then(html => {
-      sidebarContainer.innerHTML = html;
+    fetch("sidebar.html")
+        .then((res) => res.text())
+        .then((html) => {
+            sidebarContainer.innerHTML = html;
+            console.log("[✓] Sidebar inserita nel DOM");
 
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.type = "module";
-        script.src = "sidebar.js";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.body.appendChild(script);
-      });
-    });
-}
+            // ✅ Aspetta il ciclo successivo prima di eseguire sidebar.js
+            requestAnimationFrame(() => {
+                const script = document.createElement("script");
+                script.type = "module";
+                script.src = "sidebar.js";
+                script.onload = () => console.log("[✓] sidebar.js caricato correttamente");
+                document.body.appendChild(script);
+            });
+        })
+        .catch((err) => {
+            console.error("❌ Errore nel caricamento di sidebar.html:", err);
+        });
+});
 
 // 👀 Mostra l'input testuale solo se si seleziona "nuova categoria"
 document.addEventListener("DOMContentLoaded", () => {
@@ -744,17 +751,15 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
 });
 
 // ➕ per problema loading lento
-document.body.classList.add("loading");
-
-Promise.all([
-  loadNotes(),
-  loadCategories()
-])
-.then(() => loadSidebar())
-.then(() => {
-  document.body.classList.remove("loading");
-})
-.catch((err) => {
-  console.error("❌ Errore durante il caricamento:", err);
+window.addEventListener("load", () => {
   document.body.classList.remove("loading");
 });
+
+Promise.all([
+  loadSidebar(),     // carica sidebar
+  loadNotes(),       // carica note
+  loadCategories()   // eventuali categorie
+]).then(() => {
+  document.body.style.visibility = "visible";
+});
+
