@@ -1,9 +1,6 @@
 body.loading {
   visibility: hidden;
 }
-body.loading {
-  background: red !important;
-}
 
 
 body {
