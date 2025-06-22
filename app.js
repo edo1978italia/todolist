@@ -752,5 +752,5 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
 
 // ➕ per problema loading lento
 window.addEventListener("load", () => {
-  document.body.classList.remove("loading");
+  document.body.style.visibility = "visible";
 });
