@@ -1,3 +1,5 @@
+document.body.classList.add("loading");
+
 // Importa Firebase
 import {
     getFirestore,
@@ -746,4 +748,9 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
     console.error("❌ Errore nell'aggiungere categoria:", err);
     alert("Errore durante il salvataggio.");
   }
+});
+
+// ➕ per problema loading lento
+window.addEventListener("load", () => {
+  document.body.classList.remove("loading");
 });

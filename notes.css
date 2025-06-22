@@ -1,3 +1,19 @@
+body.loading {
+  visibility: hidden;
+}
+
+body {
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+
+body:not(.loading) {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+
 /* 🔥🔥🔥🔥🔥🔥PAGINA NOTE🔥🔥🔥🔥🔥🔥 */
 /* 🔥 Stile per il contenitore delle note */
 /* 🔥 Layout verticale per le note */
