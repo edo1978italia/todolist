@@ -751,19 +751,15 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
 });
 
 // ➕ per problema loading lento
-document.body.classList.add("loading");
+window.addEventListener("load", () => {
+  document.body.classList.remove("loading");
+});
 
 Promise.all([
-  loadSidebar(),
-  loadNotes(),
-  loadCategories()
-])
-  .then(() => {
-    document.body.classList.remove("loading");
-  })
-  .catch((err) => {
-    console.error("Errore durante il caricamento:", err);
-    document.body.classList.remove("loading"); // sblocca comunque
-  });
-
+  loadSidebar(),     // carica sidebar
+  loadNotes(),       // carica note
+  loadCategories()   // eventuali categorie
+]).then(() => {
+  document.body.style.visibility = "visible";
+});
 
