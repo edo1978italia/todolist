@@ -19,39 +19,43 @@
     <button id="createNoteButton">➕ NEW NOTE</button>
     <input type="text" id="searchNotes" placeholder="🔎 Search a note" />
 
-    
     <div class="noteFilterWrap">
-  <label for="noteCategoryFilter">Filter cat</label>
-  <select id="noteCategoryFilter">
-    <option value="">– All –</option>
-  </select>
-  <button id="manageCategoriesBtn">🛠️ </button>
-</div>
+      <label for="noteCategoryFilter">Filter cat</label>
+      <select id="noteCategoryFilter">
+        <option value="">– All –</option>
+      </select>
+      <button id="manageCategoriesBtn">🛠️</button>
+    </div>
 
+    <!-- 🔧 Modale gestione categorie -->
+    <div id="categoryManagerModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h4>Category Management</h4>
+        <ul id="categoryListPanel" style="list-style: none; padding-left: 0"></ul>
+        <hr style="margin: 10px 0" />
+        <div id="newCategoryWrap" style="display: flex; gap: 8px; margin-top: 12px">
+          <input
+            type="text"
+            id="newCategoryInputModal"
+            placeholder="➕ New Category"
+            style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px" />
+          <button
+            id="addCategoryBtn"
+            style="padding: 6px 12px; border: none; background: #c6c6c6; border-radius: 6px; cursor: pointer">
+            ➕ Add
+          </button>
+        </div>
+      </div>
+    </div>
 
-<!-- 🔧 Modale gestione categorie -->
-<div id="categoryManagerModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    
-    <h4>Category Management</h4>
-    <ul id="categoryListPanel" style="list-style: none; padding-left: 0;"></ul>
-    <hr style="margin: 10px 0;" />
-<div id="newCategoryWrap" style="display: flex; gap: 8px; margin-top: 12px;">
-  <input
-    type="text"
-    id="newCategoryInputModal"
-    placeholder="➕ New Category"
-    style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px;" />
-  <button id="addCategoryBtn" style="padding: 6px 12px; border: none; background: #c6c6c6; border-radius: 6px; cursor: pointer;">
-    ➕ Add
-  </button>
-</div>
+    <!-- 🔄 Placeholder scheletro -->
+    <div id="notesPlaceholders">
+      <div class="note-placeholder"></div>
+      <div class="note-placeholder"></div>
+      <div class="note-placeholder"></div>
+    </div>
 
-  </div>
-</div>
-
-
-    
+    <!-- 🔎 Note reali -->
     <div id="noteList"></div>
 
     <!-- 🔥 Modale per modifica note -->
@@ -88,7 +92,6 @@
             style="display: none; margin-top: 6px" />
         </div>
 
-        
         <!-- ✍️ Editor contenuto -->
         <div class="noteEditorContent">
           <div id="noteEditor"></div>

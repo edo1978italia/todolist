@@ -592,3 +592,18 @@
 .note-box.pinned {
     background: linear-gradient(120deg, #fffbe6, #fff0b3);
 }
+
+/* 🔥 CARICAMENTO FAKE PER EVITARE SCTTI PAGINA*/
+.note-placeholder {
+  height: 90px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f2f2f2, #e0e0e0, #f2f2f2);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -150px 0; }
+  100% { background-position: 250px 0; }
+}

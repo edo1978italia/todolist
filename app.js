@@ -231,33 +231,36 @@ function openEditorModal(noteId = null) {
 }
 
 // 🔄 Carica tutte le categorie esistenti da Firebase nella modale
-async function loadCategories() {
-    const select = document.getElementById("categorySelect");
-    if (!select) return;
+// 🔁 Carica le note con placeholder + rendering in blocco
+async function loadNotes() {
+  const notesContainer = document.getElementById("noteList");
+  const placeholders = document.getElementById("notesPlaceholders");
 
-    // 🔁 Ripulisce le opzioni mantenendo solo la voce fissa e quella "nuova"
-    select.innerHTML = `
-    <option value="">– Select –</option>
-    <option value="__new__">➕ New Category</option>
-  `;
+  // Mostra i placeholder
+  placeholders.style.display = "block";
+  notesContainer.innerHTML = "";
 
-    try {
-        // 🔥 Recupera documenti dalla raccolta "categories"
-        const snap = await getDocs(collection(db, "categories"));
+  try {
+    const snapshot = await getDocs(query(collection(db, "notes"), orderBy("createdAt", "desc")));
+    const fragment = document.createDocumentFragment();
 
-        snap.forEach((doc) => {
-            const name = doc.data().name;
-            const opt = document.createElement("option");
-            opt.value = name;
-            opt.textContent = name;
+    snapshot.forEach((docSnap) => {
+      const noteData = docSnap.data();
+      const noteEl = createNoteElement(noteData, docSnap.id); // ⬅️ tua funzione
+      fragment.appendChild(noteEl);
+    });
 
-            // 🧩 Inserisce ogni categoria prima dell'opzione "Nuova categoria..."
-            select.insertBefore(opt, select.querySelector('[value="__new__"]'));
-        });
-    } catch (err) {
-        console.error("❌ Errore nel caricamento categorie:", err);
-    }
+    // Rimuove i placeholder e mostra le note
+    placeholders.remove();
+    notesContainer.appendChild(fragment);
+  } catch (err) {
+    console.error("❌ Errore durante il caricamento note:", err);
+    placeholders.remove();
+    notesContainer.innerHTML = "<p style='color:red;'>Errore nel caricamento delle note.</p>";
+  }
 }
+
+document.addEventListener("DOMContentLoaded", loadNotes);
 
 // 🔄 Popola il filtro categorie nella home
 async function loadFilterCategories() {
