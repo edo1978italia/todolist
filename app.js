@@ -751,7 +751,19 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
 });
 
 // ➕ per problema loading lento
-window.addEventListener("load", () => {
-  document.body.classList.remove("loading");
-});
+document.body.classList.add("loading");
+
+Promise.all([
+  loadSidebar(),
+  loadNotes(),
+  loadCategories()
+])
+  .then(() => {
+    document.body.classList.remove("loading");
+  })
+  .catch((err) => {
+    console.error("Errore durante il caricamento:", err);
+    document.body.classList.remove("loading"); // sblocca comunque
+  });
+
 
