@@ -871,6 +871,7 @@ textarea {
     margin: auto;
     max-width: 600px;
     background-color: #f9f9f9;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
     padding: 12px;
     margin-top: 10px;
     border-radius: 10px;
@@ -974,7 +975,7 @@ textarea {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 
@@ -1007,7 +1008,7 @@ textarea {
     
 @media (max-width: 600px) {
     #profile-container {
-        width: 100%;
+        width: 92%;
         max-width: 100%;
         margin: 15px auto 24px auto;
         padding: 16px;
