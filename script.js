@@ -5,7 +5,14 @@ import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import {
+    getFirestore,
+    collection,
+    onSnapshot,
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 
@@ -43,50 +50,48 @@ window.loginUser = loginUser;
 
 // 🔥 Controllo login e aggiornamento interfaccia
 onAuthStateChanged(auth, async (user) => {
-  const authContainer = document.getElementById("authContainer");
-  const mainContainer = document.getElementById("mainContainer");
-  const welcomeMessage = document.getElementById("welcomeMessage");
-  const userEmailElement = document.getElementById("userEmail");
+    const authContainer = document.getElementById("authContainer");
+    const mainContainer = document.getElementById("mainContainer");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+    const userEmailElement = document.getElementById("userEmail");
 
-  if (user) {
-    console.log("✅ Utente autenticato:", user.email);
+    if (user) {
+        console.log("✅ Utente autenticato:", user.email);
 
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
 
-    if (userSnap.exists()) {
-      const data = userSnap.data();
-      console.log("📄 Documento utente:", data);
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            console.log("📄 Documento utente:", data);
 
-      if (!data.groupId || data.groupId.trim() === "") {
-        console.warn("🔁 Nessun groupId trovato — redirect a group-setup.html");
-        window.location.href = "group-setup.html";
-        return;
-      }
+            if (!data.groupId || data.groupId.trim() === "") {
+                console.warn("🔁 Nessun groupId trovato — redirect a group-setup.html");
+                window.location.href = "group-setup.html";
+                return;
+            }
 
-      // ✅ Tutto ok → Mostra contenuti
-      if (userEmailElement) {
-        userEmailElement.innerText = user.email;
-        console.log("📩 Email impostata su:", user.email);
-      }
+            // ✅ Tutto ok → Mostra contenuti
+            if (userEmailElement) {
+                userEmailElement.innerText = user.email;
+                console.log("📩 Email impostata su:", user.email);
+            }
 
-      authContainer.style.display = "none";
-      mainContainer.style.display = "block";
-      if (welcomeMessage) welcomeMessage.style.display = "block";
-
+            authContainer.style.display = "none";
+            mainContainer.style.display = "block";
+            if (welcomeMessage) welcomeMessage.style.display = "block";
+        } else {
+            console.error("❌ Documento Firestore mancante — logout forzato");
+            await signOut(auth);
+            window.location.reload();
+        }
     } else {
-      console.error("❌ Documento Firestore mancante — logout forzato");
-      await signOut(auth);
-      window.location.reload();
+        console.log("🔒 Nessun utente loggato — mostra form login");
+        authContainer.style.display = "block";
+        mainContainer.style.display = "none";
+        if (welcomeMessage) welcomeMessage.style.display = "none";
     }
-  } else {
-    console.log("🔒 Nessun utente loggato — mostra form login");
-    authContainer.style.display = "block";
-    mainContainer.style.display = "none";
-    if (welcomeMessage) welcomeMessage.style.display = "none";
-  }
 });
-
 
 // 🔥 Gestione logout
 async function logoutUser() {
