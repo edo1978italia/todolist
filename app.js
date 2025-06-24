@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🔄 Carica le categorie nel menu filtro
     if (categoryFilter) {
-        loadFilterCategories();
+        populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
 
         categoryFilter.addEventListener("change", () => {
             renderFilteredNotes();
@@ -159,7 +159,8 @@ function openEditorModal(noteId = null) {
     const titleInput = document.getElementById("noteEditorTitle");
 
     modal.style.display = "block";
-    loadCategories(); // 🔥 Popola il <select> dinamicamente
+    populateCategorySelect("categorySelect", { includeNewOption: true });
+    // 🔥 Popola il <select> dinamicamente
 
     // 🧼 Pulizia campo nuova categoria e gestione visibilità
     setTimeout(() => {
@@ -235,62 +236,80 @@ function openEditorModal(noteId = null) {
 // 🔄 Carica tutte le categorie esistenti da Firebase nella modale
 // 🔁 Carica le note con placeholder + rendering in blocco
 async function loadNotes() {
-  const notesContainer = document.getElementById("noteList");
-  const placeholders = document.getElementById("notesPlaceholders");
+    const notesContainer = document.getElementById("noteList");
+    const placeholders = document.getElementById("notesPlaceholders");
 
-  // Mostra i placeholder
-  placeholders.style.display = "block";
-  notesContainer.innerHTML = "";
+    // Mostra i placeholder
+    placeholders.style.display = "block";
+    notesContainer.innerHTML = "";
 
-  try {
-    const snapshot = await getDocs(query(collection(db, "notes"), orderBy("createdAt", "desc")));
-    const fragment = document.createDocumentFragment();
+    try {
+        const snapshot = await getDocs(query(collection(db, "notes"), orderBy("createdAt", "desc")));
+        const fragment = document.createDocumentFragment();
 
-    snapshot.forEach((docSnap) => {
-      const noteData = docSnap.data();
-      const noteEl = createNoteElement(noteData, docSnap.id); // ⬅️ tua funzione
-      fragment.appendChild(noteEl);
-    });
+        snapshot.forEach((docSnap) => {
+            const noteData = docSnap.data();
+            const noteEl = createNoteElement(noteData, docSnap.id); // ⬅️ tua funzione
+            fragment.appendChild(noteEl);
+        });
 
-    // Rimuove i placeholder e mostra le note
-    placeholders.remove();
-    notesContainer.appendChild(fragment);
-  } catch (err) {
-    console.error("❌ Errore durante il caricamento note:", err);
-    placeholders.remove();
-    notesContainer.innerHTML = "<p style='color:red;'>Errore nel caricamento delle note.</p>";
-  }
+        // Rimuove i placeholder e mostra le note
+        placeholders.remove();
+        notesContainer.appendChild(fragment);
+    } catch (err) {
+        console.error("❌ Errore durante il caricamento note:", err);
+        placeholders.remove();
+        notesContainer.innerHTML = "<p style='color:red;'>Errore nel caricamento delle note.</p>";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", loadNotes);
 
 // 🔄 Popola il filtro categorie nella home
-async function loadFilterCategories() {
-    const filter = document.getElementById("noteCategoryFilter");
-    if (!filter) return;
+async function populateCategorySelect(targetId, { includeNewOption = false, includeAllOption = false } = {}) {
+    const select = document.getElementById(targetId);
+    if (!select) return;
 
-    // ✅ Reset completo del contenuto
-    while (filter.firstChild) {
-        filter.removeChild(filter.firstChild);
+    select.innerHTML = "";
+
+    // 🏷️ Placeholder iniziale "Select a category"
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "– Select a category –";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
+    // ➕ All (solo per i filtri, es. noteCategoryFilter)
+    if (includeAllOption) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "– All –";
+        select.appendChild(opt);
     }
-
-    // 🏷️ Ricrea l’opzione iniziale
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "– All –";
-    filter.appendChild(defaultOption);
 
     try {
         const snap = await getDocs(collection(db, "categories"));
+        const options = [];
+
         snap.forEach((doc) => {
             const name = doc.data().name;
             const opt = document.createElement("option");
             opt.value = name;
             opt.textContent = name;
-            filter.appendChild(opt);
+            options.push(opt);
         });
+
+        options.forEach((opt) => select.appendChild(opt));
+
+        if (includeNewOption) {
+            const opt = document.createElement("option");
+            opt.value = "__new__";
+            opt.textContent = "➕ Create new category";
+            select.appendChild(opt);
+        }
     } catch (err) {
-        console.error("❌ Errore nel caricamento categorie per filtro:", err);
+        console.error("❌ Errore caricamento categorie:", err);
     }
 }
 
@@ -380,6 +399,10 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
         alert("❌ Error: The title and body of the note must be filled in!");
         return;
     }
+    if (!category || category === "") {
+        alert("❌ Please select a category before saving.");
+        return;
+    }
 
     // 🔥 🔎 Recupera dati utente anche da Firestore (fallback se photoURL è nullo)
     let displayName = user.displayName || "";
@@ -420,7 +443,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
 
     // ✅ Aggiorna il filtro categorie nella home se presente
     const filter = document.getElementById("noteCategoryFilter");
-    if (filter) await loadFilterCategories();
+    if (filter) await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
 
     alert("✅ Note saved successfully!");
     closeEditorModal();
@@ -598,168 +621,166 @@ document.addEventListener("DOMContentLoaded", () => {
 // 📦 Funzione riutilizzabile per creare una riga categoria
 // 📦 Funzione riutilizzabile: crea una riga <li> categoria
 function renderCategoryRow(name, id) {
-  const li = document.createElement("li");
-  li.innerHTML = `
+    const li = document.createElement("li");
+    li.innerHTML = `
     <button data-id="${id}" class="delete-category-btn">🗑️</button>
     <span class="category-name" data-id="${id}" data-name="${name}">${name}</span>
     <button data-id="${id}" class="rename-category-btn">✏️</button>
   `;
-  return li;
+    return li;
 }
 
 // 🛠️ Apre il modale categorie
 document.getElementById("manageCategoriesBtn")?.addEventListener("click", async () => {
-  const modal = document.getElementById("categoryManagerModal");
-  const list = document.getElementById("categoryListPanel");
-  list.innerHTML = "";
+    const modal = document.getElementById("categoryManagerModal");
+    const list = document.getElementById("categoryListPanel");
+    list.innerHTML = "";
 
-  try {
-    const snap = await getDocs(collection(db, "categories"));
-    snap.forEach((docSnap) => {
-      const name = docSnap.data().name;
-      const id = docSnap.id;
-      const li = renderCategoryRow(name, id);
-      list.appendChild(li);
-    });
+    try {
+        const snap = await getDocs(collection(db, "categories"));
+        snap.forEach((docSnap) => {
+            const name = docSnap.data().name;
+            const id = docSnap.id;
+            const li = renderCategoryRow(name, id);
+            list.appendChild(li);
+        });
 
-    modal.style.display = "flex";
-  } catch (err) {
-    console.error("❌ Errore caricamento categorie:", err);
-    alert("Error loading categories.");
-  }
+        modal.style.display = "flex";
+    } catch (err) {
+        console.error("❌ Errore caricamento categorie:", err);
+        alert("Error loading categories.");
+    }
 });
 
 // ❌ Chiude il modale
 document.getElementById("closeCategoryManager")?.addEventListener("click", () => {
-  document.getElementById("categoryManagerModal").style.display = "none";
+    document.getElementById("categoryManagerModal").style.display = "none";
 });
 
 // 🔒 Chiudi cliccando fuori dal contenuto
 document.addEventListener("click", (event) => {
-  const modal = document.getElementById("categoryManagerModal");
-  const content = document.querySelector("#categoryManagerModal .modal-content");
-  if (
-    modal.style.display === "flex" &&
-    !content.contains(event.target) &&
-    !event.target.closest("#manageCategoriesBtn")
-  ) {
-    modal.style.display = "none";
-  }
+    const modal = document.getElementById("categoryManagerModal");
+    const content = document.querySelector("#categoryManagerModal .modal-content");
+    if (
+        modal.style.display === "flex" &&
+        !content.contains(event.target) &&
+        !event.target.closest("#manageCategoriesBtn")
+    ) {
+        modal.style.display = "none";
+    }
 });
 
 // 🗑️ Elimina categoria
 document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("delete-category-btn")) {
-    const id = e.target.getAttribute("data-id");
-    const li = e.target.closest("li");
+    if (e.target.classList.contains("delete-category-btn")) {
+        const id = e.target.getAttribute("data-id");
+        const li = e.target.closest("li");
 
-    if (confirm("🗑 Do you really want to delete this category?")) {
-      try {
-        await deleteDoc(doc(db, "categories", id));
-        li.remove();
-        await loadFilterCategories();
-        alert("✅ Category deleted!");
-      } catch (err) {
-        console.error("❌ Errore eliminando categoria:", err);
-        alert("Error while deleting.");
-      }
+        if (confirm("🗑 Do you really want to delete this category?\nIf there are notes in this category, they will NOT be deleted.")) {
+            try {
+                await deleteDoc(doc(db, "categories", id));
+                li.remove();
+                await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
+
+                alert("✅ Category deleted!");
+            } catch (err) {
+                console.error("❌ Errore eliminando categoria:", err);
+                alert("Error while deleting.");
+            }
+        }
     }
-  }
 });
 
 // ✏️ Rename: apre input o salva modifica
 document.addEventListener("click", async (e) => {
-  const target = e.target;
+    const target = e.target;
 
-  // ✏️ Modalità modifica
-  if (target.classList.contains("rename-category-btn") && target.textContent === "✏️") {
-    const li = target.closest("li");
-    const span = li.querySelector(".category-name");
-    const oldName = span.textContent;
-    const id = span.getAttribute("data-id");
+    // ✏️ Modalità modifica
+    if (target.classList.contains("rename-category-btn") && target.textContent === "✏️") {
+        const li = target.closest("li");
+        const span = li.querySelector(".category-name");
+        const oldName = span.textContent;
+        const id = span.getAttribute("data-id");
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = oldName;
-    input.classList.add("rename-input");
-    input.setAttribute("data-old-name", oldName);
-    input.style.flex = "1";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = oldName;
+        input.classList.add("rename-input");
+        input.setAttribute("data-old-name", oldName);
+        input.style.flex = "1";
 
-    span.replaceWith(input);
-    target.textContent = "💾";
-  }
-
-  // 💾 Salvataggio
-  else if (target.classList.contains("rename-category-btn") && target.textContent === "💾") {
-    const li = target.closest("li");
-    const input = li.querySelector(".rename-input");
-    const oldName = input.getAttribute("data-old-name");
-    const newName = input.value.trim();
-    const id = target.getAttribute("data-id");
-
-    if (!newName || newName === oldName) {
-      const restored = renderCategoryRow(oldName, id);
-      li.replaceWith(restored);
-      return;
+        span.replaceWith(input);
+        target.textContent = "💾";
     }
 
-    try {
-      await updateDoc(doc(db, "categories", id), { name: newName });
+    // 💾 Salvataggio
+    else if (target.classList.contains("rename-category-btn") && target.textContent === "💾") {
+        const li = target.closest("li");
+        const input = li.querySelector(".rename-input");
+        const oldName = input.getAttribute("data-old-name");
+        const newName = input.value.trim();
+        const id = target.getAttribute("data-id");
 
-      const notesSnap = await getDocs(
-        query(collection(db, "notes"), where("category", "==", oldName))
-      );
+        if (!newName || newName === oldName) {
+            const restored = renderCategoryRow(oldName, id);
+            li.replaceWith(restored);
+            return;
+        }
 
-      const batch = writeBatch(db);
-      notesSnap.forEach((docSnap) => {
-        batch.update(doc(db, "notes", docSnap.id), { category: newName });
-      });
-      await batch.commit();
+        try {
+            await updateDoc(doc(db, "categories", id), { name: newName });
 
-      await loadFilterCategories();
+            const notesSnap = await getDocs(query(collection(db, "notes"), where("category", "==", oldName)));
 
-      const updatedLi = renderCategoryRow(newName, id);
-      li.replaceWith(updatedLi);
-      alert("✅ Category updated!");
-    } catch (err) {
-      console.error("❌ Error while renaming:", err);
-      alert("Error while renaming.");
-      const fallback = renderCategoryRow(oldName, id);
-      li.replaceWith(fallback);
+            const batch = writeBatch(db);
+            notesSnap.forEach((docSnap) => {
+                batch.update(doc(db, "notes", docSnap.id), { category: newName });
+            });
+            await batch.commit();
+
+            await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
+
+            const updatedLi = renderCategoryRow(newName, id);
+            li.replaceWith(updatedLi);
+            alert("✅ Category updated!");
+        } catch (err) {
+            console.error("❌ Error while renaming:", err);
+            alert("Error while renaming.");
+            const fallback = renderCategoryRow(oldName, id);
+            li.replaceWith(fallback);
+        }
     }
-  }
 });
 
 // ➕ Aggiunge nuova categoria
 document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
-  const input = document.getElementById("newCategoryInputModal");
-  const name = input.value.trim();
-  if (!name) return alert("❌ Please enter a valid name for the category.");
+    const input = document.getElementById("newCategoryInputModal");
+    const name = input.value.trim();
+    if (!name) return alert("❌ Please enter a valid name for the category.");
 
-  try {
-    const docRef = await addDoc(collection(db, "categories"), { name });
-    input.value = "";
-    alert("✅ Category added!");
-    await loadFilterCategories();
+    try {
+        const docRef = await addDoc(collection(db, "categories"), { name });
+        input.value = "";
+        alert("✅ Category added!");
+        await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
 
-    const li = renderCategoryRow(name, docRef.id);
-    document.getElementById("categoryListPanel").appendChild(li);
-  } catch (err) {
-    console.error("❌ Errore nell'aggiungere categoria:", err);
-    alert("Errore durante il salvataggio.");
-  }
+        const li = renderCategoryRow(name, docRef.id);
+        document.getElementById("categoryListPanel").appendChild(li);
+    } catch (err) {
+        console.error("❌ Errore nell'aggiungere categoria:", err);
+        alert("Errore durante il salvataggio.");
+    }
 });
 
 // ➕ per problema loading lento
 window.addEventListener("load", () => {
-  document.body.classList.remove("loading");
+    document.body.classList.remove("loading");
 });
 
 Promise.all([
-  loadSidebar(),     // carica sidebar
-  loadNotes(),       // carica note
-  loadCategories()   // eventuali categorie
+    loadSidebar(), // carica sidebar
+    loadNotes(), // carica note
+    loadCategories() // eventuali categorie
 ]).then(() => {
-  document.body.style.visibility = "visible";
+    document.body.style.visibility = "visible";
 });
-

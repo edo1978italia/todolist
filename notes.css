@@ -188,7 +188,7 @@ body:not(.loading) {
 
 #categorySelect,
 #newCategoryInput {
-    width: 100%;
+    width: 90%;
     padding: 8px 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
@@ -512,7 +512,7 @@ body:not(.loading) {
     padding: 4px 6px;
     line-height: 1;
     margin-bottom: 10px;
-}
+} 
 
 .ql-toolbar .ql-emoji {
     font-size: 18px;
