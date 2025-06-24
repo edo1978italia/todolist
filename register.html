@@ -9,8 +9,53 @@
 </head>
 <body>
   <form id="registerForm">
-    <!-- ...form identico a prima, tutto uguale... -->
-  </form>
+  <h4>Create your account</h4>
+
+  <input type="text" id="firstName" placeholder="First Name" required />
+  <input type="text" id="lastName" placeholder="Last Name" required />
+
+  <label for="birthDate">Date of Birth</label>
+  <input type="date" id="birthDate" required min="1900-01-01" max="2010-12-31" />
+
+  <label for="country">Country</label>
+  <select id="country" required>
+    <option value="">Select your country</option>
+    <option>Argentina</option>
+    <option>Australia</option>
+    <option>Brazil</option>
+    <option>Canada</option>
+    <option>China</option>
+    <option>Denmark</option>
+    <option>Egypt</option>
+    <option>France</option>
+    <option>Germany</option>
+    <option>India</option>
+    <option>Italy</option>
+    <option>Japan</option>
+    <option>Mexico</option>
+    <option>Netherlands</option>
+    <option>Norway</option>
+    <option>South Korea</option>
+    <option>Spain</option>
+    <option>Sweden</option>
+    <option>Switzerland</option>
+    <option>United Kingdom</option>
+    <option>United States</option>
+  </select>
+
+  <br />
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+
+  <br />
+  <label style="font-size: 12px">
+    <input type="checkbox" id="acceptTerms" required />
+    I accept the Terms of Service and Privacy Policy
+  </label>
+
+  <br /><button type="submit">Register</button>
+</form>
 
   <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.min.js"></script>
   <script>
@@ -18,6 +63,6 @@
   </script>
 
   <!-- ✅ Importa script JS separato -->
-  <script type="module" src="./register.js"></script>
+  <script type="module" src="register.js"></script>
 </body>
 </html>
