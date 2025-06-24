@@ -106,6 +106,36 @@
         alert("Group created successfully!");
         window.location.href = "index.html";
       });
+
+      document.getElementById("createBtn").addEventListener("click", async () => {
+        console.log("🟢 Bottone CREATE cliccato");
+
+        const name = document.getElementById("groupName").value.trim();
+        const user = auth.currentUser;
+        if (!user) return alert("User not authenticated.");
+
+        const groupId = crypto.randomUUID().slice(0, 8);
+        const inviteCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+
+        try {
+          await setDoc(doc(db, "groups", groupId), {
+            createdBy: user.uid,
+            name: name || `Group ${groupId}`,
+            inviteCode,
+            createdAt: serverTimestamp()
+          });
+
+          await setDoc(doc(db, "inviteCodes", inviteCode), { groupId });
+          await updateDoc(doc(db, "users", user.uid), { groupId });
+
+          console.log("✅ Gruppo creato con successo:", groupId);
+          alert(`Gruppo creato! Codice invito: ${inviteCode}`);
+          window.location.href = "notes-home.html";
+        } catch (error) {
+          console.error("❌ Errore durante la creazione del gruppo:", error);
+          alert("Errore durante la creazione del gruppo. Riprova.");
+        }
+      });
     </script>
   </body>
 </html>
