@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group Setup</title>
+    <link rel="stylesheet" href="register.css" />
+  </head>
+  <body>
+    <main>
+      <h4>Join or Create a Group</h4>
+
+      <form id="groupForm">
+        <!-- 🔑 JOIN EXISTING GROUP -->
+        <fieldset>
+          <legend>Join existing group</legend>
+          <input type="text" id="inviteCode" placeholder="Enter invite code" />
+          <button type="button" id="joinBtn">Join Group</button>
+        </fieldset>
+
+        <!-- ✳️ CREATE NEW GROUP -->
+        <fieldset>
+          <legend>Create new group</legend>
+          <input type="text" id="groupName" placeholder="Group name (optional)" />
+          <button type="button" id="createBtn">Create Group</button>
+        </fieldset>
+      </form>
+    </main>
+
+    <!-- ✅ Import Firebase config -->
+    <script type="module" src="./config.js"></script>
+
+    <!-- ✅ Firebase Logic -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        updateDoc,
+        serverTimestamp
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      // ⚙️ usa firebaseConfig da config.js
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // 🔑 Join existing group
+      document.getElementById("joinBtn").addEventListener("click", async () => {
+        const code = document.getElementById("inviteCode").value.trim();
+        if (!code) return alert("Please enter a code.");
+
+        const querySnap = await getDoc(doc(db, "inviteCodes", code));
+        if (!querySnap.exists()) return alert("Invalid invite code.");
+
+        const groupId = querySnap.data().groupId;
+        const user = auth.currentUser;
+        if (!user) return alert("User not authenticated.");
+
+        await updateDoc(doc(db, "users", user.uid), { groupId });
+        window.location.href = "notes-home.html";
+      });
+
+      // ✳️ Create new group
+      document.getElementById("createBtn").addEventListener("click", async () => {
+        const name = document.getElementById("groupName").value.trim();
+        const user = auth.currentUser;
+        if (!user) return alert("User not authenticated.");
+
+        const groupId = crypto.randomUUID().slice(0, 8);
+        const inviteCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+
+        await setDoc(doc(db, "groups", groupId), {
+          createdBy: user.uid,
+          name: name || `Group ${groupId}`,
+          inviteCode,
+          createdAt: serverTimestamp()
+        });
+
+        await setDoc(doc(db, "inviteCodes", inviteCode), { groupId });
+
+        await updateDoc(doc(db, "users", user.uid), { groupId });
+
+        alert("Group created successfully!");
+        window.location.href = "index.html";
+
+      });
+    </script>
+  </body>
+</html>

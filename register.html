@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account</title>
+
+    <link rel="stylesheet" href="register.css" />
+    <link href="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <form id="registerForm">
+      <h4>Create your account</h4>
+      <input type="text" id="firstName" placeholder="First Name" required />
+      <input type="text" id="lastName" placeholder="Last Name" required />
+
+      <label for="birthDate">Date of Birth</label>
+      <input type="date" id="birthDate" required min="1900-01-01" max="2010-12-31" />
+
+      <label for="country">Country</label>
+      <select id="country" required>
+        <option value="">Select your country</option>
+        <option>Argentina</option>
+        <option>Australia</option>
+        <option>Brazil</option>
+        <option>Canada</option>
+        <option>China</option>
+        <option>Denmark</option>
+        <option>Egypt</option>
+        <option>France</option>
+        <option>Germany</option>
+        <option>India</option>
+        <option>Italy</option>
+        <option>Japan</option>
+        <option>Mexico</option>
+        <option>Netherlands</option>
+        <option>Norway</option>
+        <option>South Korea</option>
+        <option>Spain</option>
+        <option>Sweden</option>
+        <option>Switzerland</option>
+        <option>United Kingdom</option>
+        <option>United States</option>
+      </select>
+
+      <br />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+
+      <br />
+      <label style="font-size: 12px">
+        <input type="checkbox" id="acceptTerms" required />
+        I accept the Terms of Service and Privacy Policy
+      </label>
+
+      <br /><button type="submit">Register</button>
+    </form>
+
+    <!-- Slim Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.min.js"></script>
+    <script>
+      new SlimSelect({ select: "#country" });
+    </script>
+
+    <!-- ✅ Firebase config -->
+    <script type="module" src="./config.js"></script>
+
+    <!-- ✅ Firebase logic -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        updateProfile
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        serverTimestamp
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      function calculateAge(dobStr) {
+        const today = new Date();
+        const birth = new Date(dobStr);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+          age--;
+        }
+        return age;
+      }
+
+      document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+        const firstName = form.firstName.value.trim();
+        const lastName = form.lastName.value.trim();
+        const birthDate = form.birthDate.value;
+        const country = form.country.value;
+        const email = form.email.value.trim();
+        const password = form.password.value;
+        const confirmPassword = form.confirmPassword.value;
+        const accepted = form.acceptTerms.checked;
+
+        if (!accepted) return alert("You must accept the terms.");
+        if (password !== confirmPassword) return alert("Passwords do not match.");
+        if (!birthDate) return alert("Please select your date of birth.");
+
+        const age = calculateAge(birthDate);
+
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          await updateProfile(user, {
+            displayName: `${firstName} ${lastName}`
+          });
+
+          await setDoc(doc(db, "users", user.uid), {
+            uid: user.uid,
+            email,
+            firstName,
+            lastName,
+            country,
+            birthDate,
+            age,
+            createdAt: serverTimestamp()
+          });
+
+          window.location.href = "group-setup.html";
+        } catch (err) {
+          console.error(err);
+          alert("Registration error: " + err.message);
+        }
+      });
+    </script>
+  </body>
+</html>
