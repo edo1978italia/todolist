@@ -177,6 +177,8 @@ body:not(.loading) {
 /* 🎨 MENU A TENDINA CATEGORIE DI NUOVA NOTA */
 .noteEditorCategoryWrap {
     margin-top: 16px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .noteEditorCategoryWrap label {
@@ -188,7 +190,7 @@ body:not(.loading) {
 
 #categorySelect,
 #newCategoryInput {
-    width: 90%;
+    width: 100%;
     padding: 8px 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
@@ -512,7 +514,9 @@ body:not(.loading) {
     padding: 4px 6px;
     line-height: 1;
     margin-bottom: 10px;
-} 
+}
+
+
 
 .ql-toolbar .ql-emoji {
     font-size: 18px;
