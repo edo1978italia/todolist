@@ -145,6 +145,16 @@ function renderFilteredNotes() {
     );
 }
 
+
+// 👉 Emoji picker per input titolo
+const emojiPicker = document.createElement("emoji-picker");
+emojiPicker.style.position = "absolute";
+emojiPicker.style.display = "none";
+emojiPicker.style.zIndex = "9999";
+document.body.appendChild(emojiPicker);
+window.emojiPicker = emojiPicker;
+
+
 document.addEventListener("click", (event) => {
     if (!event.target.closest(".options-menu") && !event.target.closest(".options-button")) {
         document.querySelectorAll(".options-menu").forEach((menu) => {
@@ -155,90 +165,129 @@ document.addEventListener("click", (event) => {
 
 // 🔥 Gestione box modale per creazione e modifica note
 function openEditorModal(noteId = null) {
-  const modal = document.getElementById("noteEditorModal");
-  const titleInput = document.getElementById("noteEditorTitle");
+    const modal = document.getElementById("noteEditorModal");
+    const titleInput = document.getElementById("noteEditorTitle");
 
-  modal.style.display = "block";
+    modal.style.display = "block";
 
-  // 📂 Carica categorie nel menu modale
-  populateCategorySelect("categorySelect", { includeNewOption: true });
+    // 📂 Carica categorie nel menu modale
+    populateCategorySelect("categorySelect", { includeNewOption: true });
 
-  // 🧼 Pulizia + gestione visibilità input nuova categoria
-  setTimeout(() => {
-    const select = document.getElementById("categorySelect");
-    const input = document.getElementById("newCategoryInput");
-
-    if (input) {
-      input.value = "";
-      input.style.display = "none";
-    }
-
-    if (select && input) {
-      // Rimuove eventuale listener precedente per evitare duplicazione
-      select.removeEventListener("change", window._categoryChangeHandler);
-      window._categoryChangeHandler = () => {
-        input.style.display = select.value === "__new__" ? "block" : "none";
-      };
-      select.addEventListener("change", window._categoryChangeHandler);
-    }
-  }, 250);
-
-  // 🆔 Collega ID nota al bottone Salva ed Elimina
-  document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
-  document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
-
-  // ✍️ Inizializza Quill se non già fatto
-  if (!window.quill) {
-    window.quill = new Quill("#noteEditor", {
-      theme: "snow",
-      placeholder: "Write your note here...",
-      modules: {
-        toolbar: [
-          ["emoji"],
-          [{ header: [1, 2, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          [{ indent: "-1" }, { indent: "+1" }],
-          [{ direction: "rtl" }],
-          [{ color: [] }, { background: [] }],
-          [{ align: [] }],
-          ["link", "image"],
-          ["clean"]
-        ],
-        "emoji-toolbar": true,
-        "emoji-textarea": false,
-        "emoji-shortname": true
-      }
-    });
-  }
-
-  if (noteId) {
-    // 🔄 Sincronizza nota esistente
-    onSnapshot(doc(db, "notes", noteId), (docSnap) => {
-      if (docSnap.exists()) {
-        const noteData = docSnap.data();
-
-        titleInput.value = noteData.title || "";
-        window.quill.root.innerHTML = noteData.content || "<p></p>";
-
+    // 🧼 Pulizia + gestione visibilità input nuova categoria
+    setTimeout(() => {
         const select = document.getElementById("categorySelect");
         const input = document.getElementById("newCategoryInput");
 
-        if (select && input) {
-          setTimeout(() => {
-            select.value = noteData.category || "";
-            input.style.display = select.value === "__new__" ? "block" : "none";
-          }, 300); // Attendi popolamento
+        if (input) {
+            input.value = "";
+            input.style.display = "none";
         }
-      }
-    });
-  } else {
-    // ✨ Nuova nota: reset campi
-    titleInput.value = "";
-    window.quill.setContents([]);
-  }
-}
 
+        if (select && input) {
+            // Rimuove eventuale listener precedente per evitare duplicazione
+            select.removeEventListener("change", window._categoryChangeHandler);
+            window._categoryChangeHandler = () => {
+                input.style.display = select.value === "__new__" ? "block" : "none";
+            };
+            select.addEventListener("change", window._categoryChangeHandler);
+        }
+    }, 250);
+
+    // 🆔 Collega ID nota al bottone Salva ed Elimina
+    document.getElementById("saveNoteEditorButton").setAttribute("data-id", noteId || "new");
+    document.getElementById("deleteNoteEditorButton").setAttribute("data-id", noteId || "new");
+
+    // ✍️ Inizializza Quill se non già fatto
+    if (!window.quill) {
+        window.quill = new Quill("#noteEditor", {
+            theme: "snow",
+            placeholder: "Write your note here...",
+            modules: {
+                toolbar: [
+                    ["emoji"],
+                    [{ header: [1, 2, false] }],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    [{ indent: "-1" }, { indent: "+1" }],
+                    [{ direction: "rtl" }],
+                    [{ color: [] }, { background: [] }],
+                    [{ align: [] }],
+                    ["link", "image"],
+                    ["clean"]
+                ],
+                "emoji-toolbar": true,
+                "emoji-textarea": false,
+                "emoji-shortname": true
+            }
+        });
+    }
+
+    if (noteId) {
+        // 🔄 Sincronizza nota esistente
+        onSnapshot(doc(db, "notes", noteId), (docSnap) => {
+            if (docSnap.exists()) {
+                const noteData = docSnap.data();
+
+                titleInput.value = noteData.title || "";
+                window.quill.root.innerHTML = noteData.content || "<p></p>";
+
+                const select = document.getElementById("categorySelect");
+                const input = document.getElementById("newCategoryInput");
+
+                if (select && input) {
+                    setTimeout(() => {
+                        select.value = noteData.category || "";
+                        input.style.display = select.value === "__new__" ? "block" : "none";
+                    }, 300); // Attendi popolamento
+                }
+            }
+        });
+    } else {
+        // ✨ Nuova nota: reset campi
+        titleInput.value = "";
+        window.quill.setContents([]);
+
+        // 👉 Emoji picker per input titolo
+        setTimeout(() => {
+            const emojiBtn = document.getElementById("emojiTitleBtn");
+            const titleInput = document.getElementById("noteEditorTitle");
+
+            if (!emojiBtn || !titleInput) return;
+
+            emojiBtn.removeEventListener("click", window._emojiBtnClickHandler);
+
+            window._emojiBtnClickHandler = () => {
+                const rect = emojiBtn.getBoundingClientRect();
+                emojiPicker.style.left = `${rect.left}px`;
+                emojiPicker.style.top = `${rect.bottom + 8}px`;
+                emojiPicker.style.display = "block";
+
+                const closeOnClickOutside = (e) => {
+                    if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
+                        emojiPicker.style.display = "none";
+                        document.removeEventListener("click", closeOnClickOutside);
+                    }
+                };
+
+                document.addEventListener("click", closeOnClickOutside);
+            };
+
+            emojiBtn.addEventListener("click", window._emojiBtnClickHandler);
+
+            emojiPicker.addEventListener("emoji-click", (event) => {
+                const emoji = event.detail.unicode;
+                const start = titleInput.selectionStart;
+                const end = titleInput.selectionEnd;
+                const value = titleInput.value;
+
+                titleInput.value = value.slice(0, start) + emoji + value.slice(end);
+                titleInput.selectionStart = titleInput.selectionEnd = start + emoji.length;
+                titleInput.focus();
+                emojiPicker.style.display = "none";
+            });
+        }, 300);
+    }
+}
 
 // 🔄 Carica tutte le categorie esistenti da Firebase nella modale
 // 🔁 Carica le note con placeholder + rendering in blocco
@@ -374,6 +423,8 @@ document.getElementById("createNoteButton").addEventListener("click", () => {
     openEditorModal();
 });
 
+
+
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
     const user = auth.currentUser;
@@ -468,40 +519,6 @@ document.getElementById("searchNotes").addEventListener("input", () => {
         const matches = title.includes(searchTerm) || content.includes(searchTerm);
         box.style.display = matches ? "flex" : "none";
     });
-});
-
-// 👉 Emoji picker per input titolo
-const emojiPicker = document.createElement("emoji-picker");
-emojiPicker.style.position = "absolute";
-emojiPicker.style.display = "none";
-emojiPicker.style.zIndex = "9999";
-document.body.appendChild(emojiPicker);
-
-const emojiBtn = document.getElementById("emojiTitleBtn");
-const titleInput = document.getElementById("noteEditorTitle");
-
-emojiBtn.addEventListener("click", (event) => {
-    const rect = emojiBtn.getBoundingClientRect();
-    emojiPicker.style.left = `${rect.left}px`;
-    emojiPicker.style.top = `${rect.bottom + 8}px`;
-    emojiPicker.style.display = "block";
-});
-
-emojiPicker.addEventListener("emoji-click", (event) => {
-    const emoji = event.detail.unicode;
-    const start = titleInput.selectionStart;
-    const end = titleInput.selectionEnd;
-    const value = titleInput.value;
-    titleInput.value = value.slice(0, start) + emoji + value.slice(end);
-    titleInput.selectionStart = titleInput.selectionEnd = start + emoji.length;
-    titleInput.focus();
-    emojiPicker.style.display = "none";
-});
-
-document.addEventListener("click", (e) => {
-    if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
-        emojiPicker.style.display = "none";
-    }
 });
 
 // 👉 Emoji picker per input NOTA
@@ -683,7 +700,11 @@ document.addEventListener("click", async (e) => {
         const id = e.target.getAttribute("data-id");
         const li = e.target.closest("li");
 
-        if (confirm("🗑 Do you really want to delete this category?\nIf there are notes in this category, they will NOT be deleted.")) {
+        if (
+            confirm(
+                "🗑 Do you really want to delete this category?\nIf there are notes in this category, they will NOT be deleted."
+            )
+        ) {
             try {
                 await deleteDoc(doc(db, "categories", id));
                 li.remove();
@@ -761,30 +782,29 @@ document.addEventListener("click", async (e) => {
 
 // ➕ Aggiunge nuova categoria
 document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
-  const input = document.getElementById("newCategoryInputModal");
-  const name = input.value.trim();
+    const input = document.getElementById("newCategoryInputModal");
+    const name = input.value.trim();
 
-  if (!name) return alert("❌ Please enter a valid name for the category.");
+    if (!name) return alert("❌ Please enter a valid name for the category.");
 
-  try {
-    const docRef = await addDoc(collection(db, "categories"), { name });
+    try {
+        const docRef = await addDoc(collection(db, "categories"), { name });
 
-    // ✅ Aggiorna subito UI con nome
-    const li = renderCategoryRow(name, docRef.id);
-    document.getElementById("categoryListPanel").appendChild(li);
+        // ✅ Aggiorna subito UI con nome
+        const li = renderCategoryRow(name, docRef.id);
+        document.getElementById("categoryListPanel").appendChild(li);
 
-    // 🔄 Ricarica anche i menu a tendina
-    await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
-    await populateCategorySelect("categorySelect", { includeNewOption: true });
+        // 🔄 Ricarica anche i menu a tendina
+        await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
+        await populateCategorySelect("categorySelect", { includeNewOption: true });
 
-    input.value = "";
-    alert("✅ Category added!");
-  } catch (err) {
-    console.error("❌ Errore nell'aggiungere categoria:", err);
-    alert("Errore durante il salvataggio.");
-  }
+        input.value = "";
+        alert("✅ Category added!");
+    } catch (err) {
+        console.error("❌ Errore nell'aggiungere categoria:", err);
+        alert("Errore durante il salvataggio.");
+    }
 });
-
 
 // ➕ per problema loading lento
 window.addEventListener("load", () => {
