@@ -146,12 +146,6 @@ function renderFilteredNotes() {
 }
 
 // 👉 Emoji picker per input titolo
-const emojiPicker = document.createElement("emoji-picker");
-emojiPicker.style.position = "absolute";
-emojiPicker.style.display = "none";
-emojiPicker.style.zIndex = "9999";
-document.body.appendChild(emojiPicker);
-window.emojiPicker = emojiPicker;
 
 document.addEventListener("click", (event) => {
     if (!event.target.closest(".options-menu") && !event.target.closest(".options-button")) {
@@ -244,48 +238,6 @@ function openEditorModal(noteId = null) {
         // ✨ Nuova nota: reset campi
         titleInput.value = "";
         window.quill.setContents([]);
-
-        // 👉 Emoji picker per input titolo
-        setTimeout(() => {
-            const emojiBtn = document.getElementById("emojiTitleBtn");
-            const titleInput = document.getElementById("noteEditorTitle");
-            console.log("🤖 emojiBtn:", emojiBtn);
-            console.log("📝 titleInput:", titleInput);
-
-            if (!emojiBtn || !titleInput) return;
-
-            emojiBtn.removeEventListener("click", window._emojiBtnClickHandler);
-
-            window._emojiBtnClickHandler = () => {
-                const rect = emojiBtn.getBoundingClientRect();
-                emojiPicker.style.left = `${rect.left}px`;
-                emojiPicker.style.top = `${rect.bottom + 8}px`;
-                emojiPicker.style.display = "block";
-
-                const closeOnClickOutside = (e) => {
-                    if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
-                        emojiPicker.style.display = "none";
-                        document.removeEventListener("click", closeOnClickOutside);
-                    }
-                };
-
-                document.addEventListener("click", closeOnClickOutside);
-            };
-
-            emojiBtn.addEventListener("click", window._emojiBtnClickHandler);
-
-            emojiPicker.addEventListener("emoji-click", (event) => {
-                const emoji = event.detail.unicode;
-                const start = titleInput.selectionStart;
-                const end = titleInput.selectionEnd;
-                const value = titleInput.value;
-
-                titleInput.value = value.slice(0, start) + emoji + value.slice(end);
-                titleInput.selectionStart = titleInput.selectionEnd = start + emoji.length;
-                titleInput.focus();
-                emojiPicker.style.display = "none";
-            });
-        }, 300);
     }
 }
 
