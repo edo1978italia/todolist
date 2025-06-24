@@ -46,6 +46,7 @@ onAuthStateChanged(auth, async (user) => {
   const authContainer = document.getElementById("authContainer");
   const mainContainer = document.getElementById("mainContainer");
   const welcomeMessage = document.getElementById("welcomeMessage");
+  const userEmailElement = document.getElementById("userEmail");
 
   if (user) {
     console.log("✅ Utente autenticato:", user.email);
@@ -57,29 +58,35 @@ onAuthStateChanged(auth, async (user) => {
       const data = userSnap.data();
       console.log("📄 Documento utente:", data);
 
-      if (!data.groupId) {
-        console.warn("⚠ Nessun groupId trovato, redirect a group-setup.html");
+      if (!data.groupId || data.groupId.trim() === "") {
+        console.warn("🔁 Nessun groupId trovato — redirect a group-setup.html");
         window.location.href = "group-setup.html";
         return;
       }
 
-      console.log("🟢 groupId trovato:", data.groupId);
+      // ✅ Tutto ok → Mostra contenuti
+      if (userEmailElement) {
+        userEmailElement.innerText = user.email;
+        console.log("📩 Email impostata su:", user.email);
+      }
+
       authContainer.style.display = "none";
       mainContainer.style.display = "block";
-      welcomeMessage.style.display = "block";
+      if (welcomeMessage) welcomeMessage.style.display = "block";
+
     } else {
-      console.error("❌ Documento utente mancante, logout di sicurezza");
+      console.error("❌ Documento Firestore mancante — logout forzato");
       await signOut(auth);
       window.location.reload();
     }
-
   } else {
-    console.log("🔐 Nessun utente loggato, mostro il form di accesso");
+    console.log("🔒 Nessun utente loggato — mostra form login");
     authContainer.style.display = "block";
     mainContainer.style.display = "none";
-    welcomeMessage.style.display = "none";
+    if (welcomeMessage) welcomeMessage.style.display = "none";
   }
 });
+
 
 // 🔥 Gestione logout
 async function logoutUser() {
