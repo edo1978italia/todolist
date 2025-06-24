@@ -42,35 +42,43 @@ async function loginUser() {
 window.loginUser = loginUser;
 
 // 🔥 Controllo login e aggiornamento interfaccia
-document.addEventListener("DOMContentLoaded", function () {
-    const authContainer = document.getElementById("authContainer");
-    const mainContainer = document.getElementById("mainContainer");
-    const welcomeMessage = document.getElementById("welcomeMessage");
+onAuthStateChanged(auth, async (user) => {
+  const authContainer = document.getElementById("authContainer");
+  const mainContainer = document.getElementById("mainContainer");
+  const welcomeMessage = document.getElementById("welcomeMessage");
 
-    if (localStorage.getItem("userLoggedIn") === "true") {
-        console.log("✅ Utente già loggato, bypasso il login!");
-        authContainer.style.display = "none";
-        mainContainer.style.display = "block";
-        welcomeMessage.style.display = "block";
+  if (user) {
+    console.log("✅ Utente autenticato:", user.email);
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      console.log("📄 Documento utente:", data);
+
+      if (!data.groupId) {
+        console.warn("⚠ Nessun groupId trovato, redirect a group-setup.html");
+        window.location.href = "group-setup.html";
         return;
+      }
+
+      console.log("🟢 groupId trovato:", data.groupId);
+      authContainer.style.display = "none";
+      mainContainer.style.display = "block";
+      welcomeMessage.style.display = "block";
+    } else {
+      console.error("❌ Documento utente mancante, logout di sicurezza");
+      await signOut(auth);
+      window.location.reload();
     }
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("✅ Utente autenticato:", user.email);
-            localStorage.setItem("userLoggedIn", "true");
-            localStorage.setItem("userEmail", user.email);
-
-            authContainer.style.display = "none";
-            mainContainer.style.display = "block";
-            welcomeMessage.style.display = "block";
-        } else {
-            console.warn("⚠ Utente non autenticato.");
-            authContainer.style.display = "block";
-            mainContainer.style.display = "none";
-            welcomeMessage.style.display = "none";
-        }
-    });
+  } else {
+    console.log("🔐 Nessun utente loggato, mostro il form di accesso");
+    authContainer.style.display = "block";
+    mainContainer.style.display = "none";
+    welcomeMessage.style.display = "none";
+  }
 });
 
 // 🔥 Gestione logout
@@ -190,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let tasksArray = snapshot.docs.map((doc) => doc.data());
 
         if (tasksArray.length === 0) {
-            taskPreview.innerHTML = "<li>❌ Nessun prodotto nella lista!</li>";
+            taskPreview.innerHTML = "<li>❌ No products to show!</li>";
         } else {
             taskPreview.innerHTML = tasksArray
                 .slice(0, 3)
@@ -221,7 +229,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         let recipesArray = querySnapshot.docs.map((doc) => doc.data());
 
         if (recipesArray.length === 0) {
-            latestRecipesList.innerHTML = "<p>❌ Nessuna ricetta disponibile!</p>";
+            latestRecipesList.innerHTML = "<p>❌ No recipes to show!</p>";
         } else {
             latestRecipesList.innerHTML = recipesArray
                 .map(
@@ -256,7 +264,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const notesArray = notesSnapshot.docs.map((doc) => doc.data());
 
         if (notesArray.length === 0) {
-            notesPreviewList.innerHTML = "<p>❌ Nessuna nota disponibile.</p>";
+            notesPreviewList.innerHTML = "<p>❌ No notes to show!</p>";
         } else {
             notesPreviewList.innerHTML = notesArray
                 .map((note) => {
