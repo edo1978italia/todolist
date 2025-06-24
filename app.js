@@ -145,7 +145,6 @@ function renderFilteredNotes() {
     );
 }
 
-
 // 👉 Emoji picker per input titolo
 const emojiPicker = document.createElement("emoji-picker");
 emojiPicker.style.position = "absolute";
@@ -153,7 +152,6 @@ emojiPicker.style.display = "none";
 emojiPicker.style.zIndex = "9999";
 document.body.appendChild(emojiPicker);
 window.emojiPicker = emojiPicker;
-
 
 document.addEventListener("click", (event) => {
     if (!event.target.closest(".options-menu") && !event.target.closest(".options-button")) {
@@ -251,6 +249,8 @@ function openEditorModal(noteId = null) {
         setTimeout(() => {
             const emojiBtn = document.getElementById("emojiTitleBtn");
             const titleInput = document.getElementById("noteEditorTitle");
+            console.log("🤖 emojiBtn:", emojiBtn);
+            console.log("📝 titleInput:", titleInput);
 
             if (!emojiBtn || !titleInput) return;
 
@@ -422,8 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("createNoteButton").addEventListener("click", () => {
     openEditorModal();
 });
-
-
 
 // 🔥 Salvataggio delle modifiche SOLO se la nota non è vuota
 document.getElementById("saveNoteEditorButton").addEventListener("click", async () => {
