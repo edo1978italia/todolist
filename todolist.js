@@ -25,29 +25,56 @@ let unsubscribeTasks = null;
 console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        console.warn("⚠ Utente non autenticato, reindirizzamento in corso...");
-        setTimeout(() => {
-            window.location.replace("index.html");
-        }, 1000);
-        if (unsubscribeTasks) unsubscribeTasks();
-    } else {
-        document.getElementById("userEmail").innerText = user.email;
-        document.getElementById("mainContainer").style.display = "block";
+onAuthStateChanged(auth, async (user) => {
+  const mainContainer = document.getElementById("mainContainer");
+  const userEmailElement = document.getElementById("userEmail");
 
-        console.log("✅ Utente autenticato:", user.email);
+  if (!user) {
+    console.warn("⚠ Utente non autenticato, redirect in corso...");
+    if (unsubscribeTasks) unsubscribeTasks();
+    window.location.replace("index.html");
+    return;
+  }
 
-        // 🔥 Attiva listener Firebase per i task
-        unsubscribeTasks = onSnapshot(collection(db, "tasks"), (snapshot) => {
-            console.log(
-                "📌 Dati ricevuti da Firebase:",
-                snapshot.docs.map((doc) => doc.data())
-            );
-            loadTasks(snapshot);
-        });
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      console.error("❌ Documento utente mancante");
+      await signOut(auth);
+      window.location.href = "index.html";
+      return;
     }
+
+    const data = userSnap.data();
+    if (!data.groupId || data.groupId.trim() === "") {
+      console.warn("🚧 Nessun groupId → redirect a group-setup.html");
+      window.location.href = "group-setup.html";
+      return;
+    }
+
+    console.log("✅ Accesso autorizzato con groupId:", data.groupId);
+    if (userEmailElement) userEmailElement.innerText = user.email;
+    if (mainContainer) mainContainer.style.display = "block";
+
+    // 🔥 Attiva listener per i task del gruppo specifico
+    const q = collection(db, "tasks");
+    unsubscribeTasks = onSnapshot(q, (snapshot) => {
+      console.log(
+        "📌 Dati ricevuti da Firebase:",
+        snapshot.docs.map((doc) => doc.data())
+      );
+      loadTasks(snapshot);
+    });
+
+  } catch (error) {
+    console.error("❌ Errore durante la verifica del gruppo:", error);
+    await signOut(auth);
+    window.location.href = "index.html";
+  }
 });
+
 
 // 🔥 Gestione logout (versione più sicura)
 async function logoutUser() {

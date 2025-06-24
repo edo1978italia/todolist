@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -25,15 +25,14 @@
           <button type="button" id="createBtn">Create Group</button>
         </fieldset>
       </form>
+
+      <!-- 🔓 Logout fuori dal form -->
+      <button type="button" id="logoutButton" class="danger">Logout</button>
     </main>
 
-    <!-- ✅ Import Firebase config -->
-    <script type="module" src="./config.js"></script>
-
-    <!-- ✅ Firebase Logic -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-      import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
       import {
         getFirestore,
         doc,
@@ -42,11 +41,31 @@
         updateDoc,
         serverTimestamp
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import { firebaseConfig } from "./config.js";
 
-      // ⚙️ usa firebaseConfig da config.js
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
+
+      // 🔓 Logout con feedback console
+      const logoutButton = document.getElementById("logoutButton");
+      if (logoutButton) {
+        console.log("🔘 Pulsante logout trovato nel DOM");
+        logoutButton.addEventListener("click", () => {
+          console.log("📤 Logout richiesto dall’utente");
+          signOut(auth)
+            .then(() => {
+              console.log("✅ Logout riuscito — redirect in corso");
+              window.location.href = "index.html";
+            })
+            .catch((error) => {
+              console.error("❌ Errore durante il logout:", error);
+              alert("Errore durante il logout. Riprova.");
+            });
+        });
+      } else {
+        console.warn("⚠️ Logout button non trovato nel DOM");
+      }
 
       // 🔑 Join existing group
       document.getElementById("joinBtn").addEventListener("click", async () => {
@@ -86,7 +105,6 @@
 
         alert("Group created successfully!");
         window.location.href = "index.html";
-
       });
     </script>
   </body>

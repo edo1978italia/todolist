@@ -26,6 +26,41 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// 🔥 Verifica sessione utente e aggiorna l'interfaccia
+onAuthStateChanged(auth, async (user) => {
+  const mainContainer = document.getElementById("mainContainer");
+  const userEmailElement = document.getElementById("userEmail");
+
+  if (!user) {
+    console.warn("🚪 Non autenticato — redirect");
+    window.location.href = "index.html";
+    return;
+  }
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    console.error("❌ Documento utente mancante");
+    await signOut(auth);
+    window.location.href = "index.html";
+    return;
+  }
+
+  const data = userSnap.data();
+  if (!data.groupId || data.groupId.trim() === "") {
+    console.warn("🚫 Nessun groupId — redirect");
+    window.location.href = "group-setup.html";
+    return;
+  }
+
+  console.log("✅ Accesso consentito con groupId:", data.groupId);
+  if (userEmailElement) userEmailElement.innerText = user.email;
+  if (mainContainer) mainContainer.style.display = "block";
+
+  loadNotes(data.groupId); // ⬅️ Ora filtrata per groupId
+});
+
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
@@ -524,21 +559,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
 });
 
-function updateUserInfo() {
-    const userEmailElement = document.getElementById("userEmail");
-    if (!userEmailElement) {
-        console.warn("⚠ Elemento userEmail non trovato!");
-        return;
-    }
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            userEmailElement.innerText = user.email;
-        } else {
-            userEmailElement.innerText = "Non autenticato";
-        }
-    });
-}
 
 // 🔥 Gestione sidebar
 window.toggleSidebar = function () {
