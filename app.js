@@ -563,7 +563,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const sidebarContainer = document.getElementById("sidebar-container");
             if (sidebarContainer) {
                 sidebarContainer.innerHTML = data;
-                updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
+                if (typeof aggiornaEmail === "function") aggiornaEmail(); // 🔥 Aggiorna email utente se la funzione esiste
                 window._sidebarLoaded = true;
                 // Rimuovi loading solo dopo che sidebar e utente sono pronti
                 if (window._groupId) window.removeLoading();
