@@ -49,15 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nameEl = document.getElementById("displayName");
   const uploadBtn = document.getElementById("upload_widget");
   const saveBtn = document.getElementById("saveProfile");
-  const backBtn = document.getElementById("goBackButton");
-
-  backBtn.addEventListener("click", () => {
-    if (document.referrer && !document.referrer.includes("profile.html")) {
-      history.back();
-    } else {
-      window.location.href = "index.html";
-    }
-  });
 
   auth.onAuthStateChanged(async (user) => {
     if (!user) return;
@@ -71,6 +62,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data?.displayName) nameEl.value = data.displayName;
       if (data?.photoURL) avatarEl.src = data.photoURL;
+      if (data?.firstName) document.getElementById("firstName").textContent = data.firstName;
+      if (data?.lastName) document.getElementById("lastName").textContent = data.lastName;
+      // Country sotto Last Name
+      if (data?.country) {
+        document.getElementById("country").textContent = data.country;
+      } else {
+        document.getElementById("country").textContent = "—";
+      }
+      // Group sotto Email
+      if (data?.groupId) {
+        try {
+          const groupSnap = await db.collection("groups").doc(data.groupId).get();
+          if (groupSnap.exists) {
+            document.getElementById("userGroup").textContent = groupSnap.data().name || data.groupId;
+          } else {
+            document.getElementById("userGroup").textContent = data.groupId;
+          }
+        } catch (e) {
+          document.getElementById("userGroup").textContent = data.groupId;
+        }
+      } else {
+        document.getElementById("userGroup").textContent = "—";
+      }
+      if (data?.birthDate) {
+        // Prova a formattare la data se è in formato ISO o timestamp
+        let birthdateStr = data.birthDate;
+        console.log('[DEBUG] birthDate raw:', birthdateStr);
+        if (/^\d{4}-\d{2}-\d{2}/.test(birthdateStr)) {
+          // Formato YYYY-MM-DD
+          const [y, m, d] = birthdateStr.split("-");
+          birthdateStr = `${d}/${m}/${y}`;
+        } else if (typeof birthdateStr === "object" && birthdateStr.toDate) {
+          // Firestore Timestamp
+          const dateObj = birthdateStr.toDate();
+          birthdateStr = dateObj.toLocaleDateString("it-IT");
+        }
+        document.getElementById("birthdate").textContent = birthdateStr;
+      } else {
+        document.getElementById("birthdate").textContent = "—";
+        console.warn('[DEBUG] Nessun campo birthDate trovato per questo utente');
+      }
     } catch (e) {
       console.error("Errore lettura dati utente:", e);
     }
@@ -114,13 +146,15 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("⚠️ Inserisci un nome valido.");
         return;
       }
-
       try {
-        await userRef.set({ displayName: newName, email: user.email }, { merge: true });
+        await userRef.set({
+          displayName: newName,
+          email: user.email
+        }, { merge: true });
         await user.updateProfile({ displayName: newName });
-        alert("✅ Nome aggiornato!");
+        alert("✅ Profilo aggiornato!");
       } catch (e) {
-        console.error("Errore salvataggio nome:", e);
+        console.error("Errore salvataggio profilo:", e);
       }
     });
   });

@@ -34,21 +34,43 @@
 <body>
   <h3>Your Profile</h3>
   <div id="profile-container">
-
-    <p><strong>Email:</strong> <span id="userEmail"></span></p>
-
-    <label for="displayName">Set your name:</label><br />
-    <input type="text" id="displayName" placeholder="Enter your name" />
+    <label for="displayName">Set your Nickname:</label><br />
+    <input type="text" id="displayName" placeholder="Enter your display name" />
     <button id="saveProfile">Save</button>
-
     <div class="button-separator"></div>
-
+    
+    <div class="profile-info-row">
+      <span class="profile-info-label">Name:</span>
+      <span class="profile-info-value" id="firstName"></span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Last Name:</span>
+      <span class="profile-info-value" id="lastName"></span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Country:</span>
+      <span class="profile-info-value" id="country"></span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Birthdate:</span>
+      <span class="profile-info-value" id="birthdate"></span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Email:</span>
+      <span class="profile-info-value" id="userEmail"></span>
+    </div>
+    <br />
+    <div class="profile-group-label">GROUP</div>
+    <div class="profile-group-value" id="userGroup"></div>
+    <div class="profile-group-description">
+      <!-- Qui puoi inserire una spiegazione su come usare/condividere il gruppo -->
+      <p>Testo di spiegazione sul gruppo. Personalizza questo testo per fornire istruzioni agli utenti su come utilizzare o condividere il codice del gruppo.</p>
+    </div>
+    <div class="button-separator"></div>
     <img id="avatarPreview" alt="Avatar" class="avatar" /><br />
     <button id="upload_widget">Change picture</button>
-
     <div class="button-separator"></div>
-
-    <br /><button id="goBackButton">Back</button>
+    <!-- Back button rimosso -->
   </div>
 </body>
 
