@@ -54,19 +54,27 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    console.log("✅ Accesso autorizzato con groupId:", data.groupId);
+    const groupId = data.groupId;
+    console.log("✅ Accesso autorizzato con groupId:", groupId);
+
     if (userEmailElement) userEmailElement.innerText = user.email;
     if (mainContainer) mainContainer.style.display = "block";
 
-    // 🔥 Attiva listener per i task del gruppo specifico
-    const q = collection(db, "tasks");
+    // 🔥 Attiva listener filtrato per i task del gruppo
+    const q = query(collection(db, "tasks"), where("groupId", "==", groupId));
     unsubscribeTasks = onSnapshot(q, (snapshot) => {
-      console.log(
-        "📌 Dati ricevuti da Firebase:",
-        snapshot.docs.map((doc) => doc.data())
-      );
+      if (snapshot.empty) {
+        console.log("🟡 Nessun task trovato per questo gruppo.");
+        document.getElementById("tasksList").innerHTML = "<p class='empty'>Nessun task ancora. Aggiungine uno!</p>";
+        return;
+      }
+
+      console.log("📌 Tasks ricevuti:", snapshot.docs.map((doc) => doc.data()));
       loadTasks(snapshot);
     });
+
+    // 🔁 Salva il groupId per l’aggiunta dei task
+    window.currentGroupId = groupId;
 
   } catch (error) {
     console.error("❌ Errore durante la verifica del gruppo:", error);
@@ -74,6 +82,7 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "index.html";
   }
 });
+
 
 
 // 🔥 Gestione logout (versione più sicura)
