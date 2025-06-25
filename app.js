@@ -296,7 +296,11 @@ async function populateCategorySelect(targetId, { includeNewOption = false, incl
         select.appendChild(opt);
     }
     try {
-        const snap = await getDocs(collection(db, "categories"));
+        // Filtra le categorie per groupId
+        const groupId = window._groupId;
+        if (!groupId) throw new Error("groupId non disponibile");
+        const q = query(collection(db, "categories"), where("groupId", "==", groupId));
+        const snap = await getDocs(q);
         let found = false;
         snap.forEach((doc) => {
             const name = doc.data().name;
@@ -405,7 +409,9 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             category = customValue;
             try {
                 console.log("📌 Nuova categoria da salvare:", category);
-                await addDoc(collection(db, "categories"), { name: category });
+                const groupId = window._groupId;
+                if (!groupId) throw new Error("groupId non disponibile");
+                await addDoc(collection(db, "categories"), { name: category, groupId });
             } catch (err) {
                 console.error("❌ Errore nel salvataggio della nuova categoria:", err);
             }
@@ -608,7 +614,10 @@ document.getElementById("manageCategoriesBtn")?.addEventListener("click", async 
     list.innerHTML = "";
     input.value = "";
     try {
-        const snap = await getDocs(collection(db, "categories"));
+        const groupId = window._groupId;
+        if (!groupId) throw new Error("groupId non disponibile");
+        const q = query(collection(db, "categories"), where("groupId", "==", groupId));
+        const snap = await getDocs(q);
         snap.forEach((docSnap) => {
             const name = docSnap.data().name;
             const id = docSnap.id;
@@ -643,23 +652,55 @@ document.addEventListener("click", (event) => {
 // 🗑️ Elimina categoria
 document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-category-btn")) {
-        const id = e.target.getAttribute("data-id");
-        const li = e.target.closest("li");
-
+        e.stopPropagation();
+        alert("DEBUG: click su elimina categoria!");
+        const btn = e.target;
+        const id = btn.getAttribute("data-id");
+        const li = btn.closest("li");
+        if (btn.disabled) return;
+        console.log("[DEBUG] Click su elimina categoria, id:", id);
+        try {
+            const catRef = doc(db, "categories", id);
+            const catSnap = await getDoc(catRef);
+            if (!catSnap.exists()) {
+                alert("❌ Categoria non trovata in Firestore. Impossibile eliminare.");
+                return;
+            }
+        } catch (err) {
+            alert("❌ Errore di connessione a Firestore. Riprova.");
+            return;
+        }
         if (
             confirm(
-                "🗑 Do you really want to delete this category?\nIf there are notes in this category, they will NOT be deleted."
+                "🗑 Vuoi davvero eliminare questa categoria?\nSe ci sono note in questa categoria, NON verranno eliminate."
             )
         ) {
             try {
+                btn.disabled = true;
                 await deleteDoc(doc(db, "categories", id));
-                li.remove();
+                // Forza refresh lista categorie dopo eliminazione
                 await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
-
-                alert("✅ Category deleted!");
+                await populateCategorySelect("categorySelect", { includeNewOption: true });
+                // Ricarica il modale categorie
+                const list = document.getElementById("categoryListPanel");
+                if (list) {
+                    list.innerHTML = "";
+                    const groupId = window._groupId;
+                    const q = query(collection(db, "categories"), where("groupId", "==", groupId));
+                    const snap = await getDocs(q);
+                    snap.forEach((docSnap) => {
+                        const name = docSnap.data().name;
+                        const id = docSnap.id;
+                        const li = renderCategoryRow(name, id);
+                        list.appendChild(li);
+                    });
+                }
+                alert("✅ Categoria eliminata!");
             } catch (err) {
                 console.error("❌ Errore eliminando categoria:", err);
-                alert("Error while deleting.");
+                alert("Errore durante l'eliminazione.");
+            } finally {
+                btn.disabled = false;
             }
         }
     }
@@ -694,26 +735,23 @@ document.addEventListener("click", async (e) => {
         const oldName = input.getAttribute("data-old-name");
         const newName = input.value.trim();
         const id = target.getAttribute("data-id");
-
         if (!newName || newName === oldName) {
             const restored = renderCategoryRow(oldName, id);
             li.replaceWith(restored);
             return;
         }
-
         try {
             await updateDoc(doc(db, "categories", id), { name: newName });
-
-            const notesSnap = await getDocs(query(collection(db, "notes"), where("category", "==", oldName)));
-
+            // Aggiorna tutte le note di questo gruppo che hanno la vecchia categoria
+            const groupId = window._groupId;
+            const notesSnap = await getDocs(query(collection(db, "notes"), where("category", "==", oldName), where("groupId", "==", groupId)));
             const batch = writeBatch(db);
             notesSnap.forEach((docSnap) => {
                 batch.update(doc(db, "notes", docSnap.id), { category: newName });
             });
             await batch.commit();
-
             await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
-
+            await populateCategorySelect("categorySelect", { includeNewOption: true });
             const updatedLi = renderCategoryRow(newName, id);
             li.replaceWith(updatedLi);
             alert("✅ Category updated!");
@@ -730,20 +768,17 @@ document.addEventListener("click", async (e) => {
 document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
     const input = document.getElementById("newCategoryInputModal");
     const name = input.value.trim();
-
     if (!name) return alert("❌ Please enter a valid name for the category.");
-
     try {
-        const docRef = await addDoc(collection(db, "categories"), { name });
-
+        const groupId = window._groupId;
+        if (!groupId) throw new Error("groupId non disponibile");
+        const docRef = await addDoc(collection(db, "categories"), { name, groupId });
         // ✅ Aggiorna subito UI con nome
         const li = renderCategoryRow(name, docRef.id);
         document.getElementById("categoryListPanel").appendChild(li);
-
         // 🔄 Ricarica anche i menu a tendina
         await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
         await populateCategorySelect("categorySelect", { includeNewOption: true });
-
         input.value = "";
         alert("✅ Category added!");
     } catch (err) {
@@ -769,33 +804,3 @@ function checkCategoryDomElements() {
     if (!input) console.warn("[DEBUG] Input newCategoryInputModal non trovato!");
     return btn && modal && list && input;
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    if (!checkCategoryDomElements()) {
-        console.warn("[DEBUG] Uno o più elementi DOM per la gestione categorie mancano. Controlla notes-home.html!");
-    }
-    // Listener modale categorie
-    const btn = document.getElementById("manageCategoriesBtn");
-    const modal = document.getElementById("categoryManagerModal");
-    const list = document.getElementById("categoryListPanel");
-    const input = document.getElementById("newCategoryInputModal");
-    if (btn && modal && list && input) {
-        btn.addEventListener("click", async () => {
-            list.innerHTML = "";
-            input.value = "";
-            try {
-                const snap = await getDocs(collection(db, "categories"));
-                snap.forEach((docSnap) => {
-                    const name = docSnap.data().name;
-                    const id = docSnap.id;
-                    const li = renderCategoryRow(name, id);
-                    list.appendChild(li);
-                });
-                modal.style.display = "flex";
-            } catch (err) {
-                console.error("❌ Errore caricamento categorie:", err);
-                alert("Error loading categories.");
-            }
-        });
-    }
-});
