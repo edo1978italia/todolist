@@ -144,6 +144,8 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", () => {
     function aggiornaEmail() {
         const userEmailElement = document.getElementById("userEmail");
+        const sidebarContainer = document.getElementById("sidebar-container");
+        const openSidebarButton = document.getElementById("openSidebar");
 
         if (!userEmailElement) {
             console.warn("⚠ Elemento userEmail non trovato nel DOM. Attendo il caricamento...");
@@ -152,14 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 🔥 Aspetta Firebase Authentication e aggiorna email
         onAuthStateChanged(auth, (user) => {
-            const sidebarContainer = document.getElementById("sidebarContainer");
-            const openSidebarButton = document.getElementById("openSidebar");
-
             if (user) {
                 console.log("✅ Utente autenticato:", user.email);
-
-                sidebarContainer.style.display = "block"; // 🔥 Mostra la sidebar
-                openSidebarButton.style.display = "block"; // 🔥 Mostra il pulsante di apertura
+                if (sidebarContainer) sidebarContainer.style.display = "block"; // 🔥 Mostra la sidebar
+                if (openSidebarButton) openSidebarButton.style.display = "block"; // 🔥 Mostra il pulsante di apertura
             } else {
                 console.warn("⚠ Utente non autenticato, rimuoviamo sidebar e pulsante!");
 
@@ -182,21 +180,21 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("sidebar.html")
         .then((response) => response.text())
         .then((data) => {
-            document.getElementById("sidebarContainer").innerHTML = data;
-
-            // 🔥 Aspetta che gli elementi della sidebar siano presenti
-            setTimeout(() => {
-                const userEmailElement = document.getElementById("userEmail");
-                if (userEmailElement) {
-                    aggiornaEmail(); // ✅ Ora aggiorna l'email
-                } else {
-                    console.error("❌ Elemento 'userEmail' ancora non trovato!");
-                }
-            }, 500);
-
-            console.log("✅ Sidebar caricata e email aggiornata!");
+            const sidebarContainer = document.getElementById("sidebar-container");
+            if (sidebarContainer) {
+                sidebarContainer.innerHTML = data;
+                // 🔥 Aspetta che gli elementi della sidebar siano presenti
+                setTimeout(() => {
+                    const userEmailElement = document.getElementById("userEmail");
+                    if (userEmailElement) {
+                        aggiornaEmail();
+                    }
+                }, 100);
+            } else {
+                console.warn("⚠ sidebar-container non trovato!");
+            }
         })
-        .catch((error) => console.error("❌ Errore nel caricamento della sidebar:", error));
+        .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
 });
 
 // 🔥 Gestione sidebar

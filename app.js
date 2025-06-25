@@ -194,7 +194,7 @@ function renderFilteredNotes(groupId) {
       noteList.appendChild(li);
     });
     if (noteCount === 0) {
-      noteList.innerHTML = '<div style="text-align:center;color:#888;padding:2em;">Nessuna nota trovata per questo gruppo/categoria.</div>';
+      noteList.innerHTML = '<div style="text-align:center;color:#888;padding:2em;">No notes found for this group/category.</div>';
     }
   }, (error) => {
     noteList.innerHTML = `<div style="color:red;">Errore nel caricamento delle note: ${error.message}</div>`;
@@ -560,11 +560,16 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("sidebar.html")
         .then((response) => response.text())
         .then((data) => {
-            document.getElementById("sidebarContainer").innerHTML = data;
-            updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
-            window._sidebarLoaded = true;
-            // Rimuovi loading solo dopo che sidebar e utente sono pronti
-            if (window._groupId) window.removeLoading();
+            const sidebarContainer = document.getElementById("sidebar-container");
+            if (sidebarContainer) {
+                sidebarContainer.innerHTML = data;
+                updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
+                window._sidebarLoaded = true;
+                // Rimuovi loading solo dopo che sidebar e utente sono pronti
+                if (window._groupId) window.removeLoading();
+            } else {
+                console.warn("⚠ sidebar-container non trovato!");
+            }
         })
         .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
 });
