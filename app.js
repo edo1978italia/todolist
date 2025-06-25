@@ -55,134 +55,134 @@ onAuthStateChanged(auth, async (user) => {
 
   console.log("✅ Accesso consentito con groupId:", data.groupId);
   if (userEmailElement) userEmailElement.innerText = user.email;
+  window._groupId = data.groupId;
+  await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
+  renderFilteredNotes(window._groupId);
+});
 
-  try {
-    await loadNotes(data.groupId); // Caricamento note filtrate
-  } catch (err) {
-    console.error("❌ Errore durante il caricamento note:", err);
+// 🔥 Sincronizzazione live delle note utente
+document.addEventListener("DOMContentLoaded", () => {
+  const categoryFilter = document.getElementById("noteCategoryFilter");
+
+  if (categoryFilter) {
+    categoryFilter.addEventListener("change", () => {
+      if (window._groupId) {
+        renderFilteredNotes(window._groupId);
+      }
+    });
   }
 });
 
 
+function renderFilteredNotes(groupId) {
+  const noteList = document.getElementById("noteList");
+  const selected = document.getElementById("noteCategoryFilter")?.value || "";
 
-// 🔥 Sincronizzazione live delle note utente
-document.addEventListener("DOMContentLoaded", () => {
-    const noteList = document.getElementById("noteList");
-    const categoryFilter = document.getElementById("noteCategoryFilter");
+  // 🧼 Cancella listener precedente se esiste
+  if (window._noteUnsubscribe) window._noteUnsubscribe();
 
-    // 🔄 Carica le categorie nel menu filtro
-    if (categoryFilter) {
-        populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
+  const notesQuery = query(
+    collection(db, "notes"),
+    where("groupId", "==", groupId),
+    orderBy("pinned", "desc"),
+    orderBy("timestamp", "desc")
+  );
 
-        categoryFilter.addEventListener("change", () => {
-            renderFilteredNotes();
-        });
-    }
+  window._noteUnsubscribe = onSnapshot(notesQuery, (snapshot) => {
+    noteList.innerHTML = "";
+    let noteCount = 0;
+    snapshot.docs.forEach((docSnap, index) => {
+      const data = docSnap.data();
 
-    renderFilteredNotes();
-});
+      if (selected && data.category !== selected) return;
 
-function renderFilteredNotes() {
-    const noteList = document.getElementById("noteList");
-    const selected = document.getElementById("noteCategoryFilter")?.value || "";
+      noteCount++;
 
-    // 🧼 Cancella listener precedente se esiste
-    if (window._noteUnsubscribe) window._noteUnsubscribe();
+      const noteTitle = data.title || "Senza titolo";
+      const noteContent = data.content ? data.content.replace(/<[^>]+>/g, "") : "No content";
+      const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
+      const previewContent = noteContent.length > 180 ? noteContent.slice(0, 180) + "..." : noteContent;
 
-    window._noteUnsubscribe = onSnapshot(
-        query(collection(db, "notes"), orderBy("pinned", "desc"), orderBy("timestamp", "desc")),
-        (snapshot) => {
-            noteList.innerHTML = "";
+      const li = document.createElement("div");
+      li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
+      if (data.pinned) li.classList.add("pinned");
 
-            snapshot.docs.forEach((docSnap, index) => {
-                const data = docSnap.data();
+      li.setAttribute("data-content", data.content);
+      li.setAttribute("data-id", docSnap.id);
+      li.addEventListener("click", (event) => {
+        if (event.target.closest(".options-button") || event.target.closest(".options-menu")) return;
+        openEditorModal(docSnap.id);
+      });
 
-                // 🎯 Se c'è un filtro attivo, salta le note non corrispondenti
-                if (selected && data.category !== selected) return;
+      const createdBy = data.createdBy || {};
+      const avatarHTML = createdBy.photoURL
+        ? `<img class="note-avatar" src="${createdBy.photoURL}" alt="${createdBy.displayName || ""}" title="${createdBy.displayName || ""}" />`
+        : `<div class="note-avatar-placeholder">👤</div>`;
 
-                const noteTitle = data.title || "Senza titolo";
-                const noteContent = data.content ? data.content.replace(/<[^>]+>/g, "") : "No content";
-                const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
-                const previewContent = noteContent.length > 180 ? noteContent.slice(0, 180) + "..." : noteContent;
-
-                const li = document.createElement("div");
-                li.classList.add("note-box", index % 2 === 0 ? "even" : "odd");
-                if (data.pinned) li.classList.add("pinned");
-
-                li.setAttribute("data-content", data.content);
-                li.setAttribute("data-id", docSnap.id);
-                li.addEventListener("click", (event) => {
-                    if (event.target.closest(".options-button") || event.target.closest(".options-menu")) return;
-                    openEditorModal(docSnap.id);
-                });
-
-                const createdBy = data.createdBy || {};
-                const avatarHTML = createdBy.photoURL
-                    ? `<img class="note-avatar" src="${createdBy.photoURL}" alt="${createdBy.displayName || ""}" title="${createdBy.displayName || ""}" />`
-                    : `<div class="note-avatar-placeholder">👤</div>`;
-
-                li.innerHTML = `
-  <div class="note-box-inner">
-    <div class="note-author">${avatarHTML}</div>
-    <div class="note-content">
-      <h3 class="note-preview-title">${shortTitle}</h3>
-      <p class="note-preview-content">${previewContent}</p>
-      <span class="note-category-label">.${data.category || "—"}</span>
-      <div class="note-meta">
-        🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
-        ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
-      </div>
-    </div>
-    <div class="note-options">
-      <button class="options-button" data-id="${docSnap.id}">⋮</button>
-      <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
-        <button class="menu-pin">${data.pinned ? "Unpin" : "Pin"}</button>
-        <button class="menu-delete">🗑 Delete</button>
-      </div>
+      li.innerHTML = `
+<div class="note-box-inner">
+  <div class="note-author">${avatarHTML}</div>
+  <div class="note-content">
+    <h3 class="note-preview-title">${shortTitle}</h3>
+    <p class="note-preview-content">${previewContent}</p>
+    <span class="note-category-label">.${data.category || "—"}</span>
+    <div class="note-meta">
+      🕒 ${data.timestamp?.toDate?.().toLocaleString("it-IT") || "—"}
+      ${data.pinned ? ' <span class="pin-indicator" title="Nota fissata">📌</span>' : ""}
     </div>
   </div>
+  <div class="note-options">
+    <button class="options-button" data-id="${docSnap.id}">⋮</button>
+    <div class="options-menu" data-id="${docSnap.id}" style="display: none;">
+      <button class="menu-pin">${data.pinned ? "Unpin" : "Pin"}</button>
+      <button class="menu-delete">🗑 Delete</button>
+    </div>
+  </div>
+</div>
 `;
 
-                // ❌ Delete
-                li.querySelector(".menu-delete").addEventListener("click", async (e) => {
-                    e.stopPropagation();
-                    if (confirm("🗑 Vuoi davvero eliminare questa nota?")) {
-                        try {
-                            await deleteDoc(doc(db, "notes", docSnap.id));
-                            alert("✅ Nota eliminata!");
-                        } catch (error) {
-                            console.error("❌ Errore durante l'eliminazione:", error);
-                            alert("Errore durante l'eliminazione.");
-                        }
-                    }
-                });
-
-                // 📌 Pin/Unpin
-                li.querySelector(".menu-pin").addEventListener("click", async (e) => {
-                    e.stopPropagation();
-                    try {
-                        await updateDoc(doc(db, "notes", docSnap.id), { pinned: !data.pinned });
-                    } catch (error) {
-                        console.error("❌ Errore nel fissare/sfissare:", error);
-                    }
-                });
-
-                // ⋮ Menu opzioni
-                const optionsBtn = li.querySelector(".options-button");
-                const optionsMenu = li.querySelector(".options-menu");
-                optionsBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll(".options-menu").forEach((menu) => {
-                        if (menu !== optionsMenu) menu.style.display = "none";
-                    });
-                    optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
-                });
-
-                noteList.appendChild(li);
-            });
+      li.querySelector(".menu-delete").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (confirm("🗑 Vuoi davvero eliminare questa nota?")) {
+          try {
+            await deleteDoc(doc(db, "notes", docSnap.id));
+            alert("✅ Nota eliminata!");
+          } catch (error) {
+            console.error("❌ Errore durante l'eliminazione:", error);
+            alert("Errore durante l'eliminazione.");
+          }
         }
-    );
+      });
+
+      li.querySelector(".menu-pin").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        try {
+          await updateDoc(doc(db, "notes", docSnap.id), { pinned: !data.pinned });
+        } catch (error) {
+          console.error("❌ Errore nel fissare/sfissare:", error);
+        }
+      });
+
+      const optionsBtn = li.querySelector(".options-button");
+      const optionsMenu = li.querySelector(".options-menu");
+      optionsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.querySelectorAll(".options-menu").forEach((menu) => {
+          if (menu !== optionsMenu) menu.style.display = "none";
+        });
+        optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
+      });
+
+      noteList.appendChild(li);
+    });
+    if (noteCount === 0) {
+      noteList.innerHTML = '<div style="text-align:center;color:#888;padding:2em;">Nessuna nota trovata per questo gruppo/categoria.</div>';
+    }
+  }, (error) => {
+    noteList.innerHTML = `<div style="color:red;">Errore nel caricamento delle note: ${error.message}</div>`;
+  });
 }
+
 
 // 👉 Emoji picker per input titolo
 
@@ -280,53 +280,14 @@ function openEditorModal(noteId = null) {
     }
 }
 
-// 🔄 Carica tutte le categorie esistenti da Firebase nella modale
-// 🔁 Carica le note con placeholder + rendering in blocco
-async function loadNotes() {
-    const notesContainer = document.getElementById("noteList");
-    const placeholders = document.getElementById("notesPlaceholders");
-
-    // Mostra i placeholder
-    placeholders.style.display = "block";
-    notesContainer.innerHTML = "";
-
-    try {
-        const snapshot = await getDocs(query(collection(db, "notes"), orderBy("createdAt", "desc")));
-        const fragment = document.createDocumentFragment();
-
-        snapshot.forEach((docSnap) => {
-            const noteData = docSnap.data();
-            const noteEl = createNoteElement(noteData, docSnap.id); // ⬅️ tua funzione
-            fragment.appendChild(noteEl);
-        });
-
-        // Rimuove i placeholder e mostra le note
-        placeholders.remove();
-        notesContainer.appendChild(fragment);
-    } catch (err) {
-        console.error("❌ Errore durante il caricamento note:", err);
-        placeholders.remove();
-        notesContainer.innerHTML = "<p style='color:red;'>Errore nel caricamento delle note.</p>";
-    }
-}
-
-document.addEventListener("DOMContentLoaded", loadNotes);
-
 // 🔄 Popola il filtro categorie nella home
 async function populateCategorySelect(targetId, { includeNewOption = false, includeAllOption = false } = {}) {
     const select = document.getElementById(targetId);
-    if (!select) return;
-
+    if (!select) {
+        console.warn(`[populateCategorySelect] select non trovato per id: ${targetId}`);
+        return;
+    }
     select.innerHTML = "";
-
-    // 🏷️ Placeholder iniziale "Select a category"
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "– Select a category –";
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    select.appendChild(placeholder);
-
     // ➕ All (solo per i filtri, es. noteCategoryFilter)
     if (includeAllOption) {
         const opt = document.createElement("option");
@@ -334,29 +295,38 @@ async function populateCategorySelect(targetId, { includeNewOption = false, incl
         opt.textContent = "– All –";
         select.appendChild(opt);
     }
-
     try {
         const snap = await getDocs(collection(db, "categories"));
-        const options = [];
-
+        let found = false;
         snap.forEach((doc) => {
             const name = doc.data().name;
-            const opt = document.createElement("option");
-            opt.value = name;
-            opt.textContent = name;
-            options.push(opt);
+            if (name) {
+                found = true;
+                const opt = document.createElement("option");
+                opt.value = name;
+                opt.textContent = name;
+                select.appendChild(opt);
+            }
         });
-
-        options.forEach((opt) => select.appendChild(opt));
-
+        if (!found) {
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.textContent = "(Nessuna categoria)";
+            select.appendChild(opt);
+        }
         if (includeNewOption) {
             const opt = document.createElement("option");
             opt.value = "__new__";
             opt.textContent = "➕ Create new category";
             select.appendChild(opt);
         }
+        console.log(`[populateCategorySelect] Categorie trovate: ${select.options.length}`);
     } catch (err) {
         console.error("❌ Errore caricamento categorie:", err);
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Errore caricamento categorie";
+        select.appendChild(opt);
     }
 }
 
@@ -633,8 +603,10 @@ function renderCategoryRow(name, id) {
 document.getElementById("manageCategoriesBtn")?.addEventListener("click", async () => {
     const modal = document.getElementById("categoryManagerModal");
     const list = document.getElementById("categoryListPanel");
+    const input = document.getElementById("newCategoryInputModal");
+    if (!modal || !list || !input) return;
     list.innerHTML = "";
-
+    input.value = "";
     try {
         const snap = await getDocs(collection(db, "categories"));
         snap.forEach((docSnap) => {
@@ -643,7 +615,6 @@ document.getElementById("manageCategoriesBtn")?.addEventListener("click", async 
             const li = renderCategoryRow(name, id);
             list.appendChild(li);
         });
-
         modal.style.display = "flex";
     } catch (err) {
         console.error("❌ Errore caricamento categorie:", err);
@@ -786,12 +757,45 @@ window.addEventListener("load", () => {
     document.body.classList.remove("loading");
 });
 
-Promise.all([
-    loadSidebar(), // carica sidebar
-    loadNotes(), // carica note
-    loadCategories() // eventuali categorie
-]).then(() => {
-    document.body.style.visibility = "visible";
-});
+// Utility per debug DOM categorie
+function checkCategoryDomElements() {
+    const btn = document.getElementById("manageCategoriesBtn");
+    const modal = document.getElementById("categoryManagerModal");
+    const list = document.getElementById("categoryListPanel");
+    const input = document.getElementById("newCategoryInputModal");
+    if (!btn) console.warn("[DEBUG] Bottone manageCategoriesBtn non trovato!");
+    if (!modal) console.warn("[DEBUG] Modale categoryManagerModal non trovato!");
+    if (!list) console.warn("[DEBUG] Lista categoryListPanel non trovata!");
+    if (!input) console.warn("[DEBUG] Input newCategoryInputModal non trovato!");
+    return btn && modal && list && input;
+}
 
-// ➕ Aggiunta per i gruppi
+document.addEventListener("DOMContentLoaded", () => {
+    if (!checkCategoryDomElements()) {
+        console.warn("[DEBUG] Uno o più elementi DOM per la gestione categorie mancano. Controlla notes-home.html!");
+    }
+    // Listener modale categorie
+    const btn = document.getElementById("manageCategoriesBtn");
+    const modal = document.getElementById("categoryManagerModal");
+    const list = document.getElementById("categoryListPanel");
+    const input = document.getElementById("newCategoryInputModal");
+    if (btn && modal && list && input) {
+        btn.addEventListener("click", async () => {
+            list.innerHTML = "";
+            input.value = "";
+            try {
+                const snap = await getDocs(collection(db, "categories"));
+                snap.forEach((docSnap) => {
+                    const name = docSnap.data().name;
+                    const id = docSnap.id;
+                    const li = renderCategoryRow(name, id);
+                    list.appendChild(li);
+                });
+                modal.style.display = "flex";
+            } catch (err) {
+                console.error("❌ Errore caricamento categorie:", err);
+                alert("Error loading categories.");
+            }
+        });
+    }
+});
