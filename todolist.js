@@ -383,3 +383,34 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("❌ Errore nel caricamento di sidebar.html:", err);
         });
 });
+
+// 🔥 Modifica Elemento task
+window.openEditModal = function (taskId) {
+  console.log("🛠️ Tentativo di apertura Edit per task:", taskId);
+
+  const editModal = document.getElementById("editModal");
+  const editNameInput = document.getElementById("editNameInput");
+  const editLinkInput = document.getElementById("editLinkInput");
+
+  getDoc(doc(db, "tasks", taskId))
+    .then((docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const taskData = docSnapshot.data();
+        editNameInput.value = taskData.name || "";
+        editLinkInput.value = taskData.link || "";
+
+        editModal.style.display = "block";
+        editModal.dataset.taskId = taskId;
+
+        console.log("✅ Modal Edit aperto correttamente");
+      } else {
+        alert("❌ Task non trovato nel database.");
+        console.warn("⚠️ Nessun documento trovato per ID:", taskId);
+      }
+    })
+    .catch((error) => {
+      console.error("❌ Errore durante il recupero del task:", error);
+      alert("Errore durante il caricamento del task.");
+    });
+};
+
