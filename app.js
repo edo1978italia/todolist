@@ -56,9 +56,15 @@ onAuthStateChanged(auth, async (user) => {
 
   console.log("✅ Accesso consentito con groupId:", data.groupId);
   if (userEmailElement) userEmailElement.innerText = user.email;
-  if (mainContainer) mainContainer.style.display = "block";
 
-  loadNotes(data.groupId); // ⬅️ Ora filtrata per groupId
+  // 📦 Prima carico le note, poi mostro il contenitore
+  try {
+    await loadNotes(data.groupId);
+    if (mainContainer) mainContainer.style.display = "block";
+  } catch (err) {
+    console.error("❌ Errore durante il caricamento note:", err);
+    if (mainContainer) mainContainer.style.display = "block"; // Mostra comunque
+  }
 });
 
 // 🔥 Sincronizzazione live delle note utente
@@ -791,41 +797,3 @@ Promise.all([
 });
 
 // ➕ Aggiunta per i gruppi
-async function loadNotes(groupId) {
-  const notesContainer = document.getElementById("noteList");
-  if (!notesContainer) return;
-
-  try {
-    const notesQuery = query(
-      collection(db, "notes"),
-      where("groupId", "==", groupId),
-      orderBy("timestamp", "desc")
-    );
-
-    const snapshot = await getDocs(notesQuery);
-
-    if (snapshot.empty) {
-      notesContainer.innerHTML = "<p>❌ Nessuna nota trovata</p>";
-      return;
-    }
-
-    const html = snapshot.docs.map((doc) => {
-      const note = doc.data();
-      const title = (note.title || "Senza titolo").slice(0, 20);
-      const content = (note.content || "").replace(/<[^>]+>/g, "").slice(0, 150);
-      const pinned = note.pinned ? "📌 " : "";
-
-      return `
-        <div class="note-card">
-          <h4 class="note-title">${pinned}${title}</h4>
-          <p class="note-content">${content}</p>
-        </div>
-      `;
-    }).join("");
-
-    notesContainer.innerHTML = html;
-  } catch (err) {
-    console.error("❌ Errore caricamento note:", err);
-    notesContainer.innerHTML = "<p>Errore nel caricamento delle note</p>";
-  }
-}
