@@ -698,7 +698,7 @@ document.addEventListener("click", async (e) => {
                 alert("✅ Categoria eliminata!");
             } catch (err) {
                 console.error("❌ Errore eliminando categoria:", err);
-                alert("Errore durante l'eliminazione.");
+                alert("Errore durante l'eliminazione: " + (err && err.message ? err.message : JSON.stringify(err)));
             } finally {
                 btn.disabled = false;
             }
