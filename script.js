@@ -256,61 +256,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     } catch (error) {
         console.error("❌ Errore nel recupero delle ricette:", error);
-        latestRecipesList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
+        latestRecipesList.innerHTML = "<p>Error loading recipes.</p>";
     }
 });
 
-// 🔥 Recupero dati da Firebase per il widget della lista To-Do
-document.addEventListener("DOMContentLoaded", async function () {
-    const notesPreviewList = document.getElementById("notesPreviewList");
+// 🔥 Recupero dati da Firebase per il widget della lista Note
 
-    if (!notesPreviewList) {
-        console.error("❌ Elemento 'notesPreviewList' non trovato nel DOM!");
-        return;
-    }
-
-    try {
-        const notesQuery = query(collection(db, "notes"), orderBy("timestamp", "desc"), limit(3));
-        const notesSnapshot = await getDocs(notesQuery);
-
-        const notesArray = notesSnapshot.docs.map((doc) => doc.data());
-
-        if (notesArray.length === 0) {
-            notesPreviewList.innerHTML = "<p>❌ No notes to show!</p>";
-        } else {
-            notesPreviewList.innerHTML = notesArray
-                .map((note) => {
-                    const noteTitle = note.title || "Senza titolo";
-
-                    // 🔥 Limita il titolo a 25 caratteri con ".." se troppo lungo
-                    const shortTitle = noteTitle.length > 15 ? noteTitle.slice(0, 15) + ".." : noteTitle;
-
-                    // 🔥 Limita il contenuto della nota a 2 righe visibili nel widget
-                    const previewContent = note.content
-                        ? note.content.replace(/<[^>]+>/g, "").slice(0, 180) // 🔥 Mantiene circa 180 caratteri per evitare il taglio visivo
-                        : "No content";
-
-                    return `
-  <div class="note-preview-box">
-    <div class="note-preview-avatar-wrap">
-      ${
-          note.createdBy?.photoURL
-              ? `<img src="${note.createdBy.photoURL}" alt="Avatar" class="note-preview-avatar">`
-              : `<div class="note-preview-avatar-placeholder">👤</div>`
-      }
-    </div>
-    <h4 class="note-preview-title">${shortTitle}</h4>
-    <p class="note-preview-content">${previewContent}</p>
-  </div>
-`;
-                })
-                .join("");
-        }
-    } catch (error) {
-        console.error("❌ Errore nel recupero delle note:", error);
-        notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note.</p>";
-    }
-});
 
 // 🔄 Gestione navigazione e apertura sidebar
 window.toggleSidebar = function () {
@@ -380,3 +331,118 @@ if (sidebarContainer) {
             console.error("❌ Errore nel caricamento di sidebar.html:", err);
         });
 }
+
+
+
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+  doc,
+  getDoc
+} from "firebase/firestore";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  const userData = userSnap.data();
+
+  if (!userData?.groupId) return;
+  const groupId = userData.groupId;
+
+  // 🔹 TODO LIST PREVIEW
+  const taskPreviewList = document.getElementById("taskPreview");
+  if (taskPreviewList) {
+    try {
+      const q = query(
+        collection(db, "tasks"),
+        where("groupId", "==", groupId),
+        orderBy("createdAt", "desc"),
+        limit(3)
+      );
+      const snap = await getDocs(q);
+      taskPreviewList.innerHTML = snap.empty
+        ? "<li>❌ Nessun task da mostrare</li>"
+        : snap.docs
+            .map((d) => {
+              const t = d.data();
+              const checked = t.completed ? "checked" : "";
+              return `<li class="${checked}">${t.name}</li>`;
+            })
+            .join("");
+    } catch (err) {
+      console.error("❌ Errore nei task preview:", err);
+      taskPreviewList.innerHTML = "<li>Errore nel caricamento</li>";
+    }
+  }
+
+  // 🔹 NOTE PREVIEW
+  const notesPreviewList = document.getElementById("notesPreviewList");
+  if (notesPreviewList) {
+    try {
+      const q = query(
+        collection(db, "notes"),
+        where("groupId", "==", groupId),
+        orderBy("timestamp", "desc"),
+        limit(3)
+      );
+      const snap = await getDocs(q);
+      notesPreviewList.innerHTML = snap.empty
+        ? "<p>❌ Nessuna nota da mostrare</p>"
+        : snap.docs
+            .map((doc) => {
+              const note = doc.data();
+              const title = (note.title || "Senza titolo").slice(0, 15);
+              const content = (note.content || "")
+                .replace(/<[^>]+>/g, "")
+                .slice(0, 180);
+              const avatar = note.createdBy?.photoURL
+                ? `<img src="${note.createdBy.photoURL}" class="note-preview-avatar">`
+                : `<div class="note-preview-avatar-placeholder">👤</div>`;
+              return `
+              <div class="note-preview-box">
+                <div class="note-preview-avatar-wrap">${avatar}</div>
+                <h4 class="note-preview-title">${title}</h4>
+                <p class="note-preview-content">${content}</p>
+              </div>`;
+            })
+            .join("");
+    } catch (err) {
+      console.error("❌ Errore nelle note preview:", err);
+      notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note</p>";
+    }
+  }
+
+  // 🔹 RICETTE PREVIEW
+  const ricettePreviewList = document.getElementById("ricettePreview");
+  if (ricettePreviewList) {
+    try {
+      const q = query(
+        collection(db, "ricette"),
+        where("groupId", "==", groupId),
+        orderBy("createdAt", "desc"),
+        limit(3)
+      );
+      const snap = await getDocs(q);
+      ricettePreviewList.innerHTML = snap.empty
+        ? "<p>❌ Nessuna ricetta da mostrare</p>"
+        : snap.docs
+            .map((doc) => {
+              const r = doc.data();
+              const title = r.title || "Senza titolo";
+              return `<li>${title}</li>`;
+            })
+            .join("");
+    } catch (err) {
+      console.error("❌ Errore nelle ricette preview:", err);
+      ricettePreviewList.innerHTML =
+        "<p>Errore nel caricamento delle ricette</p>";
+    }
+  }
+});
+
