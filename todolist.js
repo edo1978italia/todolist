@@ -238,52 +238,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 🔥 Aggiunta, modifica ed eliminazione task
 window.addTask = async function () {
-    const taskInput = document.getElementById("taskInput");
-    const linkInput = document.getElementById("linkInput");
-    const isPriorityHigh = document.getElementById("priorityHigh").checked;
-    const taskName = taskInput.value.trim();
-    const taskLink = linkInput.value.trim();
+  const taskInput = document.getElementById("taskInput");
+  const linkInput = document.getElementById("linkInput");
+  const isPriorityHigh = document.getElementById("priorityHigh").checked;
+  const taskName = taskInput.value.trim();
+  const taskLink = linkInput.value.trim();
 
-    if (!taskName) return alert("Inserisci un task valido!");
+  if (!taskName) return alert("Inserisci un task valido!");
 
-    const taskDisplayName = isPriorityHigh ? `${taskName} 🔴` : taskName; // 🔥 Aggiungiamo il pallino rosso
+  // 💥 Protezione fondamentale
+  if (!auth.currentUser || !window.currentGroupId) {
+    alert("⏳ Attendere che il gruppo venga caricato prima di aggiungere un task.");
+    return;
+  }
 
+  const taskDisplayName = isPriorityHigh ? `${taskName} 🔴` : taskName;
+
+  try {
     await addDoc(collection(db, "tasks"), {
-        name: taskDisplayName,
-        link: taskLink || "",
-        completed: false,
-        createdAt: serverTimestamp(),
-        createdBy: auth.currentUser.uid,
-        groupId: window.currentGroupId
+      name: taskDisplayName,
+      link: taskLink || "",
+      completed: false,
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser.uid,
+      groupId: window.currentGroupId
     });
 
+    console.log("✅ Task aggiunto correttamente");
     taskInput.value = "";
     linkInput.value = "";
     document.getElementById("priorityHigh").checked = false;
+
+  } catch (err) {
+    console.error("❌ Errore durante il salvataggio:", err);
+    alert("Errore nel salvataggio. Controlla la console.");
+  }
 };
 
-// 🔥 Apre il popup Edit
-window.openEditModal = function (taskId) {
-    console.log("Modifica task:", taskId);
-
-    const editModal = document.getElementById("editModal");
-    const editNameInput = document.getElementById("editNameInput");
-    const editLinkInput = document.getElementById("editLinkInput");
-
-    // 🔥 Recupera i dati del task dal database
-    getDoc(doc(db, "tasks", taskId))
-        .then((docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const taskData = docSnapshot.data();
-                editNameInput.value = taskData.name;
-                editLinkInput.value = taskData.link;
-
-                editModal.style.display = "block"; // 🔥 Mostra il modal
-                editModal.dataset.taskId = taskId; // 🔥 Salva ID per il salvataggio
-            }
-        })
-        .catch((error) => console.error("Errore nel caricamento del task:", error));
-};
 
 // 🔥 Salva modifica Edit di un Task
 window.saveTaskChanges = async function () {
