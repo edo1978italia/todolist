@@ -244,36 +244,59 @@ window.addTask = async function () {
   const taskName = taskInput.value.trim();
   const taskLink = linkInput.value.trim();
 
-  if (!taskName) return alert("Inserisci un task valido!");
+  console.group("📝 Aggiunta nuovo task");
+  console.log("📥 Input ricevuto:", { taskName, taskLink, isPriorityHigh });
 
-  // 💥 Protezione fondamentale
-  if (!auth.currentUser || !window.currentGroupId) {
-    alert("⏳ Attendere che il gruppo venga caricato prima di aggiungere un task.");
+  if (!taskName) {
+    alert("Inserisci un task valido!");
+    console.warn("⚠️ Nome del task vuoto. Operazione annullata.");
+    console.groupEnd();
+    return;
+  }
+
+  if (!auth.currentUser) {
+    alert("Utente non autenticato.");
+    console.error("🚫 Nessun utente autenticato trovato.");
+    console.groupEnd();
+    return;
+  }
+
+  if (!window.currentGroupId) {
+    alert("⏳ Attendere il caricamento del gruppo prima di aggiungere un task.");
+    console.warn("⚠️ groupId non disponibile al momento del click.");
+    console.groupEnd();
     return;
   }
 
   const taskDisplayName = isPriorityHigh ? `${taskName} 🔴` : taskName;
 
-  try {
-    await addDoc(collection(db, "tasks"), {
-      name: taskDisplayName,
-      link: taskLink || "",
-      completed: false,
-      createdAt: serverTimestamp(),
-      createdBy: auth.currentUser.uid,
-      groupId: window.currentGroupId
-    });
+  const nuovoTask = {
+    name: taskDisplayName,
+    link: taskLink || "",
+    completed: false,
+    createdAt: serverTimestamp(),
+    createdBy: auth.currentUser.uid,
+    groupId: window.currentGroupId
+  };
 
-    console.log("✅ Task aggiunto correttamente");
+  console.log("📤 Dati in scrittura:", nuovoTask);
+
+  try {
+    const docRef = await addDoc(collection(db, "tasks"), nuovoTask);
+    console.log("✅ Task salvato con ID:", docRef.id);
+
     taskInput.value = "";
     linkInput.value = "";
     document.getElementById("priorityHigh").checked = false;
+    console.groupEnd();
 
   } catch (err) {
     console.error("❌ Errore durante il salvataggio:", err);
     alert("Errore nel salvataggio. Controlla la console.");
+    console.groupEnd();
   }
 };
+
 
 
 
