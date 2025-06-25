@@ -10,7 +10,9 @@ import {
     updateDoc,
     deleteDoc,
     onSnapshot,
-    getDoc
+    getDoc,
+    query,            // ✅ AGGIUNGI QUESTO
+    where             // ✅ E QUESTO
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 // Configura Firebase
