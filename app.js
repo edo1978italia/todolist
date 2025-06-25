@@ -288,6 +288,15 @@ async function populateCategorySelect(targetId, { includeNewOption = false, incl
         return;
     }
     select.innerHTML = "";
+    // ➕ Placeholder per il modale nuova nota
+    if (targetId === "categorySelect") {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Select a category";
+        opt.disabled = true;
+        opt.selected = true;
+        select.appendChild(opt);
+    }
     // ➕ All (solo per i filtri, es. noteCategoryFilter)
     if (includeAllOption) {
         const opt = document.createElement("option");
@@ -357,7 +366,6 @@ document.getElementById("deleteNoteEditorButton").addEventListener("click", asyn
         alert("❌ Error: This note is not saved yet!");
         return;
     }
-
     if (confirm("🗑 Do you want to delete this note permanently?")) {
         try {
             await deleteDoc(doc(db, "notes", noteId));
@@ -449,6 +457,7 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             pinned: false,
             timestamp: new Date(),
             category,
+            groupId: window._groupId, // <--- AGGIUNTO groupId obbligatorio
             createdBy: {
                 uid: user.uid,
                 displayName,
@@ -650,38 +659,39 @@ document.addEventListener("click", (event) => {
 });
 
 // 🗑️ Elimina categoria
+// Tutti gli alert e conferme sono ora in inglese
 document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-category-btn")) {
         e.stopPropagation();
-        alert("DEBUG: click su elimina categoria!");
+        alert("DEBUG: click on delete category!");
         const btn = e.target;
         const id = btn.getAttribute("data-id");
         const li = btn.closest("li");
         if (btn.disabled) return;
-        console.log("[DEBUG] Click su elimina categoria, id:", id);
+        console.log("[DEBUG] Click on delete category, id:", id);
         try {
             const catRef = doc(db, "categories", id);
             const catSnap = await getDoc(catRef);
             if (!catSnap.exists()) {
-                alert("❌ Categoria non trovata in Firestore. Impossibile eliminare.");
+                alert("❌ Category not found in Firestore. Cannot delete.");
                 return;
             }
         } catch (err) {
-            alert("❌ Errore di connessione a Firestore. Riprova.");
+            alert("❌ Firestore connection error. Please try again.");
             return;
         }
         if (
             confirm(
-                "🗑 Vuoi davvero eliminare questa categoria?\nSe ci sono note in questa categoria, NON verranno eliminate."
+                "🗑 Do you really want to delete this category?\nIf there are notes in this category, they will NOT be deleted."
             )
         ) {
             try {
                 btn.disabled = true;
                 await deleteDoc(doc(db, "categories", id));
-                // Forza refresh lista categorie dopo eliminazione
+                // Force refresh category list after deletion
                 await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
                 await populateCategorySelect("categorySelect", { includeNewOption: true });
-                // Ricarica il modale categorie
+                // Reload the category modal
                 const list = document.getElementById("categoryListPanel");
                 if (list) {
                     list.innerHTML = "";
@@ -695,10 +705,10 @@ document.addEventListener("click", async (e) => {
                         list.appendChild(li);
                     });
                 }
-                alert("✅ Categoria eliminata!");
+                alert("✅ Category deleted!");
             } catch (err) {
-                console.error("❌ Errore eliminando categoria:", err);
-                alert("Errore durante l'eliminazione: " + (err && err.message ? err.message : JSON.stringify(err)));
+                console.error("❌ Error deleting category:", err);
+                alert("Error while deleting: " + (err && err.message ? err.message : JSON.stringify(err)));
             } finally {
                 btn.disabled = false;
             }
@@ -742,7 +752,7 @@ document.addEventListener("click", async (e) => {
         }
         try {
             await updateDoc(doc(db, "categories", id), { name: newName });
-            // Aggiorna tutte le note di questo gruppo che hanno la vecchia categoria
+            // Update all notes in this group with the old category
             const groupId = window._groupId;
             const notesSnap = await getDocs(query(collection(db, "notes"), where("category", "==", oldName), where("groupId", "==", groupId)));
             const batch = writeBatch(db);
@@ -782,8 +792,8 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
         input.value = "";
         alert("✅ Category added!");
     } catch (err) {
-        console.error("❌ Errore nell'aggiungere categoria:", err);
-        alert("Errore durante il salvataggio.");
+        console.error("❌ Error adding category:", err);
+        alert("Error while saving.");
     }
 });
 
@@ -798,9 +808,9 @@ function checkCategoryDomElements() {
     const modal = document.getElementById("categoryManagerModal");
     const list = document.getElementById("categoryListPanel");
     const input = document.getElementById("newCategoryInputModal");
-    if (!btn) console.warn("[DEBUG] Bottone manageCategoriesBtn non trovato!");
-    if (!modal) console.warn("[DEBUG] Modale categoryManagerModal non trovato!");
-    if (!list) console.warn("[DEBUG] Lista categoryListPanel non trovata!");
-    if (!input) console.warn("[DEBUG] Input newCategoryInputModal non trovato!");
+    if (!btn) console.warn("[DEBUG] manageCategoriesBtn button not found!");
+    if (!modal) console.warn("[DEBUG] categoryManagerModal modal not found!");
+    if (!list) console.warn("[DEBUG] categoryListPanel list not found!");
+    if (!input) console.warn("[DEBUG] newCategoryInputModal input not found!");
     return btn && modal && list && input;
 }
