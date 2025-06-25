@@ -11,8 +11,9 @@ import {
     deleteDoc,
     onSnapshot,
     getDoc,
-    query,            // ✅ AGGIUNGI QUESTO
-    where             // ✅ E QUESTO
+    query, // ✅ AGGIUNGI QUESTO
+    where, // ✅ E QUESTO
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 // Configura Firebase
