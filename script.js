@@ -5,12 +5,19 @@ import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+// 🔥 Recupero dati da Firebase per il widget delle ricette
 import {
     getFirestore,
     collection,
     onSnapshot,
     doc,
-    getDoc
+    getDoc,
+    query,
+    where,
+    orderBy,
+    limit,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 import firebaseConfig from "./config.js";
@@ -20,6 +27,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebas
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 // 🔥 Gestione login
 async function loginUser() {
@@ -223,100 +231,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// 🔥 Recupero dati da Firebase per il widget delle ricette
-import { query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-
-  const userSnap = await getDoc(doc(db, "users", user.uid));
-  const userData = userSnap.data();
-  const groupId = userData?.groupId;
-  if (!groupId) return;
-
-  // ✅ TASK PREVIEW
-  const taskPreview = document.getElementById("taskPreview");
-  if (taskPreview) {
-    try {
-      const taskSnap = await getDocs(
-        query(
-          collection(db, "tasks"),
-          where("groupId", "==", groupId),
-          orderBy("createdAt", "desc"),
-          limit(3)
-        )
-      );
-      taskPreview.innerHTML = taskSnap.empty ? "<li>❌ Nessun task disponibile</li>" : taskSnap.docs.map((doc) => {
-        const t = doc.data();
-        const checked = t.completed ? "checked" : "";
-        return `<li class="${checked}">${t.name}</li>`;
-      }).join("");
-    } catch (err) {
-      console.error("❌ Errore nei task preview:", err);
-      taskPreview.innerHTML = "<li>Errore nel caricamento</li>";
-    }
-  }
-
-  // ✅ NOTES PREVIEW
-  const notesPreviewList = document.getElementById("notesPreviewList");
-  if (notesPreviewList) {
-    try {
-      const noteSnap = await getDocs(
-        query(
-          collection(db, "notes"),
-          where("groupId", "==", groupId),
-          orderBy("timestamp", "desc"),
-          limit(3)
-        )
-      );
-      notesPreviewList.innerHTML = noteSnap.empty ? "<p>❌ Nessuna nota da mostrare</p>" : noteSnap.docs.map((doc) => {
-        const note = doc.data();
-        const title = (note.title || "Senza titolo").slice(0, 15);
-        const content = (note.content || "").replace(/<[^>]+>/g, "").slice(0, 180);
-        const avatar = note.createdBy?.photoURL ? `<img src="${note.createdBy.photoURL}" class="note-preview-avatar">` : `<div class="note-preview-avatar-placeholder">👤</div>`;
-        return `
-          <div class="note-preview-box">
-            <div class="note-preview-avatar-wrap">${avatar}</div>
-            <h4 class="note-preview-title">${title}</h4>
-            <p class="note-preview-content">${content}</p>
-          </div>`;
-      }).join("");
-    } catch (err) {
-      console.error("❌ Errore nelle note preview:", err);
-      notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note</p>";
-    }
-  }
-
-  // ✅ RICETTE PREVIEW
-  const ricettePreviewList = document.getElementById("latestRecipesList");
-  if (ricettePreviewList) {
-    try {
-      const ricetteSnap = await getDocs(
-        query(
-          collection(db, "ricette"),
-          where("groupId", "==", groupId),
-          orderBy("timestamp", "desc"),
-          limit(3)
-        )
-      );
-      ricettePreviewList.innerHTML = ricetteSnap.empty ? "<p>❌ Nessuna ricetta da mostrare</p>" : ricetteSnap.docs.map((doc) => {
-        const r = doc.data();
-        const img = r.immagineUrl || "placeholder.jpg";
-        const nome = r.nome || "Senza nome";
-        return `
-          <div class="recipe-widget-item">
-            <img src="${img}" alt="${nome}" class="recipe-widget-img">
-            <p class="recipe-widget-name">${nome}</p>
-          </div>`;
-      }).join("");
-    } catch (err) {
-      console.error("❌ Errore nelle ricette preview:", err);
-      ricettePreviewList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
-    }
-  }
-});
-
-
 // 🔄 Gestione navigazione e apertura sidebar
 window.toggleSidebar = function () {
     const sidebar = document.getElementById("sidebar");
@@ -385,3 +299,112 @@ if (sidebarContainer) {
             console.error("❌ Errore nel caricamento di sidebar.html:", err);
         });
 }
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    const userData = userSnap.data();
+    const groupId = userData?.groupId;
+    if (!groupId) return;
+
+    // 🔹 TASK PREVIEW
+    const taskPreview = document.getElementById("taskPreview");
+    if (taskPreview) {
+        try {
+            const taskSnap = await getDocs(
+                query(collection(db, "tasks"), where("groupId", "==", groupId), orderBy("createdAt", "desc"), limit(3))
+            );
+            let html = "";
+            if (taskSnap.empty) {
+                html = "<li>❌ Nessun task disponibile</li>";
+            } else {
+                html = taskSnap.docs
+                    .map((doc) => {
+                        const t = doc.data();
+                        const checked = t.completed ? "checked" : "";
+                        return `<li class="${checked}">${t.name}</li>`;
+                    })
+                    .join("");
+            }
+            taskPreview.innerHTML = html;
+        } catch (err) {
+            console.error("❌ Errore nei task preview:", err);
+            taskPreview.innerHTML = "<li>Errore nel caricamento</li>";
+        }
+    }
+
+    // 🔹 NOTES PREVIEW
+    const notesPreviewList = document.getElementById("notesPreviewList");
+    if (notesPreviewList) {
+        try {
+            const noteSnap = await getDocs(
+                query(collection(db, "notes"), where("groupId", "==", groupId), orderBy("timestamp", "desc"), limit(3))
+            );
+            let html = "";
+            if (noteSnap.empty) {
+                html = "<p>❌ Nessuna nota da mostrare</p>";
+            } else {
+                html = noteSnap.docs
+                    .map((doc) => {
+                        const note = doc.data();
+                        const title = (note.title || "Senza titolo").slice(0, 15);
+                        const content = (note.content || "").replace(/<[^>]+>/g, "").slice(0, 180);
+                        let avatar = "";
+                        if (note.createdBy && note.createdBy.photoURL) {
+                            avatar = `<img src="${note.createdBy.photoURL}" class="note-preview-avatar">`;
+                        } else {
+                            avatar = `<div class="note-preview-avatar-placeholder">👤</div>`;
+                        }
+                        return `
+            <div class="note-preview-box">
+              <div class="note-preview-avatar-wrap">${avatar}</div>
+              <h4 class="note-preview-title">${title}</h4>
+              <p class="note-preview-content">${content}</p>
+            </div>`;
+                    })
+                    .join("");
+            }
+            notesPreviewList.innerHTML = html;
+        } catch (err) {
+            console.error("❌ Errore nelle note preview:", err);
+            notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note</p>";
+        }
+    }
+
+    // 🔹 RICETTE PREVIEW
+    const ricettePreviewList = document.getElementById("latestRecipesList");
+    if (ricettePreviewList) {
+        try {
+            const ricetteSnap = await getDocs(
+                query(
+                    collection(db, "ricette"),
+                    where("groupId", "==", groupId),
+                    orderBy("timestamp", "desc"),
+                    limit(3)
+                )
+            );
+            let html = "";
+            if (ricetteSnap.empty) {
+                html = "<p>❌ Nessuna ricetta da mostrare</p>";
+            } else {
+                html = ricetteSnap.docs
+                    .map((doc) => {
+                        const r = doc.data();
+                        const img = r.immagineUrl || "placeholder.jpg";
+                        const nome = r.nome || "Senza nome";
+                        return `
+            <div class="recipe-widget-item">
+              <img src="${img}" alt="${nome}" class="recipe-widget-img">
+              <p class="recipe-widget-name">${nome}</p>
+            </div>`;
+                    })
+                    .join("");
+            }
+            ricettePreviewList.innerHTML = html;
+        } catch (err) {
+            console.error("❌ Errore nelle ricette preview:", err);
+            ricettePreviewList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
+        }
+    }
+});
