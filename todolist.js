@@ -251,7 +251,10 @@ window.addTask = async function () {
     await addDoc(collection(db, "tasks"), {
         name: taskDisplayName,
         link: taskLink || "",
-        completed: false
+        completed: false,
+        createdAt: serverTimestamp(),
+        createdBy: auth.currentUser.uid,
+        groupId: window.currentGroupId
     });
 
     taskInput.value = "";
