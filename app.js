@@ -28,7 +28,6 @@ const auth = getAuth(app);
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, async (user) => {
-  const mainContainer = document.getElementById("mainContainer");
   const userEmailElement = document.getElementById("userEmail");
 
   if (!user) {
@@ -57,15 +56,13 @@ onAuthStateChanged(auth, async (user) => {
   console.log("✅ Accesso consentito con groupId:", data.groupId);
   if (userEmailElement) userEmailElement.innerText = user.email;
 
-  // 📦 Prima carico le note, poi mostro il contenitore
   try {
-    await loadNotes(data.groupId);
-    if (mainContainer) mainContainer.style.display = "block";
+    await loadNotes(data.groupId); // Caricamento note filtrate
   } catch (err) {
     console.error("❌ Errore durante il caricamento note:", err);
-    if (mainContainer) mainContainer.style.display = "block"; // Mostra comunque
   }
 });
+
 
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
