@@ -868,6 +868,7 @@ textarea {
 
 /* 🔥 WIDGET NOTE */
 #notesPreviewContainer {
+    font-size: 12px;
     margin: auto;
     max-width: 600px;
     background-color: #f9f9f9;
