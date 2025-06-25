@@ -26,64 +26,63 @@ console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No")
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, async (user) => {
-  const mainContainer = document.getElementById("mainContainer");
-  const userEmailElement = document.getElementById("userEmail");
+    const mainContainer = document.getElementById("mainContainer");
+    const userEmailElement = document.getElementById("userEmail");
 
-  if (!user) {
-    console.warn("⚠ Utente non autenticato, redirect in corso...");
-    if (unsubscribeTasks) unsubscribeTasks();
-    window.location.replace("index.html");
-    return;
-  }
-
-  try {
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-      console.error("❌ Documento utente mancante");
-      await signOut(auth);
-      window.location.href = "index.html";
-      return;
-    }
-
-    const data = userSnap.data();
-    if (!data.groupId || data.groupId.trim() === "") {
-      console.warn("🚧 Nessun groupId → redirect a group-setup.html");
-      window.location.href = "group-setup.html";
-      return;
-    }
-
-    const groupId = data.groupId;
-    console.log("✅ Accesso autorizzato con groupId:", groupId);
-
-    if (userEmailElement) userEmailElement.innerText = user.email;
-    if (mainContainer) mainContainer.style.display = "block";
-
-    // 🔥 Attiva listener filtrato per i task del gruppo
-    const q = query(collection(db, "tasks"), where("groupId", "==", groupId));
-    unsubscribeTasks = onSnapshot(q, (snapshot) => {
-      if (snapshot.empty) {
-        console.log("🟡 Nessun task trovato per questo gruppo.");
-        document.getElementById("tasksList").innerHTML = "<p class='empty'>Nessun task ancora. Aggiungine uno!</p>";
+    if (!user) {
+        console.warn("⚠ Utente non autenticato, redirect in corso...");
+        if (unsubscribeTasks) unsubscribeTasks();
+        window.location.replace("index.html");
         return;
-      }
+    }
 
-      console.log("📌 Tasks ricevuti:", snapshot.docs.map((doc) => doc.data()));
-      loadTasks(snapshot);
-    });
+    try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
 
-    // 🔁 Salva il groupId per l’aggiunta dei task
-    window.currentGroupId = groupId;
+        if (!userSnap.exists()) {
+            console.warn("❌ Documento utente assente — redirect");
+            window.location.href = "group-setup.html";
+            return;
+        }
 
-  } catch (error) {
-    console.error("❌ Errore durante la verifica del gruppo:", error);
-    await signOut(auth);
-    window.location.href = "index.html";
-  }
+        const data = userSnap.data();
+
+        if (!data || !data.groupId || data.groupId.trim() === "") {
+            console.warn("🚧 groupId mancante o vuoto — redirect a group-setup");
+            window.location.href = "group-setup.html";
+            return;
+        }
+
+        const groupId = data.groupId;
+        console.log("✅ Accesso autorizzato con groupId:", groupId);
+
+        if (userEmailElement) userEmailElement.innerText = user.email;
+        if (mainContainer) mainContainer.style.display = "block";
+
+        // 🔥 Listener per task del gruppo
+        const q = query(collection(db, "tasks"), where("groupId", "==", groupId));
+        unsubscribeTasks = onSnapshot(q, (snapshot) => {
+            if (snapshot.empty) {
+                console.log("🟡 Nessun task trovato per questo gruppo.");
+                document.getElementById("tasksList").innerHTML =
+                    "<p class='empty'>Nessun task ancora. Aggiungine uno!</p>";
+                return;
+            }
+
+            console.log(
+                "📌 Tasks ricevuti:",
+                snapshot.docs.map((doc) => doc.data())
+            );
+            loadTasks(snapshot);
+        });
+
+        window.currentGroupId = groupId;
+    } catch (error) {
+        console.error("❌ Errore durante la verifica del gruppo:", error);
+        window.location.href = "index.html";
+    }
 });
-
-
 
 // 🔥 Gestione logout (versione più sicura)
 async function logoutUser() {
