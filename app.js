@@ -64,6 +64,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 
+
 // 🔥 Sincronizzazione live delle note utente
 document.addEventListener("DOMContentLoaded", () => {
     const noteList = document.getElementById("noteList");
