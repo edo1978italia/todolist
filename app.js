@@ -26,6 +26,22 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// ➕ per problema loading lento
+// window.addEventListener("load", () => {
+//     document.body.classList.remove("loading");
+// });
+
+// Rimuovi la classe loading solo quando tutto è pronto
+window.removeLoading = function() {
+  document.body.classList.remove("loading");
+};
+
+// window.addEventListener("DOMContentLoaded", () => {
+//   setTimeout(() => {
+//     window.removeLoading();
+//   }, 200);
+// });
+
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, async (user) => {
   const userEmailElement = document.getElementById("userEmail");
@@ -58,6 +74,8 @@ onAuthStateChanged(auth, async (user) => {
   window._groupId = data.groupId;
   await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
   renderFilteredNotes(window._groupId);
+  // Rimuovi loading solo dopo che utente e note sono pronte
+  if (window._sidebarLoaded) window.removeLoading();
 });
 
 // 🔥 Sincronizzazione live delle note utente
@@ -544,6 +562,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((data) => {
             document.getElementById("sidebarContainer").innerHTML = data;
             updateUserInfo(); // 🔥 Chiama la funzione solo dopo aver caricato la sidebar
+            window._sidebarLoaded = true;
+            // Rimuovi loading solo dopo che sidebar e utente sono pronti
+            if (window._groupId) window.removeLoading();
         })
         .catch((error) => console.error("Errore nel caricamento della sidebar:", error));
 });
@@ -797,8 +818,20 @@ document.getElementById("addCategoryBtn")?.addEventListener("click", async () =>
 });
 
 // ➕ per problema loading lento
-window.addEventListener("load", () => {
-    document.body.classList.remove("loading");
+// window.addEventListener("load", () => {
+//     document.body.classList.remove("loading");
+// });
+
+// Rimuovi la classe loading solo quando tutto è pronto
+window.removeLoading = function() {
+  document.body.classList.remove("loading");
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  // Rimuovi loading solo dopo che il DOM è pronto e dopo un piccolo delay per sicurezza
+  setTimeout(() => {
+    window.removeLoading();
+  }, 200);
 });
 
 // Utility per debug DOM categorie
