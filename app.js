@@ -143,10 +143,10 @@ function renderFilteredNotes(groupId) {
 
       li.querySelector(".menu-delete").addEventListener("click", async (e) => {
         e.stopPropagation();
-        if (confirm("🗑 Vuoi davvero eliminare questa nota?")) {
+        if (confirm("🗑 Do you really want to delete this note?")) {
           try {
             await deleteDoc(doc(db, "notes", docSnap.id));
-            alert("✅ Nota eliminata!");
+            alert("✅ Note deleted!");
           } catch (error) {
             console.error("❌ Errore durante l'eliminazione:", error);
             alert("Errore durante l'eliminazione.");
@@ -663,7 +663,6 @@ document.addEventListener("click", (event) => {
 document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-category-btn")) {
         e.stopPropagation();
-        alert("DEBUG: click on delete category!");
         const btn = e.target;
         const id = btn.getAttribute("data-id");
         const li = btn.closest("li");
