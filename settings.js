@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Gestione modale custom leave group
+    // Gestione abbandono gruppo con feedback console e modale custom
     const leaveGroupBtn = document.getElementById("leaveGroupBtn");
     const leaveGroupModal = document.getElementById("leaveGroupModal");
     const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
