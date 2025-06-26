@@ -97,37 +97,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Listener modale abbandono gruppo
-    if (leaveGroupBtn && leaveGroupModal) {
-        leaveGroupBtn.addEventListener("click", function() {
-            console.log("[SETTING] leaveGroupBtn click: apro modale");
-            leaveGroupModal.style.display = "flex";
-        });
-    }
-    if (cancelLeaveGroupBtn && leaveGroupModal) {
-        cancelLeaveGroupBtn.addEventListener("click", function() {
-            console.log("[SETTING] cancelLeaveGroupBtn click: chiudo modale");
-            leaveGroupModal.style.display = "none";
-        });
-    }
-    if (confirmLeaveGroupBtn) {
-        confirmLeaveGroupBtn.addEventListener("click", async function() {
-            console.log("[SETTING] Conferma abbandono gruppo: click su conferma modale");
-            leaveGroupModal.style.display = "none";
+    // Listener semplice per abbandono gruppo: solo window.confirm/alert e feedback console
+    if (leaveGroupBtn) {
+        // Rimuovi eventuali altri listener precedenti (modale)
+        leaveGroupBtn.replaceWith(leaveGroupBtn.cloneNode(true));
+        const newLeaveGroupBtn = document.getElementById("leaveGroupBtn");
+        console.log("[SETTING] leaveGroupBtn clonato e sostituito", newLeaveGroupBtn);
+        newLeaveGroupBtn.addEventListener("click", async function() {
+            console.log("[SETTING] leaveGroupBtn click: richiesta conferma abbandono gruppo (SOLO ALERT)");
+            const conferma = window.confirm("Sei sicuro di voler abbandonare il gruppo?\nPotrai sempre rientrare con un nuovo codice o creando un nuovo gruppo.");
+            if (!conferma) {
+                console.log("[SETTING] Abbandono gruppo annullato dall'utente");
+                return;
+            }
             if (!auth.currentUser) {
                 console.warn("[SETTING] Nessun utente autenticato al momento della conferma abbandono gruppo");
+                alert("Nessun utente autenticato.");
                 return;
             }
             try {
                 await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
                 console.log("[SETTING] groupId rimosso da Firestore per utente:", auth.currentUser.uid);
-                if (msgEl) msgEl.textContent = "Hai abbandonato il gruppo.";
-                setTimeout(() => {
-                    console.log("[SETTING] Redirect a group-setup.html dopo abbandono gruppo");
-                    window.location.href = "group-setup.html";
-                }, 1200);
+                alert("Hai abbandonato il gruppo.");
+                console.log("[SETTING] Redirect a group-setup.html dopo abbandono gruppo");
+                window.location.href = "group-setup.html";
             } catch (e) {
-                if (msgEl) msgEl.textContent = "Errore: impossibile abbandonare il gruppo.";
+                alert("Errore: impossibile abbandonare il gruppo.\n" + e.message);
                 console.error("[SETTING] Errore abbandono gruppo:", e);
             }
         });
