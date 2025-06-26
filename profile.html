@@ -68,6 +68,7 @@
     <span id="copyInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </span>
+    <span id="copyInviteCodeMsg" style="display:none;margin-left:8px;color:#28a745;font-weight:bold;">Invite code copied!</span>
     <div class="profile-group-description">
       <!-- Qui puoi inserire una spiegazione su come usare/condividere il gruppo -->
       <p>Testo di spiegazione sul gruppo. Personalizza questo testo per fornire istruzioni agli utenti su come utilizzare o condividere il codice del gruppo.</p>
@@ -82,6 +83,7 @@
 document.addEventListener("DOMContentLoaded", function() {
   const shareIcon = document.getElementById("shareInviteCodeIcon");
   const copyIcon = document.getElementById("copyInviteCodeIcon");
+  const copyMsg = document.getElementById("copyInviteCodeMsg");
   const inviteCodeEl = document.getElementById("userGroup");
   if (shareIcon && inviteCodeEl) {
     shareIcon.addEventListener("click", async () => {
@@ -100,13 +102,17 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     });
   }
-  if (copyIcon && inviteCodeEl) {
+  if (copyIcon && inviteCodeEl && copyMsg) {
     copyIcon.addEventListener("click", async () => {
       const inviteCode = inviteCodeEl.textContent.trim();
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(inviteCode);
         copyIcon.style.color = 'green';
-        setTimeout(() => { copyIcon.style.color = ''; }, 1200);
+        copyMsg.style.display = 'inline';
+        setTimeout(() => {
+          copyIcon.style.color = '';
+          copyMsg.style.display = 'none';
+        }, 1500);
       }
     });
   }
