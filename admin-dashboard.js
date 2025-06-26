@@ -123,6 +123,8 @@ function renderUserTable() {
   userList.innerHTML = sorted.map(user => `
     <tr>
       <td><img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'U') + '&background=232325&color=fff'}" class="user-avatar" alt="avatar" width="36" height="36"></td>
+      <td>${user.firstName || user.name || '-'}</td>
+      <td>${user.lastName || user.lastname || '-'}</td>
       <td>${user.displayName || '-'}</td>
       <td>${user.email || '-'}</td>
       <td><span class="user-role-badge user-role-${user.role || 'user'}">${user.role || 'user'}</span></td>

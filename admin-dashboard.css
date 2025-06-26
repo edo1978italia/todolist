@@ -410,6 +410,20 @@ section:hover {
     box-shadow: 0 2px 12px rgba(0,0,0,0.18);
   }
 }
+@media (max-width: 900px) {
+  .user-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+  }
+  .user-table {
+    min-width: 700px;
+    width: max-content;
+    display: table;
+  }
+}
 
 /* Stili per la tabella utenti */
 .user-table {
@@ -418,15 +432,16 @@ section:hover {
   margin-top: 16px;
 }
 .user-table th, .user-table td {
-  padding: 12px 16px;
+  padding: 7px 12px; /* ridotto padding verticale per diminuire altezza riga */
   text-align: left;
   border-bottom: 1px solid #333;
+  font-size: 0.87em; /* ridotto da default, puoi abbassare ancora se vuoi */
 }
 .user-table th {
   background: #35363a;
   color: #f3f3f3;
   font-weight: 600;
-  font-size: 1.1em;
+  font-size: 1em; /* ridotto da 1.1em */
   position: relative;
 }
 .user-table th:after {
