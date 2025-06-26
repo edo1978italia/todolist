@@ -40,6 +40,7 @@ function showAdminPanel() {
   document.getElementById('admin-login-panel').style.display = 'none';
   document.getElementById('admin-sidebar').style.display = '';
   document.getElementById('admin-main').style.display = '';
+  showSection('admin-users');
 }
 function showLoginPanel() {
   document.getElementById('admin-login-panel').style.display = '';
@@ -75,6 +76,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // --- GESTIONE UTENTI ---
 let usersCache = [];
 let currentSort = { key: 'displayName', dir: 1 };
+let searchTerm = '';
 
 async function loadUsers() {
   const userList = document.getElementById('userList');
@@ -89,14 +91,27 @@ async function loadUsers() {
   }
 }
 
+function filterUsers() {
+  if (!searchTerm) return usersCache;
+  const term = searchTerm.toLowerCase();
+  return usersCache.filter(user =>
+    (user.displayName && user.displayName.toLowerCase().includes(term)) ||
+    (user.email && user.email.toLowerCase().includes(term))
+  );
+}
+
 function renderUserTable() {
   const userList = document.getElementById('userList');
-  if (!usersCache.length) {
+  const filtered = filterUsers();
+  // Aggiorna contatore utenti
+  const userCount = document.getElementById('userCount');
+  if (userCount) userCount.textContent = `UtentiRegistrati: ${filtered.length}`;
+  if (!filtered.length) {
     userList.innerHTML = '<tr><td colspan="6">Nessun utente trovato</td></tr>';
     return;
   }
   // Ordina
-  const sorted = [...usersCache].sort((a, b) => {
+  const sorted = [...filtered].sort((a, b) => {
     let v1 = a[currentSort.key] || '';
     let v2 = b[currentSort.key] || '';
     if (typeof v1 === 'string') v1 = v1.toLowerCase();
@@ -135,35 +150,47 @@ function setupUserTableSort() {
 
 // Carica utenti quando si accede alla sezione utenti
 window.showSection = function(id) {
+  // Nasconde tutte le sezioni principali
   document.querySelectorAll('#admin-main section').forEach(sec => sec.style.display = 'none');
+
+  // Mostra la sezione richiesta
   document.getElementById(id).style.display = '';
+
+  // Rimuove classe active da tutti i bottoni
   document.querySelectorAll('#admin-sidebar button').forEach(btn => btn.classList.remove('active'));
+
+  // Rende attivo il bottone corrispondente
   const btns = document.querySelectorAll('#admin-sidebar nav button');
-  if(id === 'admin-users') {
+  if (id === 'admin-users') {
     btns[0].classList.add('active');
-    loadUsers();
+    loadUsers(); // ✅ carica gli utenti
   }
-  if(id === 'admin-notes') btns[1].classList.add('active');
-  if(id === 'admin-recipes') btns[2].classList.add('active');
-  if(id === 'admin-notifications') btns[3].classList.add('active');
+  if (id === 'admin-notes') {
+    btns[1].classList.add('active');
+    // loadNoteStats(); // se vuoi caricare statistiche note
+  }
+  if (id === 'admin-recipes') {
+    btns[2].classList.add('active');
+    // loadRecipeStats(); // se vuoi caricare statistiche ricette
+  }
+  if (id === 'admin-notifications') {
+    btns[3].classList.add('active');
+  }
 };
 
 window.addEventListener('DOMContentLoaded', () => {
   checkAdminAccess();
   setupUserTableSort();
-  // ...existing code...
+  // Ricerca live utenti
+  const searchInput = document.getElementById('userSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', e => {
+      searchTerm = e.target.value;
+      renderUserTable();
+    });
+  }
 });
 
 // Funzione per cambiare sezione (come da HTML)
-window.showSection = function(id) {
-  document.querySelectorAll('#admin-main section').forEach(sec => sec.style.display = 'none');
-  document.getElementById(id).style.display = '';
-  document.querySelectorAll('#admin-sidebar button').forEach(btn => btn.classList.remove('active'));
-  const btns = document.querySelectorAll('#admin-sidebar nav button');
-  if(id === 'admin-users') btns[0].classList.add('active');
-  if(id === 'admin-notes') btns[1].classList.add('active');
-  if(id === 'admin-recipes') btns[2].classList.add('active');
-  if(id === 'admin-notifications') btns[3].classList.add('active');
-};
 
 // Placeholder: logica per popolare tabella utenti, filtro gruppi, invio notifiche...
