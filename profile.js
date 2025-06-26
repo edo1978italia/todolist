@@ -53,65 +53,69 @@ document.addEventListener("DOMContentLoaded", () => {
   auth.onAuthStateChanged(async (user) => {
     if (!user) return;
 
-    emailEl.textContent = user.email;
+    // Email ora letta da Firestore (users collection)
     const userRef = db.collection("users").doc(user.uid);
-
     try {
       const snap = await userRef.get();
       const data = snap.data();
-
-      if (data?.displayName) nameEl.value = data.displayName;
-      if (data?.photoURL) avatarEl.src = data.photoURL;
-      if (data?.firstName) document.getElementById("firstName").textContent = data.firstName;
-      if (data?.lastName) document.getElementById("lastName").textContent = data.lastName;
-      // Country sotto Last Name
-      if (data?.country) {
-        document.getElementById("country").textContent = data.country;
-      } else {
-        document.getElementById("country").textContent = "—";
-      }
-      // Group Name sotto Email
-      if (data?.groupId) {
-        try {
-          const groupSnap = await db.collection("groups").doc(data.groupId).get();
-          if (groupSnap.exists) {
-            // Nome gruppo
-            document.getElementById("userGroupName").textContent = groupSnap.data().name || data.groupId;
-            // Invite code
-            if (groupSnap.data().inviteCode) {
-              document.getElementById("userGroup").textContent = groupSnap.data().inviteCode;
-            } else {
-              document.getElementById("userGroup").textContent = data.groupId;
-            }
-          } else {
-            document.getElementById("userGroupName").textContent = data.groupId;
-            document.getElementById("userGroup").textContent = data.groupId;
+      if (emailEl) emailEl.textContent = data?.email || "—";
+      // Nickname
+      if (nameEl) nameEl.value = data?.displayName || "";
+      // Avatar
+      if (avatarEl) avatarEl.src = data?.photoURL || "/todolist/img/default-avatar.png";
+      // Name
+      const firstNameEl = document.getElementById("firstName");
+      if (firstNameEl) firstNameEl.textContent = data?.firstName || "—";
+      // Last Name
+      const lastNameEl = document.getElementById("lastName");
+      if (lastNameEl) lastNameEl.textContent = data?.lastName || "—";
+      // Country
+      const countryEl = document.getElementById("country");
+      if (countryEl) countryEl.textContent = data?.country || "—";
+      // Group Name
+      const groupNameEl = document.getElementById("userGroupName");
+      if (groupNameEl) {
+        if (data?.groupId) {
+          try {
+            const groupSnap = await db.collection("groups").doc(data.groupId).get();
+            groupNameEl.textContent = groupSnap.exists ? groupSnap.data().name : data.groupId;
+          } catch (e) {
+            groupNameEl.textContent = data.groupId;
           }
-        } catch (e) {
-          document.getElementById("userGroupName").textContent = data.groupId;
-          document.getElementById("userGroup").textContent = data.groupId;
+        } else {
+          groupNameEl.textContent = "—";
         }
-      } else {
-        document.getElementById("userGroupName").textContent = "—";
-        document.getElementById("userGroup").textContent = "—";
       }
-      if (data?.birthDate) {
-        // Prova a formattare la data se è in formato ISO o timestamp
-        let birthdateStr = data.birthDate;
-        console.log('[DEBUG] birthDate raw:', birthdateStr);
-        if (/^\d{4}-\d{2}-\d{2}/.test(birthdateStr)) {
-          // Formato YYYY-MM-DD
-          const [y, m, d] = birthdateStr.split("-");
-          birthdateStr = `${d}/${m}/${y}`;
-        } else if (typeof birthdateStr === "object" && birthdateStr.toDate) {
-          // Firestore Timestamp
-          const dateObj = birthdateStr.toDate();
-          birthdateStr = dateObj.toLocaleDateString("it-IT");
+      // Invite Code
+      const userGroupEl = document.getElementById("userGroup");
+      if (userGroupEl) {
+        if (data?.groupId) {
+          try {
+            const groupSnap = await db.collection("groups").doc(data.groupId).get();
+            userGroupEl.textContent = groupSnap.exists && groupSnap.data().inviteCode ? groupSnap.data().inviteCode : data.groupId;
+          } catch (e) {
+            userGroupEl.textContent = data.groupId;
+          }
+        } else {
+          userGroupEl.textContent = "—";
         }
-        document.getElementById("birthdate").textContent = birthdateStr;
-      } else {
-        document.getElementById("birthdate").textContent = "—";
-        console.warn('[DEBUG] Nessun campo birthDate trovato per questo utente');
+      }
+      // Birthdate
+      const birthdateEl = document.getElementById("birthdate");
+      if (birthdateEl) {
+        if (data?.birthDate) {
+          let birthdateStr = data.birthDate;
+          if (/^\d{4}-\d{2}-\d{2}/.test(birthdateStr)) {
+            const [y, m, d] = birthdateStr.split("-");
+            birthdateStr = `${d}/${m}/${y}`;
+          } else if (typeof birthdateStr === "object" && birthdateStr.toDate) {
+            const dateObj = birthdateStr.toDate();
+            birthdateStr = dateObj.toLocaleDateString("it-IT");
+          }
+          birthdateEl.textContent = birthdateStr;
+        } else {
+          birthdateEl.textContent = "—";
+        }
       }
     } catch (e) {
       console.error("Errore lettura dati utente:", e);
