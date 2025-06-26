@@ -60,18 +60,58 @@
       <span class="profile-info-value" id="userEmail"></span>
     </div>
     <br />
-    <div class="profile-group-label">GROUP</div>
-    <div class="profile-group-value" id="userGroup"></div>
+    <div class="profile-group-label">INVITE CODE</div>
+    <div class="profile-group-value" id="userGroup" style="display:inline-block;"></div>
+    <span id="shareInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    </span>
+    <span id="copyInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </span>
     <div class="profile-group-description">
       <!-- Qui puoi inserire una spiegazione su come usare/condividere il gruppo -->
       <p>Testo di spiegazione sul gruppo. Personalizza questo testo per fornire istruzioni agli utenti su come utilizzare o condividere il codice del gruppo.</p>
     </div>
     <div class="button-separator"></div>
     <img id="avatarPreview" alt="Avatar" class="avatar" /><br />
-    <button id="upload_widget">Change picture</button>
+    <button id="upload_widget">Change avatar</button>
     <div class="button-separator"></div>
     <!-- Back button rimosso -->
   </div>
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+  const shareIcon = document.getElementById("shareInviteCodeIcon");
+  const copyIcon = document.getElementById("copyInviteCodeIcon");
+  const inviteCodeEl = document.getElementById("userGroup");
+  if (shareIcon && inviteCodeEl) {
+    shareIcon.addEventListener("click", async () => {
+      const inviteCode = inviteCodeEl.textContent.trim();
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Invite Code",
+            text: `Ecco il mio invite code: ${inviteCode}`,
+          });
+        } catch (e) {}
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(inviteCode);
+        shareIcon.style.color = 'green';
+        setTimeout(() => { shareIcon.style.color = ''; }, 1200);
+      }
+    });
+  }
+  if (copyIcon && inviteCodeEl) {
+    copyIcon.addEventListener("click", async () => {
+      const inviteCode = inviteCodeEl.textContent.trim();
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(inviteCode);
+        copyIcon.style.color = 'green';
+        setTimeout(() => { copyIcon.style.color = ''; }, 1200);
+      }
+    });
+  }
+});
+</script>
 </body>
 
 </html>
