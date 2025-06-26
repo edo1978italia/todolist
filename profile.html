@@ -89,8 +89,8 @@ document.addEventListener("DOMContentLoaded", function() {
       if (navigator.share) {
         try {
           await navigator.share({
-            title: "Invite Code",
-            text: `Ecco il mio invite code: ${inviteCode}`,
+            title: "Join my group!",
+            text: `Here is the code to join my group on To Do App: ${inviteCode}`,
           });
         } catch (e) {}
       } else if (navigator.clipboard) {
