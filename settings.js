@@ -35,23 +35,41 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html";
             return;
         }
-        emailEl.textContent = user.email;
-        const userRef = db.collection("users").doc(user.uid);
-        const snap = await userRef.get();
-        const data = snap.data();
-        console.log("[SETTING] Dati utente:", data);
-        if (data?.groupId) {
-            try {
-                const groupSnap = await db.collection("groups").doc(data.groupId).get();
-                groupNameEl.textContent = groupSnap.exists ? groupSnap.data().name : data.groupId;
-                console.log("[SETTING] Nome gruppo:", groupNameEl.textContent);
-            } catch (err) {
-                groupNameEl.textContent = data.groupId;
-                console.warn("[SETTING] Errore recupero gruppo:", err);
+        try {
+            const userRef = db.collection("users").doc(user.uid);
+            const snap = await userRef.get();
+            const data = snap.data();
+            console.log("[SETTING] Dati utente:", data);
+            // Nome completo (nome + cognome da due campi separati)
+            const fullNameEl = document.getElementById("fullName");
+            if (fullNameEl) fullNameEl.textContent = ((data?.firstName || "") + " " + (data?.lastName || "")).trim() || "—";
+            // Nome
+            const firstNameEl = document.getElementById("firstName");
+            if (firstNameEl) firstNameEl.textContent = data?.firstName || "—";
+            // Last Name
+            const lastNameEl = document.getElementById("lastName");
+            if (lastNameEl) lastNameEl.textContent = data?.lastName || "—";
+            // Email (ora da Firestore)
+            const emailEl = document.getElementById("userEmail");
+            if (emailEl) emailEl.textContent = data?.email || "—";
+            // Group Name
+            const groupNameEl = document.getElementById("userGroupName");
+            if (groupNameEl) {
+                if (data?.groupId) {
+                    try {
+                        const groupSnap = await db.collection("groups").doc(data.groupId).get();
+                        groupNameEl.textContent = groupSnap.exists ? groupSnap.data().name : data.groupId;
+                    } catch (err) {
+                        groupNameEl.textContent = data.groupId;
+                    }
+                } else {
+                    groupNameEl.textContent = "—";
+                }
             }
-        } else {
-            groupNameEl.textContent = "—";
-            console.log("[SETTING] Nessun gruppo associato");
+            // AVATAR (indipendente)
+            // avatarEl rimosso: non viene più gestito l'avatar
+        } catch (err) {
+            console.error("[SETTING] Errore caricamento dettagli utente:", err);
         }
     });
 
@@ -132,25 +150,5 @@ document.addEventListener("DOMContentLoaded", () => {
     window.navigateTo = function (page) {
         console.log("[SETTING] navigateTo:", page);
         window.location.href = page;
-    };
-
-    window.aggiornaEmail = function () {
-        const userEmailElement = document.getElementById("userEmail");
-        const sidebar = document.getElementById("sidebar");
-        const toggleBtn = document.getElementById("openSidebar");
-        console.log("[SETTING] aggiornaEmail chiamata", { userEmailElement: !!userEmailElement, sidebar: !!sidebar, toggleBtn: !!toggleBtn });
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user && userEmailElement) {
-                userEmailElement.innerText = user.email;
-                if (sidebar) sidebar.style.display = "block";
-                if (toggleBtn) toggleBtn.style.display = "block";
-                console.log("[SETTING] aggiornaEmail: utente autenticato", user.email);
-            } else {
-                if (userEmailElement) userEmailElement.innerText = "Non autenticato";
-                if (sidebar) sidebar.style.display = "none";
-                if (toggleBtn) toggleBtn.style.display = "none";
-                console.log("[SETTING] aggiornaEmail: utente non autenticato");
-            }
-        });
     };
 });
