@@ -1,0 +1,412 @@
+/* admin-dashboard.css - Stile scuro, elegante e moderno per area admin */
+
+body {
+  background: #191b1e;
+  color: #f3f3f3;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  display: flex;
+}
+
+#admin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background: #232325;
+  box-shadow: 2px 0 16px #0007;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 36px;
+  z-index: 100;
+  transition: left 0.3s;
+}
+#admin-sidebar h2 {
+  color: #bdbdbd;
+  font-size: 1.3em;
+  margin-bottom: 32px;
+  text-shadow: 0 2px 8px #111;
+}
+#admin-sidebar nav {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 7px; /* ridotto da 18px a 7px */
+}
+#admin-sidebar button {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 0.98em; /* ridotto da 1.08em a 0.98em */
+  padding: 12px 0 12px 28px;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+#admin-sidebar button.active, #admin-sidebar button:hover {
+  background: #35363a;
+  color: #fff;
+  border-left: 4px solid #757575;
+}
+
+#admin-main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h2, h3 {
+  color: #6ec1e4;
+  letter-spacing: 1px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 8px #0a0c10;
+}
+
+section {
+  background: #232325;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.22);
+  margin: 24px auto;
+  padding: 28px 24px 20px 24px;
+  max-width: 1200px;
+  width: 96vw;
+  transition: box-shadow 0.3s;
+  animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+}
+
+section:hover {
+  box-shadow: 0 8px 40px 0 #444a50a0;
+}
+
+#admin-users ul, #userList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#userList li {
+  background: #232325;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+  animation: fadeInUser 0.5s;
+}
+#userList li:hover {
+  background: #35363a;
+  color: #fff;
+  transform: scale(1.03);
+}
+
+#userList .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#userList .user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #757575;
+  background: #232325;
+  box-shadow: 0 1px 4px #0003;
+}
+#userList .user-nick {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #f3f3f3;
+}
+#userList .user-role {
+  font-size: 0.9em;
+  color: #bdbdbd;
+  margin-left: 8px;
+}
+#userList .user-actions button {
+  background: #35363a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  margin-left: 8px;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+#userList .user-actions button:hover {
+  background: #e53935;
+  transform: scale(1.08) rotate(-2deg);
+}
+
+#admin-notes, #admin-recipes {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+#admin-notes span, #admin-recipes span {
+  font-weight: bold;
+  color: #bdbdbd;
+  font-size: 1.2em;
+}
+
+#admin-notifications textarea {
+  width: 100%;
+  min-height: 60px;
+  border-radius: 8px;
+  border: none;
+  background: #232325;
+  color: #f3f3f3;
+  font-size: 1em;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px #0002;
+  transition: background 0.2s;
+}
+#admin-notifications textarea:focus {
+  background: #35363a;
+  outline: none;
+}
+#admin-notifications input[type="text"] {
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  background: #232325;
+  color: #f3f3f3;
+  font-size: 1em;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px #0002;
+  transition: background 0.2s;
+}
+#admin-notifications input[type="text"]:focus {
+  background: #35363a;
+  outline: none;
+}
+#publishNotifBtn {
+  background: #35363a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #1a73e880;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 6px;
+}
+#publishNotifBtn:hover {
+  background: #e53935;
+  transform: scale(1.07) rotate(-1deg);
+}
+
+#logoutBtn {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.88em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #1a73e880;
+  margin-bottom: 10px;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 200;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: auto;
+  min-width: 0;
+  max-width: 120px;
+  transform: none;
+}
+#logoutBtn:hover {
+  background: #b71c1c;
+  transform: scale(1.07);
+}
+
+.admin-login-form {
+  background: #232325;
+  color: #f3f3f3;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.22);
+  max-width: 340px;
+  margin: 60px auto 0 auto;
+  padding: 32px 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+}
+.admin-login-form h2 {
+  color: #bdbdbd;
+  font-size: 1.3em;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px #111;
+}
+.admin-login-form input[type="email"],
+.admin-login-form input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #191b1e;
+  color: #f3f3f3;
+  font-size: 1em;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 4px #0002;
+  transition: background 0.2s;
+}
+.admin-login-form input[type="email"]:focus,
+.admin-login-form input[type="password"]:focus {
+  background: #35363a;
+  outline: none;
+}
+.admin-login-form button[type="submit"] {
+  background: #35363a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #1a73e880;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 8px;
+}
+.admin-login-form button[type="submit"]:hover {
+  background: #e53935;
+  transform: scale(1.07);
+}
+#adminLoginError {
+  color: #e53935;
+  font-size: 0.98em;
+  min-height: 18px;
+  text-align: center;
+}
+#admin-login-panel {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  width: 100vw;
+  background: transparent;
+}
+@media (max-width: 600px) {
+  body {
+    display: block;
+  }
+  #admin-sidebar {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: auto;
+    background: #232837;
+    box-shadow: none;
+    align-items: stretch;
+    padding: 0;
+    z-index: 10;
+  }
+  #admin-sidebar h2 {
+    display: none;
+  }
+  #admin-sidebar nav {
+    flex-direction: column;
+    width: 100vw;
+    gap: 0;
+  }
+  #admin-sidebar button {
+    width: 100vw;
+    padding: 14px 0 14px 18px;
+    border-left: none;
+    border-bottom: 1.5px solid #232b3b;
+    border-radius: 0;
+    font-size: 1.08em;
+    text-align: left;
+  }
+  #admin-sidebar button.active, #admin-sidebar button:hover {
+    background: #35363a;
+    color: #fff;
+    border-left: none;
+    border-bottom: 3px solid #757575;
+  }
+  #admin-main {
+    margin-left: 0;
+    width: 100vw;
+    padding: 0;
+  }
+  section {
+    max-width: 99vw;
+    width: 99vw;
+    padding: 10px 2vw 10px 2vw;
+    margin: 12px auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+  }
+  #userList li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.98em;
+    padding: 10px 8px;
+  }
+  h2, h3 {
+    font-size: 1.1em;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+  #admin-notifications textarea,
+  #admin-notifications input[type="text"] {
+    font-size: 0.98em;
+    padding: 8px;
+  }
+  #publishNotifBtn {
+    font-size: 1em;
+    padding: 8px 16px;
+  }
+  #logoutBtn {
+    position: static !important;
+    display: block;
+    margin: 12px auto 0 auto;
+    left: unset;
+    top: unset;
+    transform: none;
+    width: 90vw;
+    max-width: 320px;
+    font-size: 1em;
+    padding: 10px 28px;
+  }
+  #admin-login-panel {
+    min-height: 100vh;
+    align-items: center;
+    background: #191b1e;
+  }
+  .admin-login-form {
+    margin: 0 auto;
+    max-width: 98vw;
+    padding: 22px 8vw 18px 8vw;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+}

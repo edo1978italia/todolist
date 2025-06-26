@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+  <div id="admin-login-panel" style="display:none;">
+    <form id="adminLoginForm" class="admin-login-form">
+      <h2>Login Admin</h2>
+      <input type="email" id="adminEmail" placeholder="Email admin" required autocomplete="username">
+      <input type="password" id="adminPassword" placeholder="Password" required autocomplete="current-password">
+      <button type="submit">Accedi</button>
+      <div id="adminLoginError" style="color:#e53935;margin-top:8px;"></div>
+    </form>
+  </div>
+  <aside id="admin-sidebar" style="display:none;">
+    <button id="logoutBtn">Logout</button>
+    <h2>👤 Admin</h2>
+    <nav>
+      <button class="active" onclick="showSection('admin-users')">Utenti</button>
+      <button onclick="showSection('admin-notes')">Note</button>
+      <button onclick="showSection('admin-recipes')">Ricette</button>
+      <button onclick="showSection('admin-notifications')">Notifiche</button>
+    </nav>
+  </aside>
+  <main id="admin-main" style="display:none;">
+    <section id="admin-users">
+      <h3>Utenti registrati</h3>
+      <ul id="userList"></ul>
+    </section>
+
+    <section id="admin-notes" style="display:none;">
+      <h3>📄 Statistiche note</h3>
+      <p>Totale note: <span id="noteCount">—</span></p>
+    </section>
+
+    <section id="admin-recipes" style="display:none;">
+      <h3>🍽️ Statistiche ricette</h3>
+      <p>Totale ricette: <span id="recipeCount">—</span></p>
+    </section>
+
+    <section id="admin-notifications" style="display:none;">
+      <h3>📣 Notifiche broadcast</h3>
+      <textarea id="notifMessage" placeholder="✍️ Scrivi la notifica..."></textarea>
+      <input type="text" id="notifLink" placeholder="Link opzionale">
+      <button id="publishNotifBtn">📤 Pubblica</button>
+    </section>
+  </main>
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('#admin-main section').forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = '';
+      document.querySelectorAll('#admin-sidebar button').forEach(btn => btn.classList.remove('active'));
+      const btns = document.querySelectorAll('#admin-sidebar nav button');
+      if(id === 'admin-users') btns[0].classList.add('active');
+      if(id === 'admin-notes') btns[1].classList.add('active');
+      if(id === 'admin-recipes') btns[2].classList.add('active');
+      if(id === 'admin-notifications') btns[3].classList.add('active');
+    }
+    // Login/Logout admin separato
+    const auth = window.firebase && firebase.auth ? firebase.auth() : null;
+    function showAdminPanel() {
+      document.getElementById('admin-login-panel').style.display = 'none';
+      document.getElementById('admin-sidebar').style.display = '';
+      document.getElementById('admin-main').style.display = '';
+    }
+    function showLoginPanel() {
+      document.getElementById('admin-login-panel').style.display = '';
+      document.getElementById('admin-sidebar').style.display = 'none';
+      document.getElementById('admin-main').style.display = 'none';
+    }
+    if(auth) {
+      auth.onAuthStateChanged(async user => {
+        if (!user) {
+          showLoginPanel();
+        } else {
+          // Verifica ruolo admin
+          const db = firebase.firestore();
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists && userDoc.data().role === 'admin') {
+            showAdminPanel();
+          } else {
+            auth.signOut();
+            showLoginPanel();
+          }
+        }
+      });
+    } else {
+      showLoginPanel();
+    }
+    // Gestione login form
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('adminLoginForm');
+      if(form) form.onsubmit = function(e) {
+        e.preventDefault();
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+        document.getElementById('adminLoginError').textContent = '';
+        if(auth) {
+          auth.signInWithEmailAndPassword(email, password)
+            .catch(err => {
+              document.getElementById('adminLoginError').textContent = 'Login fallito: ' + (err.message || 'Controlla le credenziali');
+            });
+        }
+      };
+      // Logout
+      var btn = document.getElementById('logoutBtn');
+      if(btn) btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if(auth) auth.signOut();
+        showLoginPanel();
+      });
+    });
+  </script>
+</body>
+</html>
