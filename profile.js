@@ -72,10 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       // Group sotto Email
       if (data?.groupId) {
+        // Recupera l'inviteCode associato al groupId
         try {
           const groupSnap = await db.collection("groups").doc(data.groupId).get();
-          if (groupSnap.exists) {
-            document.getElementById("userGroup").textContent = groupSnap.data().name || data.groupId;
+          if (groupSnap.exists && groupSnap.data().inviteCode) {
+            document.getElementById("userGroup").textContent = groupSnap.data().inviteCode;
           } else {
             document.getElementById("userGroup").textContent = data.groupId;
           }
