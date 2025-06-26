@@ -410,18 +410,20 @@ section:hover {
     box-shadow: 0 2px 12px rgba(0,0,0,0.18);
   }
 }
-@media (max-width: 900px) {
+@media (min-width: 601px) {
+  section {
+    max-width: none;
+    width: 100%;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
   .user-table-wrapper {
     width: 100%;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    display: block;
+    overflow: visible;
   }
   .user-table {
-    min-width: 700px;
-    width: max-content;
-    display: table;
+    width: 100%;
+    min-width: 0;
   }
 }
 
