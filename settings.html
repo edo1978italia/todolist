@@ -152,6 +152,8 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Gestione modale custom leave group
+  // --- BLOCCO DISABILITATO: il modale non deve più aprirsi, usiamo solo window.confirm/alert da settings.js ---
+  /*
   const leaveGroupBtn = document.getElementById("leaveGroupBtn");
   const leaveGroupModal = document.getElementById("leaveGroupModal");
   const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
@@ -171,10 +173,10 @@ document.addEventListener("DOMContentLoaded", function() {
     confirmLeaveGroupBtn.addEventListener("click", function() {
       leaveGroupModal.style.display = "none";
       // Qui va la logica di abbandono gruppo vera e propria
-      // Esempio: chiama la funzione che gestisce l'abbandono del gruppo
       // leaveGroup();
     });
   }
+  */
 });
 </script>
 </body>
