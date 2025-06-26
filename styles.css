@@ -1174,7 +1174,7 @@ textarea {
 
 .profile-details-box {
   border: 1.5px solid #e0e0e0;
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 18px 14px 10px 14px;
   margin-bottom: 32px;
   background: #fff;
@@ -1215,8 +1215,9 @@ textarea {
 
 @media (max-width: 600px) {
   .modal-content {
-    max-width: 92vw;
-    padding: 18px 6vw 18px 6vw;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    /* Tutto il resto resta come da desktop */
   }
 }
 
