@@ -1,78 +1,79 @@
 <!doctype html>
 <html lang="it">
-    <head>
-        <title>Sidebar</title>
-        <link rel="stylesheet" href="styles.css" />
-    </head>
-    <body>
-        <div id="sidebar">
-            <!-- 🔷 Testata utente -->
-            <div id="userBox">
-                <br />
-                <p id="welcomeMessage">Welcome</p>
-                <img id="userAvatar" src="/todolist/img/default-avatar.png" alt="Avatar" class="avatar" />
-                <p id="userEmail">Email</p>
-            </div>
 
-            <!-- ✅ Tutto sotto: invariato -->
-            <button class="sidebar-button" onclick="navigateTo('index.html')">
-                <img src="/todolist/icone/home.svg" class="menu-icon" alt="Home" />
-                Home
-            </button>
+<head>
+    <title>Sidebar</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
 
-            <button class="sidebar-button" onclick="navigateTo('todolist.html')">
-                <img src="/todolist/icone/shopping_list.svg" class="menu-icon" alt="To-Buy" />
-                Shopping list
-            </button>
-
-            <button class="sidebar-button" onclick="navigateTo('notes-home.html')">
-                <img src="/todolist/icone/note.svg" class="menu-icon" alt="Note" />
-                Notes
-            </button>
-
-            <button class="sidebar-button" onclick="navigateTo('ricettelista.html')">
-                <img src="/todolist/icone/recipe.svg" class="menu-icon" alt="Recipes" />
-                Recipes
-            </button
-            ><br />
-            <button class="sidebar-button" onclick="navigateTo('profile.html')">
-                <img src="/todolist/icone/profile.svg" class="menu-icon" alt="profile" />
-                Profile
-            </button>
-            <button class="sidebar-button" onclick="navigateTo('settings.html')">
-                <img src="/todolist/icone/settings.svg" class="menu-icon" alt="settings" />
-                Settings
-            </button>
-            <button class="sidebar-button" onclick="navigateTo('faq.html')">
-                <img src="/todolist/icone/faq.svg" class="menu-icon" alt="FAQ" />
-                FAQ
-            </button>
-            <button class="sidebar-button" onclick="logoutUser()" title="Logout">
-                <img src="/todolist/icone/log_out.svg" class="menu-icon" alt="Logout" />
-                Logout
-            </button>
+<body>
+    <div id="sidebar">
+        <!-- 🔷 Testata utente -->
+        <div id="userBox">
+            <br />
+            <p id="welcomeMessage">Welcome</p>
+            <img id="userAvatar" src="/todolist/img/default-avatar.png" alt="Avatar" class="avatar" />
+            <p id="userEmail">Email</p>
         </div>
 
-        <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
-        <script type="module" src="sidebar.js"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const sidebar = document.getElementById("sidebar");
-                const openSidebarButton = document.getElementById("openSidebar");
+        <!-- ✅ Tutto sotto: invariato -->
+        <button class="sidebar-button" onclick="navigateTo('index.html')">
+            <img src="/todolist/icone/home.svg" class="menu-icon" alt="Home" />
+            Home
+        </button>
 
-                if (!sidebar || !openSidebarButton) {
-                    console.warn("⚠ Sidebar o pulsante non trovati!");
-                    return;
-                }
+        <button class="sidebar-button" onclick="navigateTo('todolist.html')">
+            <img src="/todolist/icone/shopping_list.svg" class="menu-icon" alt="To-Buy" />
+            Shopping list
+        </button>
 
-                openSidebarButton.addEventListener("click", function () {
-                    sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
-                    console.log("🔄 Sidebar toggled:", sidebar.style.left);
-                });
+        <button class="sidebar-button" onclick="navigateTo('notes-home.html')">
+            <img src="/todolist/icone/note.svg" class="menu-icon" alt="Note" />
+            Notes
+        </button>
 
-                console.log("[✓] Sidebar attivata manualmente in sidebar.html");
+        <button class="sidebar-button" onclick="navigateTo('ricettelista.html')">
+            <img src="/todolist/icone/recipe.svg" class="menu-icon" alt="Recipes" />
+            Recipes
+        </button><br />
+        <button class="sidebar-button" onclick="navigateTo('profile.html')">
+            <img src="/todolist/icone/profile.svg" class="menu-icon" alt="profile" />
+            Profile
+        </button>
+        <button class="sidebar-button" onclick="navigateTo('settings.html')">
+            <img src="/todolist/icone/settings.svg" class="menu-icon" alt="settings" />
+            Settings
+        </button>
+        <button class="sidebar-button" onclick="navigateTo('faq.html')">
+            <img src="/todolist/icone/faq.svg" class="menu-icon" alt="FAQ" />
+            FAQ
+        </button>
+        <button class="sidebar-button" onclick="logoutUser()" title="Logout">
+            <img src="/todolist/icone/log_out.svg" class="menu-icon" alt="Logout" />
+            Logout
+        </button>
+    </div>
+
+    <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebar = document.getElementById("sidebar");
+            const openSidebarButton = document.getElementById("openSidebar");
+
+            if (!sidebar || !openSidebarButton) {
+                console.warn("⚠ Sidebar o pulsante non trovati!");
+                return;
+            }
+
+            openSidebarButton.addEventListener("click", function () {
+                sidebar.style.left = sidebar.style.left === "0px" ? "-300px" : "0px";
+                console.log("🔄 Sidebar toggled:", sidebar.style.left);
             });
-            
-        </script>
-    </body>
+
+            console.log("[✓] Sidebar attivata manualmente in sidebar.html");
+        });
+
+    </script>
+</body>
+
 </html>
