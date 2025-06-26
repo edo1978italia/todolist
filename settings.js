@@ -12,17 +12,15 @@ try {
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Definizione globale di msgEl per accesso ovunque
-const msgEl = document.getElementById("settingsMsg");
-
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[SETTING] DOMContentLoaded");
     const emailEl = document.getElementById("userEmail");
     const groupNameEl = document.getElementById("userGroupName");
+    // msgEl ora dentro DOMContentLoaded
+    const msgEl = document.getElementById("settingsMsg");
     // leaveBtn e deleteBtn definiti ma leaveBtn non avrà più listener legacy
     const leaveBtn = document.getElementById("leaveGroupBtn");
     const deleteBtn = document.getElementById("deleteAccountBtn");
-    // msgEl già definito globalmente
 
     console.log("[SETTING] Elementi:", {
         emailEl: !!emailEl,
@@ -93,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Gestione abbandono gruppo con feedback console e modale custom
+    // Gestione abbandono gruppo con feedback console e modale custom (TUTTO DENTRO DOMContentLoaded)
     const leaveGroupBtn = document.getElementById("leaveGroupBtn");
     const leaveGroupModal = document.getElementById("leaveGroupModal");
     const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
