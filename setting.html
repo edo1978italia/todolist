@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Impostazioni Account</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Sidebar -->
+  <script type="module" src="sidebar.js"></script>
+  <script type="module" src="setting.js"></script>
+  <style>
+    .settings-section {
+      margin: 24px 0 16px 0;
+      font-weight: 600;
+      font-size: 1.1em;
+      color: #333;
+    }
+    .danger-btn {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+    .danger-btn:hover {
+      background: #c0392b;
+    }
+    .settings-btn-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 600px) {
+      .settings-btn-row {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>
+  <h3>Impostazioni Account</h3>
+  <div id="profile-container">
+    <div class="profile-info-row">
+      <span class="profile-info-label">Email:</span>
+      <span class="profile-info-value" id="userEmail"></span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Group Name:</span>
+      <span class="profile-info-value" id="userGroupName"></span>
+    </div>
+    <div class="button-separator"></div>
+    <div class="settings-section">Azioni</div>
+    <div class="settings-btn-row">
+      <button id="leaveGroupBtn" class="danger-btn">Abbandona gruppo</button>
+      <button id="deleteAccountBtn" class="danger-btn">Elimina account</button>
+    </div>
+    <div id="settingsMsg" style="margin-top:16px;color:#28a745;font-weight:bold;"></div>
+  </div>
+</body>
+</html>

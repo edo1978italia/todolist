@@ -70,20 +70,29 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         document.getElementById("country").textContent = "—";
       }
-      // Group sotto Email
+      // Group Name sotto Email
       if (data?.groupId) {
-        // Recupera l'inviteCode associato al groupId
         try {
           const groupSnap = await db.collection("groups").doc(data.groupId).get();
-          if (groupSnap.exists && groupSnap.data().inviteCode) {
-            document.getElementById("userGroup").textContent = groupSnap.data().inviteCode;
+          if (groupSnap.exists) {
+            // Nome gruppo
+            document.getElementById("userGroupName").textContent = groupSnap.data().name || data.groupId;
+            // Invite code
+            if (groupSnap.data().inviteCode) {
+              document.getElementById("userGroup").textContent = groupSnap.data().inviteCode;
+            } else {
+              document.getElementById("userGroup").textContent = data.groupId;
+            }
           } else {
+            document.getElementById("userGroupName").textContent = data.groupId;
             document.getElementById("userGroup").textContent = data.groupId;
           }
         } catch (e) {
+          document.getElementById("userGroupName").textContent = data.groupId;
           document.getElementById("userGroup").textContent = data.groupId;
         }
       } else {
+        document.getElementById("userGroupName").textContent = "—";
         document.getElementById("userGroup").textContent = "—";
       }
       if (data?.birthDate) {
@@ -161,28 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// 🔓 Logout sicuro
-async function logoutUser() {
-  try {
-    await auth.signOut();
-    console.log("✅ Logout completato");
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 500);
-  } catch (error) {
-    console.error("Errore logout:", error);
-    alert("Errore nel logout: " + error.message);
-  }
-}
 
-document.addEventListener("DOMContentLoaded", function () {
-  const logoutButton = document.getElementById("logoutButton");
-  if (logoutButton) {
-    logoutButton.addEventListener("click", logoutUser);
-  }
-});
-
-window.logoutUser = logoutUser;
 
 // 📥 Carica sidebar dinamica
 const sidebarContainer = document.createElement("div");
