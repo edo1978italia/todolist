@@ -414,12 +414,15 @@ section:hover {
   section {
     max-width: none;
     width: 100%;
-    padding-left: 32px;
-    padding-right: 32px;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+    margin: 0;
   }
   .user-table-wrapper {
     width: 100%;
     overflow: visible;
+    box-sizing: border-box;
   }
   .user-table {
     width: 100%;
@@ -455,6 +458,28 @@ section:hover {
   left: 0;
   background: linear-gradient(to right, transparent, #6ec1e4, transparent);
 }
+.user-table th.sorted-asc:after {
+  content: ' \25B2'; /* freccia su */
+  color: #fff;
+  font-size: 0.9em;
+  position: static;
+  margin-left: 4px;
+  text-shadow: none !important;
+  filter: none !important;
+  background: none;
+  box-shadow: none;
+}
+.user-table th.sorted-desc:after {
+  content: ' \25BC'; /* freccia giù */
+  color: #fff;
+  font-size: 0.9em;
+  position: static;
+  margin-left: 4px;
+  text-shadow: none !important;
+  filter: none !important;
+  background: none;
+  box-shadow: none;
+}
 .user-table tbody tr {
   transition: background 0.3s;
 }
@@ -467,4 +492,102 @@ section:hover {
 .user-table tbody tr:hover {
   background: #35363a !important;
   color: #fff;
+}
+
+/* Alternanza colori righe tabella utenti */
+.user-table tr:nth-child(even) {
+  background: #232325;
+}
+.user-table tr:nth-child(odd) {
+  background: #18191b;
+}
+
+/* RIMOSSA alternanza colori colonna sinistra nella scheda utente (modal) */
+.user-detail-table tr:nth-child(even) td:first-child,
+.user-detail-table tr:nth-child(odd) td:first-child {
+  background: none;
+  color: inherit;
+}
+.user-detail-table td:first-child {
+  font-weight: 500;
+  padding: 6px 12px 6px 10px;
+  border-right: 1px solid #222;
+  min-width: 120px;
+}
+.user-detail-table td:last-child {
+  padding: 6px 10px;
+  color: #e0e0e0;
+}
+.user-detail-table tr {
+  border-bottom: 1px solid #232325;
+}
+
+#notification-bell-container {
+  position: fixed;
+  top: 10px;
+  right: 12px;
+  z-index: 9999;
+}
+#notification-bell-btn {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+#notification-bell-icon,
+#notification-bell-icon svg {
+  width: 72px !important;
+  height: 72px !important;
+  max-width: 72px !important;
+  max-height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
+  display: block;
+}
+#notification-bell-btn:hover #notification-bell-icon {
+  transform: scale(1.08) rotate(-7deg);
+}
+#notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 13px;
+  height: 13px;
+  background: #e53935;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.72em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  box-shadow: 0 2px 8px #0005;
+  border: 2px solid #232325;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  #notification-bell-container {
+    top: 6px;
+    right: 6px;
+  }
+  #notification-bell-icon {
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+  #notification-bell-btn {
+    width: 54px;
+    height: 54px;
+  }
 }
