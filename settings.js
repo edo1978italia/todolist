@@ -111,12 +111,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (confirmLeaveGroupBtn) {
         confirmLeaveGroupBtn.addEventListener("click", async function() {
+            console.log("[SETTING] Conferma abbandono gruppo: click su conferma modale");
             leaveGroupModal.style.display = "none";
-            if (!auth.currentUser) return;
+            if (!auth.currentUser) {
+                console.warn("[SETTING] Nessun utente autenticato al momento della conferma abbandono gruppo");
+                return;
+            }
             try {
                 await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
+                console.log("[SETTING] groupId rimosso da Firestore per utente:", auth.currentUser.uid);
                 if (msgEl) msgEl.textContent = "Hai abbandonato il gruppo.";
-                setTimeout(() => window.location.href = "group-setup.html", 1200);
+                setTimeout(() => {
+                    console.log("[SETTING] Redirect a group-setup.html dopo abbandono gruppo");
+                    window.location.href = "group-setup.html";
+                }, 1200);
             } catch (e) {
                 if (msgEl) msgEl.textContent = "Errore: impossibile abbandonare il gruppo.";
                 console.error("[SETTING] Errore abbandono gruppo:", e);
