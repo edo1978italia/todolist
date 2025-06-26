@@ -12,13 +12,17 @@ try {
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Definizione globale di msgEl per accesso ovunque
+const msgEl = document.getElementById("settingsMsg");
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[SETTING] DOMContentLoaded");
     const emailEl = document.getElementById("userEmail");
     const groupNameEl = document.getElementById("userGroupName");
+    // leaveBtn e deleteBtn definiti ma leaveBtn non avrà più listener legacy
     const leaveBtn = document.getElementById("leaveGroupBtn");
     const deleteBtn = document.getElementById("deleteAccountBtn");
-    const msgEl = document.getElementById("settingsMsg");
+    // msgEl già definito globalmente
 
     console.log("[SETTING] Elementi:", {
         emailEl: !!emailEl,
@@ -73,22 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    leaveBtn.addEventListener("click", async () => {
-        console.log("[SETTING] leaveBtn cliccato");
-        if (!confirm("Sei sicuro di voler abbandonare il gruppo?")) return;
-        const user = auth.currentUser;
-        if (!user) return;
-        try {
-            await db.collection("users").doc(user.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
-            msgEl.textContent = "Hai abbandonato il gruppo.";
-            console.log("[SETTING] Gruppo abbandonato");
-            setTimeout(() => window.location.href = "group-setup.html", 1200);
-        } catch (e) {
-            msgEl.textContent = "Errore: impossibile abbandonare il gruppo.";
-            console.error("[SETTING] Errore abbandono gruppo:", e);
-        }
-    });
-
     deleteBtn.addEventListener("click", async () => {
         console.log("[SETTING] deleteBtn cliccato");
         if (!confirm("Questa azione eliminerà definitivamente il tuo account e tutti i tuoi dati. Continuare?")) return;
@@ -98,10 +86,9 @@ document.addEventListener("DOMContentLoaded", () => {
             await db.collection("users").doc(user.uid).delete();
             await user.delete();
             msgEl.textContent = "Account eliminato.";
-            console.log("[SETTING] Account eliminato");
             setTimeout(() => window.location.href = "index.html", 1200);
         } catch (e) {
-            msgEl.textContent = "Errore: impossibile eliminare l'account. Riprova dopo il login.";
+            msgEl.textContent = "Errore: impossibile eliminare l'account.";
             console.error("[SETTING] Errore eliminazione account:", e);
         }
     });
@@ -125,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirmLeaveGroupBtn) {
         confirmLeaveGroupBtn.addEventListener("click", async function() {
             leaveGroupModal.style.display = "none";
-            // Qui va la logica di abbandono gruppo
             if (!auth.currentUser) return;
             try {
                 await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
