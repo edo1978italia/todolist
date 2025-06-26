@@ -99,13 +99,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
     const cancelLeaveGroupBtn = document.getElementById("cancelLeaveGroupBtn");
 
+    console.log("[SETTING] leaveGroupBtn:", leaveGroupBtn, "leaveGroupModal:", leaveGroupModal, "confirmLeaveGroupBtn:", confirmLeaveGroupBtn, "cancelLeaveGroupBtn:", cancelLeaveGroupBtn);
+
     if (leaveGroupBtn && leaveGroupModal) {
         leaveGroupBtn.addEventListener("click", function() {
+            console.log("[SETTING] leaveGroupBtn click: apro modale");
             leaveGroupModal.style.display = "flex";
         });
     }
     if (cancelLeaveGroupBtn && leaveGroupModal) {
         cancelLeaveGroupBtn.addEventListener("click", function() {
+            console.log("[SETTING] cancelLeaveGroupBtn click: chiudo modale");
             leaveGroupModal.style.display = "none";
         });
     }
