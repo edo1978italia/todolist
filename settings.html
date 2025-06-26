@@ -60,21 +60,30 @@
         <button id="leaveGroupBtn" style="background:#fbc02d;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;margin-top:18px;">Leave the group</button>
       </div>
     </div>
-    <!-- Sezione INVITE CODE rimossa qui -->
-    <!-- Back button rimosso -->
-  </div>
-
-  <!-- MODALE CONFERMA DELETE ACCOUNT -->
-  <div id="deleteAccountModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <h4>Are you sure you want to permanently delete your account?</h4>
-      <p>This will completely delete all your details and you will no longer be able to log in to the system.</p>
-      <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
-        <button id="confirmDeleteBtn" style="background:#e53935;color:#fff;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, delete</button>
-        <button id="cancelDeleteBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
+    <!-- MODALE CONFERMA DELETE ACCOUNT -->
+    <div id="deleteAccountModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h4>Are you sure you want to permanently delete your account?</h4>
+        <p>This will completely delete all your details and you will no longer be able to log in to the system.</p>
+        <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
+          <button id="confirmDeleteBtn" style="background:#e53935;color:#fff;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, delete</button>
+          <button id="cancelDeleteBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- MODALE CONFERMA LEAVE GROUP -->
+    <div id="leaveGroupModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h4>Are you sure you want to leave the group?</h4>
+        <p>Your account will not be deleted and you can join a group at any time by creating a new one or entering an Invite Code from an existing group.</p>
+        <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
+          <button id="confirmLeaveGroupBtn" style="background:#fbc02d;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, leave</button>
+          <button id="cancelLeaveGroupBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
+
   <script>
 document.addEventListener("DOMContentLoaded", function() {
   const shareIcon = document.getElementById("shareInviteCodeIcon");
@@ -139,6 +148,31 @@ document.addEventListener("DOMContentLoaded", function() {
       // Qui va la logica di eliminazione account vera e propria
       // Esempio: chiama la funzione che elimina l'account
       // deleteUserAccount();
+    });
+  }
+
+  // Gestione modale custom leave group
+  const leaveGroupBtn = document.getElementById("leaveGroupBtn");
+  const leaveGroupModal = document.getElementById("leaveGroupModal");
+  const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
+  const cancelLeaveGroupBtn = document.getElementById("cancelLeaveGroupBtn");
+
+  if (leaveGroupBtn && leaveGroupModal) {
+    leaveGroupBtn.addEventListener("click", function() {
+      leaveGroupModal.style.display = "flex";
+    });
+  }
+  if (cancelLeaveGroupBtn && leaveGroupModal) {
+    cancelLeaveGroupBtn.addEventListener("click", function() {
+      leaveGroupModal.style.display = "none";
+    });
+  }
+  if (confirmLeaveGroupBtn) {
+    confirmLeaveGroupBtn.addEventListener("click", function() {
+      leaveGroupModal.style.display = "none";
+      // Qui va la logica di abbandono gruppo vera e propria
+      // Esempio: chiama la funzione che gestisce l'abbandono del gruppo
+      // leaveGroup();
     });
   }
 });

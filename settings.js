@@ -106,7 +106,60 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Gestione modale custom leave group
+    const leaveGroupBtn = document.getElementById("leaveGroupBtn");
+    const leaveGroupModal = document.getElementById("leaveGroupModal");
+    const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
+    const cancelLeaveGroupBtn = document.getElementById("cancelLeaveGroupBtn");
 
+    if (leaveGroupBtn && leaveGroupModal) {
+        leaveGroupBtn.addEventListener("click", function() {
+            leaveGroupModal.style.display = "flex";
+        });
+    }
+    if (cancelLeaveGroupBtn && leaveGroupModal) {
+        cancelLeaveGroupBtn.addEventListener("click", function() {
+            leaveGroupModal.style.display = "none";
+        });
+    }
+    if (confirmLeaveGroupBtn) {
+        confirmLeaveGroupBtn.addEventListener("click", async function() {
+            leaveGroupModal.style.display = "none";
+            // Qui va la logica di abbandono gruppo
+            if (!auth.currentUser) return;
+            try {
+                await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
+                if (msgEl) msgEl.textContent = "Hai abbandonato il gruppo.";
+                setTimeout(() => window.location.href = "group-setup.html", 1200);
+            } catch (e) {
+                if (msgEl) msgEl.textContent = "Errore: impossibile abbandonare il gruppo.";
+                console.error("[SETTING] Errore abbandono gruppo:", e);
+            }
+        });
+    }
+
+    // 🔓 Logout sicuro
+    async function logoutUser() {
+        try {
+            await auth.signOut();
+            console.log("✅ Logout completato");
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 500);
+        } catch (error) {
+            console.error("Errore logout:", error);
+            alert("Errore nel logout: " + error.message);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const logoutButton = document.getElementById("logoutButton");
+        if (logoutButton) {
+            logoutButton.addEventListener("click", logoutUser);
+        }
+    });
+
+    window.logoutUser = logoutUser;
 
     // 📥 Carica sidebar dinamica
     const sidebarContainer = document.createElement("div");
@@ -152,3 +205,4 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = page;
     };
 });
+

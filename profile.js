@@ -174,7 +174,28 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// 🔓 Logout sicuro
+async function logoutUser() {
+  try {
+    await auth.signOut();
+    console.log("✅ Logout completato");
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 500);
+  } catch (error) {
+    console.error("Errore logout:", error);
+    alert("Errore nel logout: " + error.message);
+  }
+}
 
+document.addEventListener("DOMContentLoaded", function () {
+  const logoutButton = document.getElementById("logoutButton");
+  if (logoutButton) {
+    logoutButton.addEventListener("click", logoutUser);
+  }
+});
+
+window.logoutUser = logoutUser;
 
 // 📥 Carica sidebar dinamica
 const sidebarContainer = document.createElement("div");

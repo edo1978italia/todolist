@@ -87,42 +87,28 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// 🔥 Gestione logout (versione più sicura)
-async function logoutUser() {
-    try {
-        if (unsubscribeTasks) unsubscribeTasks(); // 🔥 Disattiva listener Firestore
-        await signOut(auth);
-        localStorage.clear();
-        console.log("✅ Logout completato, utente disconnesso!");
-
-        setTimeout(() => {
-            if (!auth.currentUser) {
-                console.log("✅ Conferma: utente disconnesso.");
-                window.location.href = "index.html"; // 🔥 Reindirizzamento dopo la disconnessione
-            } else {
-                console.warn("⚠ L'utente risulta ancora autenticato, ricarico la pagina.");
-                window.location.reload();
-            }
-        }, 1000);
-    } catch (error) {
-        console.error("❌ Errore nel logout:", error);
-        alert("Errore nel logout: " + error.message);
+ // 🔓 Logout sicuro
+    async function logoutUser() {
+        try {
+            await auth.signOut();
+            console.log("✅ Logout completato");
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 500);
+        } catch (error) {
+            console.error("Errore logout:", error);
+            alert("Errore nel logout: " + error.message);
+        }
     }
-}
 
-// 🔥 Registra il pulsante logout al caricamento della pagina
-document.addEventListener("DOMContentLoaded", function () {
-    const logoutButton = document.getElementById("logoutButton");
+    document.addEventListener("DOMContentLoaded", function () {
+        const logoutButton = document.getElementById("logoutButton");
+        if (logoutButton) {
+            logoutButton.addEventListener("click", logoutUser);
+        }
+    });
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser);
-        console.log("✅ Pulsante logout registrato correttamente!");
-    } else {
-        console.warn("⚠ Pulsante logout non trovato!");
-    }
-});
-
-window.logoutUser = logoutUser;
+    window.logoutUser = logoutUser;
 
 // 🔥 Caricamento delle attività
 async function loadTasks(snapshot) {
