@@ -99,11 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Listener semplice per abbandono gruppo: solo window.confirm/alert e feedback console
     if (leaveGroupBtn) {
-        // Rimuovi eventuali altri listener precedenti (modale)
-        leaveGroupBtn.replaceWith(leaveGroupBtn.cloneNode(true));
-        const newLeaveGroupBtn = document.getElementById("leaveGroupBtn");
-        console.log("[SETTING] leaveGroupBtn clonato e sostituito", newLeaveGroupBtn);
-        newLeaveGroupBtn.addEventListener("click", async function() {
+        console.log("[SETTING] leaveGroupBtn trovato, aggiungo event listener");
+        leaveGroupBtn.addEventListener("click", async function() {
             console.log("[SETTING] leaveGroupBtn click: richiesta conferma abbandono gruppo (SOLO ALERT)");
             const conferma = window.confirm("Sei sicuro di voler abbandonare il gruppo?\nPotrai sempre rientrare con un nuovo codice o creando un nuovo gruppo.");
             if (!conferma) {
