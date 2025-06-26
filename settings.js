@@ -97,26 +97,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Listener semplice per abbandono gruppo: solo window.confirm/alert e feedback console
-    if (leaveGroupBtn) {
-        console.log("[SETTING] leaveGroupBtn trovato, aggiungo event listener");
-        leaveGroupBtn.addEventListener("click", async function() {
-            console.log("[SETTING] leaveGroupBtn click: richiesta conferma abbandono gruppo (SOLO ALERT)");
-            const conferma = window.confirm("Sei sicuro di voler abbandonare il gruppo?\nPotrai sempre rientrare con un nuovo codice o creando un nuovo gruppo.");
-            if (!conferma) {
-                console.log("[SETTING] Abbandono gruppo annullato dall'utente");
-                return;
-            }
+    // Gestione abbandono gruppo tramite modale custom
+    if (typeof confirmLeaveGroupBtn !== 'undefined' && confirmLeaveGroupBtn) {
+        confirmLeaveGroupBtn.addEventListener("click", async function() {
             if (!auth.currentUser) {
-                console.warn("[SETTING] Nessun utente autenticato al momento della conferma abbandono gruppo");
                 alert("Nessun utente autenticato.");
                 return;
             }
             try {
                 await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
-                console.log("[SETTING] groupId rimosso da Firestore per utente:", auth.currentUser.uid);
                 alert("Hai abbandonato il gruppo.");
-                console.log("[SETTING] Redirect a group-setup.html dopo abbandono gruppo");
                 window.location.href = "group-setup.html";
             } catch (e) {
                 alert("Errore: impossibile abbandonare il gruppo.\n" + e.message);
