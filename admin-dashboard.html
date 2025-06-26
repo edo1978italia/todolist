@@ -29,7 +29,26 @@
   <main id="admin-main" style="display:none;">
     <section id="admin-users">
       <h3>Utenti registrati</h3>
-      <ul id="userList"></ul>
+      <div class="user-controls">
+        <input type="text" id="userSearch" placeholder="Cerca per nome o email...">
+      </div>
+      <div class="user-table-wrapper">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Avatar</th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Ruolo</th>
+              <th>Stato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="userList">
+            <!-- Popolato da JS -->
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section id="admin-notes" style="display:none;">
