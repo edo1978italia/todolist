@@ -14,18 +14,24 @@ const db = firebase.firestore();
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[SETTING] DOMContentLoaded");
+    // Selettori
     const emailEl = document.getElementById("userEmail");
     const groupNameEl = document.getElementById("userGroupName");
-    // msgEl ora dentro DOMContentLoaded
     const msgEl = document.getElementById("settingsMsg");
-    // leaveBtn e deleteBtn definiti ma leaveBtn non avrà più listener legacy
-    const leaveBtn = document.getElementById("leaveGroupBtn");
+    const leaveGroupBtn = document.getElementById("leaveGroupBtn");
+    const leaveGroupModal = document.getElementById("leaveGroupModal");
+    const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
+    const cancelLeaveGroupBtn = document.getElementById("cancelLeaveGroupBtn");
     const deleteBtn = document.getElementById("deleteAccountBtn");
 
+    // Log presenza elementi
     console.log("[SETTING] Elementi:", {
         emailEl: !!emailEl,
         groupNameEl: !!groupNameEl,
-        leaveBtn: !!leaveBtn,
+        leaveGroupBtn: !!leaveGroupBtn,
+        leaveGroupModal: !!leaveGroupModal,
+        confirmLeaveGroupBtn: !!confirmLeaveGroupBtn,
+        cancelLeaveGroupBtn: !!cancelLeaveGroupBtn,
         deleteBtn: !!deleteBtn,
         msgEl: !!msgEl
     });
@@ -91,14 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Gestione abbandono gruppo con feedback console e modale custom (TUTTO DENTRO DOMContentLoaded)
-    const leaveGroupBtn = document.getElementById("leaveGroupBtn");
-    const leaveGroupModal = document.getElementById("leaveGroupModal");
-    const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
-    const cancelLeaveGroupBtn = document.getElementById("cancelLeaveGroupBtn");
-
-    console.log("[SETTING] leaveGroupBtn:", leaveGroupBtn, "leaveGroupModal:", leaveGroupModal, "confirmLeaveGroupBtn:", confirmLeaveGroupBtn, "cancelLeaveGroupBtn:", cancelLeaveGroupBtn);
-
+    // Listener modale abbandono gruppo
     if (leaveGroupBtn && leaveGroupModal) {
         leaveGroupBtn.addEventListener("click", function() {
             console.log("[SETTING] leaveGroupBtn click: apro modale");
