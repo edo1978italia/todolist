@@ -61,16 +61,18 @@
     </div>
     <br />
     <div class="profile-group-label">INVITE CODE</div>
-    <div class="profile-group-value" id="userGroup" style="display:inline-block;"></div>
-    <span id="shareInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-    </span>
-    <span id="copyInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-    </span>
-    <span id="copyInviteCodeMsg" style="display:none;margin-left:8px;color:#28a745;font-weight:bold;">Invite code copied!</span>
-    <!-- Mini popup per copia -->
-    <div id="copyInviteCodeToast" style="display:none;position:fixed;top:32px;left:50%;transform:translateX(-50%);background:#28a745;color:#fff;padding:10px 24px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-weight:bold;z-index:9999;transition:opacity 0.3s;opacity:0;">Invite code copied!</div>
+    <div style="position:relative;display:inline-block;width:100%;">
+      <div class="profile-group-value" id="userGroup" style="display:inline-block;"></div>
+      <span id="shareInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </span>
+      <span id="copyInviteCodeIcon" style="cursor:pointer;vertical-align:middle;display:inline-block;margin-left:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </span>
+      <span id="copyInviteCodeMsg" style="display:none;margin-left:8px;color:#28a745;font-weight:bold;">Invite code copied!</span>
+      <!-- Mini popup per copia -->
+      <div id="copyInviteCodeToast" style="display:none;position:absolute;top:-38px;left:50%;transform:translateX(-50%);background:#28a745;color:#fff;padding:8px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-weight:bold;z-index:9999;transition:opacity 0.3s;opacity:0;">Invite code copied!</div>
+    </div>
     <div class="profile-group-description">
       <!-- Qui puoi inserire una spiegazione su come usare/condividere il gruppo -->
       <p>Testo di spiegazione sul gruppo. Personalizza questo testo per fornire istruzioni agli utenti su come utilizzare o condividere il codice del gruppo.</p>
@@ -118,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
           toast.style.opacity = 0;
           setTimeout(() => { toast.style.display = 'none'; }, 300);
           copyIcon.style.color = '';
-        }, 1500);
+        }, 2000); // Durata aumentata a 2 secondi
       }
     });
   }
