@@ -81,24 +81,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    deleteBtn.addEventListener("click", async () => {
+        console.log("[SETTING] deleteBtn cliccato");
+        if (!confirm("Questa azione eliminerà definitivamente il tuo account e tutti i tuoi dati. Continuare?")) return;
+        const user = auth.currentUser;
+        if (!user) return;
+        try {
+            await db.collection("users").doc(user.uid).delete();
+            await user.delete();
+            msgEl.textContent = "Account eliminato.";
+            setTimeout(() => window.location.href = "index.html", 1200);
+        } catch (e) {
+            msgEl.textContent = "Errore: impossibile eliminare l'account.";
+            console.error("[SETTING] Errore eliminazione account:", e);
+        }
+    });
+
     // Gestione abbandono gruppo tramite modale custom
     if (typeof confirmLeaveGroupBtn !== 'undefined' && confirmLeaveGroupBtn) {
         confirmLeaveGroupBtn.addEventListener("click", async function() {
             if (!auth.currentUser) {
                 alert("Nessun utente autenticato.");
-                return;
-            }
-            // Recupera dati utente
-            const userSnap = await db.collection("users").doc(auth.currentUser.uid).get();
-            const userData = userSnap.data();
-            if (!userData?.groupId) {
-                alert("Non sei in nessun gruppo.");
-                return;
-            }
-            // Conta quanti utenti hanno lo stesso groupId
-            const membersSnap = await db.collection("users").where("groupId", "==", userData.groupId).get();
-            if (membersSnap.size <= 1) {
-                alert("Sei l'unico membro, non puoi abbandonare il gruppo. Puoi solo eliminare il tuo account.");
                 return;
             }
             try {
@@ -111,52 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // Funzione di eliminazione account con pulizia gruppo se ultimo membro
-    async function deleteUserAccount() {
-        if (!auth.currentUser) return;
-        const user = auth.currentUser;
-        // Recupera dati utente
-        const userSnap = await db.collection("users").doc(user.uid).get();
-        const userData = userSnap.data();
-        let groupId = userData?.groupId;
-        let isLastMember = false;
-        if (groupId) {
-            const membersSnap = await db.collection("users").where("groupId", "==", groupId).get();
-            isLastMember = (membersSnap.size <= 1);
-        }
-        if (isLastMember && groupId) {
-            // Elimina tutte le note, ricette, categorie collegate a quel gruppo
-            const deleteCollection = async (collectionName) => {
-                const snap = await db.collection(collectionName).where("groupId", "==", groupId).get();
-                const batch = db.batch();
-                snap.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
-            };
-            await deleteCollection("notes");
-            await deleteCollection("categories");
-            await deleteCollection("ricette");
-            await db.collection("groups").doc(groupId).delete();
-            console.log("[SETTING] Eliminato gruppo e dati collegati perché era l'ultimo membro");
-        }
-        // Elimina utente
-        await db.collection("users").doc(user.uid).delete();
-        await user.delete();
-    }
-
-    // Sostituisco la logica del pulsante deleteBtn
-    deleteBtn.addEventListener("click", async () => {
-        console.log("[SETTING] deleteBtn cliccato");
-        if (!confirm("Questa azione eliminerà definitivamente il tuo account e tutti i tuoi dati. Continuare?")) return;
-        try {
-            await deleteUserAccount();
-            msgEl.textContent = "Account eliminato.";
-            setTimeout(() => window.location.href = "index.html", 1200);
-        } catch (e) {
-            msgEl.textContent = "Errore: impossibile eliminare l'account.";
-            console.error("[SETTING] Errore eliminazione account:", e);
-        }
-    });
 
     // 🔓 Logout sicuro
     async function logoutUser() {
