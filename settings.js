@@ -57,11 +57,21 @@ document.addEventListener("DOMContentLoaded", () => {
             // Last Name
             const lastNameEl = document.getElementById("lastName");
             if (lastNameEl) lastNameEl.textContent = data?.lastName || "—";
-            // Email (ora da Firestore)
+            // Email (da Firestore, fallback a auth se mancante)
             const emailEl = document.getElementById("userEmail");
-            if (emailEl) emailEl.textContent = data?.email || "—";
-            // Group Name
+            if (emailEl) {
+                if (data?.email) {
+                    emailEl.textContent = data.email;
+                } else if (user?.email) {
+                    emailEl.textContent = user.email;
+                } else {
+                    emailEl.textContent = "—";
+                }
+            }
+            // Group Name, numero membri e lista nickname con foto profilo
             const groupNameEl = document.getElementById("userGroupName");
+            const groupMembersCountEl = document.getElementById("groupMembersCount");
+            const groupMembersListEl = document.getElementById("groupMembersList");
             if (groupNameEl) {
                 if (data?.groupId) {
                     try {
@@ -70,8 +80,49 @@ document.addEventListener("DOMContentLoaded", () => {
                     } catch (err) {
                         groupNameEl.textContent = data.groupId;
                     }
+                    // Conta membri gruppo e mostra lista nickname con foto profilo
+                    if (groupMembersCountEl || groupMembersListEl) {
+                        try {
+                            const membersSnap = await db.collection("users").where("groupId", "==", data.groupId).get();
+                            if (groupMembersCountEl) groupMembersCountEl.textContent = membersSnap.size;
+                            if (groupMembersListEl) {
+                                groupMembersListEl.innerHTML = "";
+                                let hasMembers = false;
+                                membersSnap.forEach(doc => {
+                                    const u = doc.data();
+                                    let nick = u.nickname || ((u.firstName || "") + (u.lastName ? " " + u.lastName : "")) || u.email || "?";
+                                    nick = nick.trim();
+                                    if (nick) {
+                                        hasMembers = true;
+                                        const chip = document.createElement("span");
+                                        chip.className = "member-chip member-chip-avatar";
+                                        // Foto profilo: usa u.photoURL se presente, altrimenti avatar di default
+                                        const avatar = document.createElement("img");
+                                        avatar.className = "member-avatar";
+                                        avatar.alt = "avatar";
+                                        avatar.src = u.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(nick) + "&background=cccccc&color=444&size=48";
+                                        chip.appendChild(avatar);
+                                        // Nickname
+                                        const nickSpan = document.createElement("span");
+                                        nickSpan.className = "member-nick";
+                                        nickSpan.textContent = nick;
+                                        chip.appendChild(nickSpan);
+                                        groupMembersListEl.appendChild(chip);
+                                    }
+                                });
+                                if (!hasMembers) {
+                                    groupMembersListEl.innerHTML = "—";
+                                }
+                            }
+                        } catch (err) {
+                            if (groupMembersCountEl) groupMembersCountEl.textContent = "—";
+                            if (groupMembersListEl) groupMembersListEl.innerHTML = "—";
+                        }
+                    }
                 } else {
                     groupNameEl.textContent = "—";
+                    if (groupMembersCountEl) groupMembersCountEl.textContent = "—";
+                    if (groupMembersListEl) groupMembersListEl.innerHTML = "—";
                 }
             }
             // AVATAR (indipendente)
@@ -92,22 +143,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const userSnap = await db.collection("users").doc(auth.currentUser.uid).get();
             const userData = userSnap.data();
             if (!userData?.groupId) {
-                alert("Non sei in nessun gruppo.");
+                alert("You are not in any group.");
                 return;
             }
             // Conta quanti utenti hanno lo stesso groupId
             const membersSnap = await db.collection("users").where("groupId", "==", userData.groupId).get();
             if (membersSnap.size <= 1) {
-                alert("Sei l'unico membro, non puoi abbandonare il gruppo. Puoi solo eliminare il tuo account.");
+                alert("You are the only member, you cannot leave the group. You can only delete your account which will permanently erase all data.");
                 return;
             }
             try {
                 await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
-                alert("Hai abbandonato il gruppo.");
+                alert("You have left the group.");
                 window.location.href = "group-setup.html";
             } catch (e) {
-                alert("Errore: impossibile abbandonare il gruppo.\n" + e.message);
-                console.error("[SETTING] Errore abbandono gruppo:", e);
+                alert("Error: unable to leave the group.\n" + e.message);
+                console.error("[SETTING] Error leaving group:", e);
             }
         });
     }
@@ -147,14 +198,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Sostituisco la logica del pulsante deleteBtn
     deleteBtn.addEventListener("click", async () => {
         console.log("[SETTING] deleteBtn cliccato");
-        if (!confirm("Questa azione eliminerà definitivamente il tuo account e tutti i tuoi dati. Continuare?")) return;
+        if (!confirm("This action will permanently delete your account and all your data. Continue?")) return;
         try {
             await deleteUserAccount();
-            msgEl.textContent = "Account eliminato.";
+            msgEl.textContent = "Account deleted.";
             setTimeout(() => window.location.href = "index.html", 1200);
         } catch (e) {
-            msgEl.textContent = "Errore: impossibile eliminare l'account.";
-            console.error("[SETTING] Errore eliminazione account:", e);
+            msgEl.textContent = "Error: Unable to delete account.";
+            console.error("[SETTING] Error deleting account:", e);
         }
     });
 
@@ -162,13 +213,13 @@ document.addEventListener("DOMContentLoaded", () => {
     async function logoutUser() {
         try {
             await auth.signOut();
-            console.log("✅ Logout completato");
+            console.log("✅ Logout completed");
             setTimeout(() => {
                 window.location.href = "index.html";
             }, 500);
         } catch (error) {
-            console.error("Errore logout:", error);
-            alert("Errore nel logout: " + error.message);
+            console.error("Error logging out:", error);
+            alert("Error logging out: " + error.message);
         }
     }
 
@@ -224,5 +275,35 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("[SETTING] navigateTo:", page);
         window.location.href = page;
     };
+
+    // Funzione di abbandono gruppo centralizzata
+    async function leaveGroup() {
+        if (!auth.currentUser) {
+            alert("No authenticated user.");
+            return;
+        }
+        // Recupera dati utente
+        const userSnap = await db.collection("users").doc(auth.currentUser.uid).get();
+        const userData = userSnap.data();
+        if (!userData?.groupId) {
+            alert("You are not in any group.");
+            return;
+        }
+        // Conta quanti utenti hanno lo stesso groupId
+        const membersSnap = await db.collection("users").where("groupId", "==", userData.groupId).get();
+        if (membersSnap.size <= 1) {
+            alert("You are the only member, you cannot leave the group. You can only delete your account.");
+            return;
+        }
+        try {
+            await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
+            alert("You have left the group.");
+            window.location.href = "group-setup.html";
+        } catch (e) {
+            alert("Error: Unable to leave the group.\n" + e.message);
+            console.error("[SETTING] Error leaving group:", e);
+        }
+    }
+    window.leaveGroup = leaveGroup;
 });
 
