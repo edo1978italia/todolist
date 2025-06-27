@@ -12,7 +12,7 @@
       <h2>Login Admin</h2>
       <input type="email" id="adminEmail" placeholder="Email admin" required autocomplete="username">
       <input type="password" id="adminPassword" placeholder="Password" required autocomplete="current-password">
-      <button type="submit">Accedi</button>
+      <button type="submit">Login</button>
       <div id="adminLoginError" style="color:#e53935;margin-top:8px;"></div>
     </form>
   </div>
@@ -20,20 +20,20 @@
     <button id="logoutBtn">Logout</button>
     <h2>👤 Admin</h2>
     <nav>
-      <button class="active" onclick="showSection('admin-users')">Utenti</button>
-      <button onclick="showSection('admin-notes')">Note</button>
-      <button onclick="showSection('admin-recipes')">Ricette</button>
-      <button onclick="showSection('admin-notifications')">Notifiche</button>
+      <button class="active" onclick="showSection('admin-users')">Users</button>
+      <button onclick="showSection('admin-notes')">Notes</button>
+      <button onclick="showSection('admin-recipes')">Recipes</button>
+      <button onclick="showSection('admin-notifications')">Notifications</button>
     </nav>
   </aside>
   <main id="admin-main" style="display:none;">
     <section id="admin-users">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Utenti registrati</h3>
-        <span id="userCount" style="color:#6ec1e4; font-weight:600; font-size:1.08em;">UtentiRegistrati: 0</span>
+        <h3>Registered users</h3>
+        <span id="userCount" style="color:#6ec1e4; font-weight:600; font-size:1.08em;">Registered users: 0</span>
       </div>
       <div class="user-controls">
-        <input type="text" id="userSearch" placeholder="Cerca per nome o email...">
+        <input type="text" id="userSearch" placeholder="Search by name or email...">
       </div>
       <div class="user-table-wrapper">
         <table class="user-table">
@@ -44,10 +44,10 @@
               <th>Lastname</th>
               <th>Nickname</th>
               <th>Email</th>
-              <th>Gruppo</th>
-              <th>Ruolo</th>
-              <th>Stato</th>
-              <th>Azioni</th>
+              <th>Group</th>
+              <th>Rule</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="userList">
@@ -58,20 +58,20 @@
     </section>
 
     <section id="admin-notes" style="display:none;">
-      <h3>📄 Statistiche note</h3>
+      <h3>📄 Note Statistics</h3>
       <p>Totale note: <span id="noteCount">—</span></p>
     </section>
 
     <section id="admin-recipes" style="display:none;">
-      <h3>🍽️ Statistiche ricette</h3>
+      <h3>🍽️ Recipes Statistics</h3>
       <p>Totale ricette: <span id="recipeCount">—</span></p>
     </section>
 
     <section id="admin-notifications" style="display:none;">
-      <h3>📣 Notifiche broadcast</h3>
+      <h3>📣 Notifications broadcast</h3>
       <textarea id="notifMessage" placeholder="✍️ Scrivi la notifica..."></textarea>
       <input type="text" id="notifLink" placeholder="Link opzionale">
-      <button id="publishNotifBtn">📤 Pubblica</button>
+      <button id="publishNotifBtn">📤 Publish</button>
     </section>
   </main>
   <!-- Modal scheda utente -->

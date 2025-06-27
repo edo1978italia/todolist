@@ -20,6 +20,7 @@ import {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import firebaseConfig from "./config.js";
+import { notifyNoteCreated } from "./notifications.js";
 
 // Configura Firebase
 const app = initializeApp(firebaseConfig);
@@ -482,6 +483,9 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
                 photoURL
             }
         });
+
+        // 🔔 Invia notifica di creazione nota
+        notifyNoteCreated(title);
     } else {
         await updateDoc(doc(db, "notes", noteId), {
             title,

@@ -10,6 +10,12 @@
     <div id="sidebar">
         <!-- 🔷 Testata utente -->
         <div id="userBox">
+            <!-- 🔔 Icona notifiche nell'angolo in alto a destra del box -->
+            <div id="notificationsIcon" onclick="openNotifications()">
+                <img src="icone/notification.svg" alt="Notifications" />
+                <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+            </div>
+            
             <br />
             <p id="welcomeMessage">Welcome</p>
             <img id="userAvatar" src="/todolist/img/default-avatar.png" alt="Avatar" class="avatar" />
@@ -52,6 +58,24 @@
             <img src="/todolist/icone/log_out.svg" class="menu-icon" alt="Logout" />
             Logout
         </button>
+    </div>
+
+    <!-- Modal per le notifiche -->
+    <div id="notificationsModal" class="notifications-modal" style="display: none;">
+        <div class="notifications-modal-content">
+            <div class="notifications-header">
+                <h3>Notifiche</h3>
+                <button class="close-notifications" onclick="closeNotifications()">&times;</button>
+            </div>
+            <div class="notifications-list" id="notificationsList">
+                <!-- Le notifiche vengono caricate dinamicamente -->
+            </div>
+            <div class="notifications-footer">
+                <button class="mark-all-read-btn" id="markAllReadBtn" onclick="markAllAsRead()">
+                    Segna tutte come lette
+                </button>
+            </div>
+        </div>
     </div>
 
     <button id="openSidebar" onclick="toggleSidebar()">☰☰</button>

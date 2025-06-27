@@ -2,6 +2,7 @@ import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { initNotifications, destroyNotifications, markAllAsRead } from "./notifications.js";
 
 console.log("🔥 Avvio sidebar.js...");
 
@@ -52,6 +53,14 @@ function initializeSidebar() {
       } else {
         console.warn("⚠ Nessun nome trovato o elemento mancante");
       }
+
+      // ✅ Inizializza sistema notifiche SOLO se abbiamo i dati del gruppo
+      if (data?.groupId) {
+        console.log("🔔 Inizializzazione notifiche per gruppo:", data.groupId);
+        initNotifications(user.uid, data.displayName || "Utente", data.groupId);
+      } else {
+        console.warn("⚠ Nessun gruppo trovato per l'utente, notifiche non inizializzate");
+      }
     } catch (err) {
       console.error("[DEBUG] Errore durante recupero dati:", err);
     }
@@ -60,6 +69,10 @@ function initializeSidebar() {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
+        // Distruggi le notifiche prima del logout
+        console.log("🔔 Distruzione notifiche...");
+        destroyNotifications();
+        
         await signOut(auth);
         console.log("✅ Logout eseguito");
         window.location.href = "index.html";
@@ -137,4 +150,45 @@ document.addEventListener("click", function (event) {
 
   // Altrimenti, chiudi la sidebar
   sidebar.style.left = "-300px";
+});
+
+// ===== FUNZIONI MODAL NOTIFICHE =====
+
+// Funzione per aprire il modal delle notifiche
+window.openNotifications = function() {
+  const modal = document.getElementById("notificationsModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+};
+
+// Funzione per chiudere il modal delle notifiche  
+window.closeNotifications = function() {
+  const modal = document.getElementById("notificationsModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+};
+
+// Funzione per segnare tutte le notifiche come lette
+window.markAllAsRead = function() {
+  markAllAsRead();
+};
+
+// Inizializza il modal delle notifiche
+function initializeNotificationsModal() {
+  const modal = document.getElementById("notificationsModal");
+  if (modal) {
+    // Chiudi il modal se si clicca fuori
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) {
+        closeNotifications();
+      }
+    });
+  }
+}
+
+// Inizializza il modal quando la sidebar è pronta
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(initializeNotificationsModal, 200);
 });
