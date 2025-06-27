@@ -2,8 +2,8 @@
 // Sistema di notifiche condivise tra utenti del gruppo con funzione di sostituzione
 
 import firebaseConfig from "./config.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
     getFirestore,
     collection, 
@@ -17,7 +17,7 @@ import {
     deleteDoc,
     getDocs,
     serverTimestamp 
-} from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js';
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // Inizializza Firebase
 const app = initializeApp(firebaseConfig);

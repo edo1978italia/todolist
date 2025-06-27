@@ -24,8 +24,13 @@ const db = getFirestore(app);
 
 // 🔔 Funzione helper per creare notifica di ingresso nel gruppo
 async function createJoinNotification(groupId, userName, userId) {
+  console.log(`🔔 [DEBUG] Tentativo creazione notifica di ingresso per:`, {
+    groupId,
+    userName,
+    userId
+  });
   try {
-    await addDoc(collection(db, 'notifications'), {
+    const notificationData = {
       type: 'user_joined',
       message: `${userName} è entrato nel gruppo`,
       authorId: userId,
@@ -35,10 +40,15 @@ async function createJoinNotification(groupId, userName, userId) {
       readBy: [], 
       hiddenBy: [],
       replaceKey: `user_joined_${userId}_${Date.now()}`
-    });
-    console.log(`🔔 Notifica di ingresso creata per ${userName}`);
+    };
+    
+    console.log(`🔔 [DEBUG] Dati notifica da creare:`, notificationData);
+    
+    const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+    console.log(`🔔 [SUCCESS] Notifica di ingresso creata per ${userName} con ID: ${docRef.id}`);
   } catch (error) {
-    console.error('❌ Errore nella creazione notifica di ingresso:', error);
+    console.error('❌ [ERROR] Errore nella creazione notifica di ingresso:', error);
+    console.error('❌ [ERROR] Stack trace:', error.stack);
   }
 }
 
@@ -120,7 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("✅ Utente aggiornato con groupId e nickname");
 
         // 🔔 Crea notifica di ingresso nel gruppo usando nickname o firstName
-        const displayName = userData?.nickname || nicknameData?.nickname || userData?.firstName || userData?.displayName || "Nuovo utente";
+        const displayName = userData?.nickname || nicknameData?.nickname || userData?.displayName || userData?.firstName || "Nuovo utente";
+        console.log(`🔔 [DEBUG] Ingresso gruppo - Nome utente risolto:`, {
+            nickname: userData?.nickname,
+            nicknameDataNickname: nicknameData?.nickname,
+            displayName: userData?.displayName,
+            firstName: userData?.firstName,
+            finalName: displayName
+        });
+        
         await createJoinNotification(groupId, displayName, user.uid);
 
         console.log("✅ Ingresso nel gruppo completato con successo");

@@ -1,17 +1,25 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import firebaseConfig from "./config.js";
 
 console.log("[log] Inizio esecuzione profile.js");
 
-// ✅ Inizializzazione Firebase (modular compat)
-try {
-  firebase.initializeApp(firebaseConfig);
-  console.log("[✓] Firebase inizializzato");
-} catch (error) {
-  console.error("[!] Errore inizializzazione Firebase:", error);
-}
+// ✅ Inizializzazione Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+console.log("[✓] Firebase inizializzato");
 
 // 🔒 Protezione accesso: login + groupId
 auth.onAuthStateChanged(async (user) => {
@@ -21,12 +29,13 @@ auth.onAuthStateChanged(async (user) => {
     return;
   }
 
-  const userRef = db.collection("users").doc(user.uid);
-  const snap = await userRef.get();
+  const userRef = doc(db, "users", user.uid);
+  const snap = await getDoc(userRef);
 
-  if (!snap.exists) {
+  if (!snap.exists()) {
     console.error("❌ Documento utente assente — logout forzato");
-    await auth.signOut();
+    const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    await signOut(auth);
     window.location.href = "index.html";
     return;
   }
@@ -54,13 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!user) return;
 
     // Email ora letta da Firestore (users collection)
-    const userRef = db.collection("users").doc(user.uid);
+    const userRef = doc(db, "users", user.uid);
     try {
-      const snap = await userRef.get();
+      const snap = await getDoc(userRef);
       const data = snap.data();
       if (emailEl) emailEl.textContent = data?.email || "—";
       // Nickname
-      if (nameEl) nameEl.value = data?.displayName || "";
+      if (nameEl) nameEl.value = data?.nickname || "";
       // Avatar
       if (avatarEl) avatarEl.src = data?.photoURL || "/todolist/img/default-avatar.png";
       // Name
@@ -77,8 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (groupNameEl) {
         if (data?.groupId) {
           try {
-            const groupSnap = await db.collection("groups").doc(data.groupId).get();
-            groupNameEl.textContent = groupSnap.exists ? groupSnap.data().name : data.groupId;
+            const groupSnap = await getDoc(doc(db, "groups", data.groupId));
+            groupNameEl.textContent = groupSnap.exists() ? groupSnap.data().name : data.groupId;
           } catch (e) {
             groupNameEl.textContent = data.groupId;
           }
@@ -91,8 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (userGroupEl) {
         if (data?.groupId) {
           try {
-            const groupSnap = await db.collection("groups").doc(data.groupId).get();
-            userGroupEl.textContent = groupSnap.exists && groupSnap.data().inviteCode ? groupSnap.data().inviteCode : data.groupId;
+            const groupSnap = await getDoc(doc(db, "groups", data.groupId));
+            userGroupEl.textContent = groupSnap.exists() && groupSnap.data().inviteCode ? groupSnap.data().inviteCode : data.groupId;
           } catch (e) {
             userGroupEl.textContent = data.groupId;
           }
@@ -140,8 +149,9 @@ document.addEventListener("DOMContentLoaded", () => {
           avatarEl.src = imageUrl;
 
           try {
-            await userRef.set({ photoURL: imageUrl, email: user.email }, { merge: true });
-            await user.updateProfile({ photoURL: imageUrl });
+            await updateDoc(userRef, { photoURL: imageUrl, email: user.email });
+            const { updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+            await updateProfile(user, { photoURL: imageUrl });
             alert("✅ Foto aggiornata!");
           } catch (e) {
             console.error("Errore salvataggio foto:", e);
@@ -161,11 +171,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       try {
-        await userRef.set({
-          displayName: newName,
+        await updateDoc(userRef, {
+          nickname: newName,
           email: user.email
-        }, { merge: true });
-        await user.updateProfile({ displayName: newName });
+        });
+        const { updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+        await updateProfile(user, { displayName: newName });
         alert("✅ Profilo aggiornato!");
       } catch (e) {
         console.error("Errore salvataggio profilo:", e);
@@ -177,7 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // 🔓 Logout sicuro
 async function logoutUser() {
   try {
-    await auth.signOut();
+    const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    await signOut(auth);
     console.log("✅ Logout completato");
     setTimeout(() => {
       window.location.href = "index.html";
@@ -238,7 +250,7 @@ window.aggiornaEmail = function () {
   const sidebar = document.getElementById("sidebar");
   const toggleBtn = document.getElementById("openSidebar");
 
-  firebase.auth().onAuthStateChanged((user) => {
+  auth.onAuthStateChanged((user) => {
     if (user && userEmailElement) {
       userEmailElement.innerText = user.email;
       if (sidebar) sidebar.style.display = "block";

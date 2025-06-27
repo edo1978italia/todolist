@@ -1,17 +1,57 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import firebaseConfig from "./config.js";
-import { notifyUserLeft } from "./notifications.js";
 
 console.log("[SETTING] Avvio setting.js...");
 
-try {
-    firebase.initializeApp(firebaseConfig);
-    console.log("[SETTING] Firebase inizializzato");
-} catch (e) {
-    console.warn("[SETTING] Firebase già inizializzato o errore:", e);
-}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+// 🔔 Funzione helper per creare notifica di uscita dal gruppo
+async function createLeaveNotification(groupId, userName, userId) {
+    console.log(`🔔 [DEBUG] Tentativo creazione notifica di uscita per:`, {
+        groupId,
+        userName,
+        userId
+    });
+    try {
+        const notificationData = {
+            type: 'user_left',
+            message: `${userName} ha lasciato il gruppo`,
+            authorId: userId,
+            authorName: userName,
+            groupId: groupId,
+            timestamp: serverTimestamp(),
+            readBy: [], 
+            hiddenBy: [],
+            replaceKey: `user_left_${userId}_${Date.now()}`
+        };
+        
+        console.log(`🔔 [DEBUG] Dati notifica da creare:`, notificationData);
+        
+        const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+        console.log(`🔔 [SUCCESS] Notifica di uscita creata per ${userName} con ID: ${docRef.id}`);
+    } catch (error) {
+        console.error('❌ [ERROR] Errore nella creazione notifica di uscita:', error);
+        console.error('❌ [ERROR] Stack trace:', error.stack);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[SETTING] DOMContentLoaded");
@@ -47,8 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         try {
-            const userRef = db.collection("users").doc(user.uid);
-            const snap = await userRef.get();
+            const userRef = doc(db, "users", user.uid);
+            const snap = await getDoc(userRef);
             const data = snap.data();
             console.log("[SETTING] Dati utente:", data);
             // Nome completo (nome + cognome da due campi separati)
@@ -78,8 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (groupNameEl) {
                 if (data?.groupId) {
                     try {
-                        const groupSnap = await db.collection("groups").doc(data.groupId).get();
-                        groupNameEl.textContent = groupSnap.exists ? groupSnap.data().name : data.groupId;
+                        const groupSnap = await getDoc(doc(db, "groups", data.groupId));
+                        groupNameEl.textContent = groupSnap.exists() ? groupSnap.data().name : data.groupId;
                     } catch (err) {
                         groupNameEl.textContent = data.groupId;
                     }
@@ -87,7 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (groupMembersCountEl || groupMembersListEl) {
                         try {
                             console.log("[SETTING] 🔍 Caricamento membri per gruppo:", data.groupId);
-                            const membersSnap = await db.collection("users").where("groupId", "==", data.groupId).get();
+                            const membersQuery = query(collection(db, "users"), where("groupId", "==", data.groupId));
+                            const membersSnap = await getDocs(membersQuery);
                             console.log("[SETTING] 👥 Trovati", membersSnap.size, "membri");
                             
                             if (groupMembersCountEl) {
@@ -191,38 +232,52 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Funzione di abbandono gruppo centralizzata
+    async function leaveGroup() {
+        if (!auth.currentUser) {
+            alert("No authenticated user.");
+            return;
+        }
+        // Recupera dati utente
+        const userSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
+        const userData = userSnap.data();
+        if (!userData?.groupId) {
+            alert("You are not in any group.");
+            return;
+        }
+        // Conta quanti utenti hanno lo stesso groupId
+        const membersQuery = query(collection(db, "users"), where("groupId", "==", userData.groupId));
+        const membersSnap = await getDocs(membersQuery);
+        if (membersSnap.size <= 1) {
+            alert("You are the only member, you cannot leave the group. You can only delete your account.");
+            return;
+        }
+        try {
+            // 🔔 Crea notifica di uscita dal gruppo prima di lasciarlo
+            const displayName = userData?.nickname || userData?.displayName || userData?.firstName || "Utente";
+            console.log(`🔔 [DEBUG] leaveGroup() - Nome utente risolto:`, {
+                nickname: userData?.nickname,
+                displayName: userData?.displayName,
+                firstName: userData?.firstName,
+                finalName: displayName
+            });
+            
+            await createLeaveNotification(userData.groupId, displayName, auth.currentUser.uid);
+            
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { groupId: deleteField() });
+            alert("You have left the group.");
+            window.location.href = "group-setup.html";
+        } catch (e) {
+            alert("Error: Unable to leave the group.\n" + e.message);
+            console.error("[SETTING] Error leaving group:", e);
+        }
+    }
+
     // Gestione abbandono gruppo tramite modale custom
     if (typeof confirmLeaveGroupBtn !== 'undefined' && confirmLeaveGroupBtn) {
         confirmLeaveGroupBtn.addEventListener("click", async function() {
-            if (!auth.currentUser) {
-                alert("Nessun utente autenticato.");
-                return;
-            }
-            // Recupera dati utente
-            const userSnap = await db.collection("users").doc(auth.currentUser.uid).get();
-            const userData = userSnap.data();
-            if (!userData?.groupId) {
-                alert("You are not in any group.");
-                return;
-            }
-            // Conta quanti utenti hanno lo stesso groupId
-            const membersSnap = await db.collection("users").where("groupId", "==", userData.groupId).get();
-            if (membersSnap.size <= 1) {
-                alert("You are the only member, you cannot leave the group. You can only delete your account which will permanently erase all data.");
-                return;
-            }
-            try {
-                // 🔔 Crea notifica di uscita dal gruppo prima di lasciarlo
-                const displayName = userData?.nickname || userData?.firstName || userData?.displayName || "Utente";
-                notifyUserLeft(displayName);
-                
-                await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
-                alert("You have left the group.");
-                window.location.href = "group-setup.html";
-            } catch (e) {
-                alert("Error: unable to leave the group.\n" + e.message);
-                console.error("[SETTING] Error leaving group:", e);
-            }
+            // Usa la funzione centralizzata leaveGroup()
+            await leaveGroup();
         });
     }
 
@@ -231,30 +286,33 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!auth.currentUser) return;
         const user = auth.currentUser;
         // Recupera dati utente
-        const userSnap = await db.collection("users").doc(user.uid).get();
+        const userSnap = await getDoc(doc(db, "users", user.uid));
         const userData = userSnap.data();
         let groupId = userData?.groupId;
         let isLastMember = false;
         if (groupId) {
-            const membersSnap = await db.collection("users").where("groupId", "==", groupId).get();
+            const membersQuery = query(collection(db, "users"), where("groupId", "==", groupId));
+            const membersSnap = await getDocs(membersQuery);
             isLastMember = (membersSnap.size <= 1);
         }
         if (isLastMember && groupId) {
             // Elimina tutte le note, ricette, categorie collegate a quel gruppo
             const deleteCollection = async (collectionName) => {
-                const snap = await db.collection(collectionName).where("groupId", "==", groupId).get();
-                const batch = db.batch();
-                snap.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
+                const snap = await getDocs(query(collection(db, collectionName), where("groupId", "==", groupId)));
+                const deletePromises = [];
+                snap.forEach(document => {
+                    deletePromises.push(deleteDoc(document.ref));
+                });
+                await Promise.all(deletePromises);
             };
             await deleteCollection("notes");
             await deleteCollection("categories");
             await deleteCollection("ricette");
-            await db.collection("groups").doc(groupId).delete();
+            await deleteDoc(doc(db, "groups", groupId));
             console.log("[SETTING] Eliminato gruppo e dati collegati perché era l'ultimo membro");
         }
         // Elimina utente
-        await db.collection("users").doc(user.uid).delete();
+        await deleteDoc(doc(db, "users", user.uid));
         await user.delete();
     }
 
@@ -275,7 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🔓 Logout sicuro
     async function logoutUser() {
         try {
-            await auth.signOut();
+            const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+            await signOut(auth);
             console.log("✅ Logout completed");
             setTimeout(() => {
                 window.location.href = "index.html";
@@ -339,38 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = page;
     };
 
-    // Funzione di abbandono gruppo centralizzata
-    async function leaveGroup() {
-        if (!auth.currentUser) {
-            alert("No authenticated user.");
-            return;
-        }
-        // Recupera dati utente
-        const userSnap = await db.collection("users").doc(auth.currentUser.uid).get();
-        const userData = userSnap.data();
-        if (!userData?.groupId) {
-            alert("You are not in any group.");
-            return;
-        }
-        // Conta quanti utenti hanno lo stesso groupId
-        const membersSnap = await db.collection("users").where("groupId", "==", userData.groupId).get();
-        if (membersSnap.size <= 1) {
-            alert("You are the only member, you cannot leave the group. You can only delete your account.");
-            return;
-        }
-        try {
-            // 🔔 Crea notifica di uscita dal gruppo prima di lasciarlo
-            const displayName = userData?.nickname || userData?.firstName || userData?.displayName || "Utente";
-            notifyUserLeft(displayName);
-            
-            await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
-            alert("You have left the group.");
-            window.location.href = "group-setup.html";
-        } catch (e) {
-            alert("Error: Unable to leave the group.\n" + e.message);
-            console.error("[SETTING] Error leaving group:", e);
-        }
-    }
+    // Esporta leaveGroup globalmente
     window.leaveGroup = leaveGroup;
 });
 
