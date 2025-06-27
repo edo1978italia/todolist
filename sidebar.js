@@ -74,7 +74,12 @@ function initializeSidebar() {
         }
         
         console.log("🕒 Data ingresso utilizzata:", userJoinedAt);
-        initNotifications(user.uid, data.displayName || "Utente", data.groupId, userJoinedAt);
+        
+        // 🎭 Usa nickname se disponibile, altrimenti firstName, poi displayName come fallback
+        const userName = data.nickname || data.firstName || data.displayName || "Utente";
+        console.log("👤 Nome utente per notifiche:", userName);
+        
+        initNotifications(user.uid, userName, data.groupId, userJoinedAt);
       } else {
         console.warn("⚠ Nessun gruppo trovato per l'utente, notifiche non inizializzate");
       }

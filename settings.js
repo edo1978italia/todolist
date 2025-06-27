@@ -1,4 +1,5 @@
 import firebaseConfig from "./config.js";
+import { notifyUserLeft } from "./notifications.js";
 
 console.log("[SETTING] Avvio setting.js...");
 
@@ -204,6 +205,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             try {
+                // 🔔 Crea notifica di uscita dal gruppo prima di lasciarlo
+                const displayName = userData?.nickname || userData?.firstName || userData?.displayName || "Utente";
+                notifyUserLeft(displayName);
+                
                 await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
                 alert("You have left the group.");
                 window.location.href = "group-setup.html";
@@ -347,6 +352,10 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         try {
+            // 🔔 Crea notifica di uscita dal gruppo prima di lasciarlo
+            const displayName = userData?.nickname || userData?.firstName || userData?.displayName || "Utente";
+            notifyUserLeft(displayName);
+            
             await db.collection("users").doc(auth.currentUser.uid).update({ groupId: firebase.firestore.FieldValue.delete() });
             alert("You have left the group.");
             window.location.href = "group-setup.html";

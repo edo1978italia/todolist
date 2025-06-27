@@ -61,6 +61,7 @@ document.getElementById("registerForm")?.addEventListener("submit", async (e) =>
       email,
       firstName,
       lastName,
+      nickname: firstName, // 🎭 Imposta nickname con firstName di default
       country,
       birthDate,
       age,
