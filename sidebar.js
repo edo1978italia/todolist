@@ -57,7 +57,24 @@ function initializeSidebar() {
       // ✅ Inizializza sistema notifiche SOLO se abbiamo i dati del gruppo
       if (data?.groupId) {
         console.log("🔔 Inizializzazione notifiche per gruppo:", data.groupId);
-        initNotifications(user.uid, data.displayName || "Utente", data.groupId);
+        console.log("📅 Dati utente per timestamp ingresso:", {
+          joinedAt: data.joinedAt,
+          createdAt: data.createdAt,
+          groupJoinedAt: data.groupJoinedAt
+        });
+        
+        // Usa la data di ingresso nel gruppo se disponibile, altrimenti data corrente
+        let userJoinedAt = null;
+        if (data.joinedAt) {
+          userJoinedAt = data.joinedAt;
+        } else if (data.groupJoinedAt) {
+          userJoinedAt = data.groupJoinedAt;
+        } else if (data.createdAt) {
+          userJoinedAt = data.createdAt;
+        }
+        
+        console.log("🕒 Data ingresso utilizzata:", userJoinedAt);
+        initNotifications(user.uid, data.displayName || "Utente", data.groupId, userJoinedAt);
       } else {
         console.warn("⚠ Nessun gruppo trovato per l'utente, notifiche non inizializzate");
       }
