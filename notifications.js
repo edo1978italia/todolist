@@ -323,9 +323,8 @@ export function notifyNoteCreated(noteTitle) {
 
     const message = `${currentUserName} ha creato una nuova nota: ${noteTitle}`;
     
-    createNotification('note', message, {
-        noteTitle: noteTitle
-    });
+    // Non usiamo replaceKey per le note perché ogni nota è unica
+    createNotification('note', message);
 }
 
 // ===== CLEANUP =====
