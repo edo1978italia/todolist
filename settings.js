@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmLeaveGroupBtn: !!confirmLeaveGroupBtn,
         cancelLeaveGroupBtn: !!cancelLeaveGroupBtn,
         deleteBtn: !!deleteBtn,
-        msgEl: !!msgEl
+        msgEl: !!msgEl,
+        groupMembersCount: !!document.getElementById("groupMembersCount"),
+        groupMembersList: !!document.getElementById("groupMembersList")
     });
 
     auth.onAuthStateChanged(async (user) => {
@@ -83,38 +85,87 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Conta membri gruppo e mostra lista nickname con foto profilo
                     if (groupMembersCountEl || groupMembersListEl) {
                         try {
+                            console.log("[SETTING] 🔍 Caricamento membri per gruppo:", data.groupId);
                             const membersSnap = await db.collection("users").where("groupId", "==", data.groupId).get();
-                            if (groupMembersCountEl) groupMembersCountEl.textContent = membersSnap.size;
+                            console.log("[SETTING] 👥 Trovati", membersSnap.size, "membri");
+                            
+                            if (groupMembersCountEl) {
+                                groupMembersCountEl.textContent = membersSnap.size;
+                                console.log("[SETTING] ✅ Numero membri aggiornato:", membersSnap.size);
+                            }
+                            
                             if (groupMembersListEl) {
                                 groupMembersListEl.innerHTML = "";
                                 let hasMembers = false;
+                                let memberIndex = 0;
+                                
                                 membersSnap.forEach(doc => {
+                                    memberIndex++;
                                     const u = doc.data();
+                                    console.log(`[SETTING] 👤 Membro ${memberIndex}:`, {
+                                        uid: doc.id,
+                                        firstName: u.firstName,
+                                        lastName: u.lastName,
+                                        nickname: u.nickname,
+                                        email: u.email,
+                                        photoURL: u.photoURL
+                                    });
+                                    
                                     let nick = u.nickname || ((u.firstName || "") + (u.lastName ? " " + u.lastName : "")) || u.email || "?";
                                     nick = nick.trim();
+                                    
                                     if (nick) {
                                         hasMembers = true;
                                         const chip = document.createElement("span");
                                         chip.className = "member-chip member-chip-avatar";
+                                        
                                         // Foto profilo: usa u.photoURL se presente, altrimenti avatar di default
                                         const avatar = document.createElement("img");
                                         avatar.className = "member-avatar";
                                         avatar.alt = "avatar";
-                                        avatar.src = u.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(nick) + "&background=cccccc&color=444&size=48";
+                                        
+                                        // Costruisci URL avatar con fallback più robusto
+                                        let avatarUrl;
+                                        if (u.photoURL && u.photoURL.trim() !== "") {
+                                            avatarUrl = u.photoURL;
+                                            console.log(`[SETTING] 📸 Usando photoURL per ${nick}:`, avatarUrl);
+                                        } else {
+                                            avatarUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nick) + "&background=cccccc&color=444&size=48";
+                                            console.log(`[SETTING] 🎨 Generando avatar per ${nick}:`, avatarUrl);
+                                        }
+                                        
+                                        avatar.src = avatarUrl;
+                                        
+                                        // Gestione errore caricamento immagine
+                                        avatar.onerror = function() {
+                                            console.warn(`[SETTING] ⚠️ Errore caricamento avatar per ${nick}, fallback a default`);
+                                            this.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nick) + "&background=cccccc&color=444&size=48";
+                                        };
+                                        
                                         chip.appendChild(avatar);
+                                        
                                         // Nickname
                                         const nickSpan = document.createElement("span");
                                         nickSpan.className = "member-nick";
                                         nickSpan.textContent = nick;
                                         chip.appendChild(nickSpan);
+                                        
                                         groupMembersListEl.appendChild(chip);
+                                        console.log(`[SETTING] ✅ Chip creato per ${nick}`);
+                                    } else {
+                                        console.warn(`[SETTING] ⚠️ Nickname vuoto per membro ${memberIndex}, saltato`);
                                     }
                                 });
+                                
                                 if (!hasMembers) {
                                     groupMembersListEl.innerHTML = "—";
+                                    console.log("[SETTING] ❌ Nessun membro valido trovato");
+                                } else {
+                                    console.log(`[SETTING] ✅ Lista membri creata con ${memberIndex} membri`);
                                 }
                             }
                         } catch (err) {
+                            console.error("[SETTING] ❌ Errore nel caricamento membri:", err);
                             if (groupMembersCountEl) groupMembersCountEl.textContent = "—";
                             if (groupMembersListEl) groupMembersListEl.innerHTML = "—";
                         }
