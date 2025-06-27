@@ -232,6 +232,14 @@ function renderNotificationsList(notifications) {
         const icon = getNotificationIcon(notification.type);
         const timeAgo = getTimeAgo(notification.timestamp);
         
+        // DEBUG: Log per capire il problema
+        console.log(`🔍 Notifica ${notification.id}:`, {
+            readBy: notification.readBy,
+            currentUserId: currentUserId,
+            isUnread: isUnread,
+            includes: notification.readBy ? notification.readBy.includes(currentUserId) : false
+        });
+        
         return `
             <div class="notification-item ${isUnread ? 'unread' : ''}" data-id="${notification.id}">
                 <div class="notification-icon">${icon}</div>
@@ -286,6 +294,8 @@ function getTimeAgo(date) {
 export async function markAllAsRead() {
     if (!currentUserId || !currentUserGroup) return;
 
+    console.log(`🔄 Marcando tutte le notifiche come lette per utente: ${currentUserId}`);
+
     try {
         const notificationsRef = collection(db, 'notifications');
         const q = query(
@@ -299,9 +309,17 @@ export async function markAllAsRead() {
             const notification = docSnap.data();
             const readBy = notification.readBy || [];
             
+            console.log(`📄 Processando notifica ${docSnap.id}:`, {
+                currentReadBy: readBy,
+                includesUser: readBy.includes(currentUserId)
+            });
+            
             if (!readBy.includes(currentUserId)) {
                 readBy.push(currentUserId);
+                console.log(`✅ Aggiornando notifica ${docSnap.id} con readBy:`, readBy);
                 return updateDoc(doc(db, 'notifications', docSnap.id), { readBy });
+            } else {
+                console.log(`⏭️ Notifica ${docSnap.id} già marcata come letta`);
             }
         });
 
