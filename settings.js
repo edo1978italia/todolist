@@ -112,10 +112,17 @@ document.addEventListener("DOMContentLoaded", () => {
                                         photoURL: u.photoURL
                                     });
                                     
-                                    let nick = u.nickname || ((u.firstName || "") + (u.lastName ? " " + u.lastName : "")) || u.email || "?";
-                                    nick = nick.trim();
+                                    // 🏷️ Per le TARGHETTE UTENTI nelle impostazioni: usa sempre nome completo
+                                    let displayName = ((u.firstName || "") + " " + (u.lastName || "")).trim();
+                                    if (!displayName) {
+                                        // Fallback se nome/cognome non ci sono
+                                        displayName = u.nickname || u.email || "?";
+                                    }
                                     
-                                    if (nick) {
+                                    // Per gli avatar, usa nickname o primo nome (più corto)
+                                    let avatarName = u.nickname || u.firstName || displayName;
+                                    
+                                    if (displayName) {
                                         hasMembers = true;
                                         const chip = document.createElement("span");
                                         chip.className = "member-chip member-chip-avatar";
@@ -129,32 +136,32 @@ document.addEventListener("DOMContentLoaded", () => {
                                         let avatarUrl;
                                         if (u.photoURL && u.photoURL.trim() !== "") {
                                             avatarUrl = u.photoURL;
-                                            console.log(`[SETTING] 📸 Usando photoURL per ${nick}:`, avatarUrl);
+                                            console.log(`[SETTING] 📸 Usando photoURL per ${displayName}:`, avatarUrl);
                                         } else {
-                                            avatarUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nick) + "&background=cccccc&color=444&size=48";
-                                            console.log(`[SETTING] 🎨 Generando avatar per ${nick}:`, avatarUrl);
+                                            avatarUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(avatarName) + "&background=cccccc&color=444&size=48";
+                                            console.log(`[SETTING] 🎨 Generando avatar per ${displayName}:`, avatarUrl);
                                         }
                                         
                                         avatar.src = avatarUrl;
                                         
                                         // Gestione errore caricamento immagine
                                         avatar.onerror = function() {
-                                            console.warn(`[SETTING] ⚠️ Errore caricamento avatar per ${nick}, fallback a default`);
-                                            this.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nick) + "&background=cccccc&color=444&size=48";
+                                            console.warn(`[SETTING] ⚠️ Errore caricamento avatar per ${displayName}, fallback a default`);
+                                            this.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(avatarName) + "&background=cccccc&color=444&size=48";
                                         };
                                         
                                         chip.appendChild(avatar);
                                         
-                                        // Nickname
+                                        // 🏷️ NOME COMPLETO nella targhetta
                                         const nickSpan = document.createElement("span");
                                         nickSpan.className = "member-nick";
-                                        nickSpan.textContent = nick;
+                                        nickSpan.textContent = displayName; // ← Nome completo
                                         chip.appendChild(nickSpan);
                                         
                                         groupMembersListEl.appendChild(chip);
-                                        console.log(`[SETTING] ✅ Chip creato per ${nick}`);
+                                        console.log(`[SETTING] ✅ Chip creato per ${displayName}`);
                                     } else {
-                                        console.warn(`[SETTING] ⚠️ Nickname vuoto per membro ${memberIndex}, saltato`);
+                                        console.warn(`[SETTING] ⚠️ Nome vuoto per membro ${memberIndex}, saltato`);
                                     }
                                 });
                                 
