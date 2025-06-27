@@ -1402,110 +1402,332 @@ textarea {
   background: #ffffff;
 }
 
+/* ===== SWIPE GESTURES STYLES ===== */
+
 .notification-item {
-  padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  transition: background 0.2s;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
 }
 
-.notification-item:hover {
-  background: #f8f8f8;
+.notification-item:active {
+  cursor: grabbing;
 }
 
-.notification-item.unread {
-  background: #f0f8ff;
-  border-left: 4px solid #247fd8;
+/* Sfondi fissi sempre presenti */
+.swipe-background-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
-.notification-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: transparent;
-  border: 2px solid #247fd8;
+.swipe-background-right {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #28a745, #218838);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+/* Icone fisse ai lati */
+.swipe-icon-left {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28px;
+  color: white !important;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  pointer-events: none;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+  font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.swipe-icon-right {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28px;
+  color: white !important;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  pointer-events: none;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+/* Stati attivi per mostrare sfondi e icone */
+.notification-item.show-left-action .swipe-background-left {
+  opacity: 1 !important;
+}
+
+.notification-item.show-left-action .swipe-icon-left {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.notification-item.show-right-action .swipe-background-right {
+  opacity: 1 !important;
+}
+
+.notification-item.show-right-action .swipe-icon-right {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.notification-content-wrapper {
+  position: relative;
+  background: #ffffff;
+  z-index: 2;
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Staging overlay */
+.staging-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  cursor: pointer;
+}
+
+.staging-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.staging-text {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.staging-countdown {
+  display: inline-block;
+  background: #dc3545;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  line-height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Aggiornamento stili esistenti */
+.notification-item.unread .notification-content-wrapper {
+  border-left: 4px solid #247fd8;
+}
+
+.notification-item:hover .notification-content-wrapper {
+  background: #f8f8f8;
+}
+
+/* Stati di staging */
+.notification-item.staging-delete .notification-content-wrapper {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.notification-item.staging-read .notification-content-wrapper {
+  opacity: 0.7;
+}
+
+/* Touch feedback */
+.notification-content-wrapper:active {
+  background: #f0f0f0;
+}
+
+/* Prevenire selezione testo durante swipe */
+.notification-item * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Responsive adjustments per swipe */
+@media (max-width: 600px) {
+  .swipe-action {
+    width: 100%;
+  }
+  
+  .swipe-action.swipe-left {
+    padding-left: 10px;
+  }
+  
+  .swipe-action.swipe-right {
+    padding-right: 10px;
+  }
+  
+  .swipe-icon {
+    font-size: 30px;
+  }
+  
+  .swipe-text {
+    font-size: 12px;
+  }
+  
+  .notification-content-wrapper {
+    padding: 12px 15px;
+  }
+}
+
+/* Stili per il testo delle notifiche */
+.notification-message {
   font-size: 13px;
-  flex-shrink: 0;
-  margin-top: 2px;
+  line-height: 1.4;
+  color: #555;
+}
+
+.notification-author {
+  font-weight: bold;
   color: #247fd8;
 }
 
-.notification-content {
-  flex: 1;
-  padding-right: 26px;
+.notification-action {
+  color: #666;
 }
 
 .notification-title {
-  font-weight: 600;
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  color: #2e2e2e;
-}
-
-.notification-message {
-  margin: 0 0 6px 0;
-  font-size: 13px;
-  color: #666;
-  line-height: 1.4;
+  font-weight: bold;
+  color: #333;
 }
 
 .notification-time {
   font-size: 11px;
   color: #999;
-  margin: 0;
+  margin-top: 4px;
 }
 
+.notification-icon {
+  font-size: 18px;
+  margin-right: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0; /* Permette al testo di troncare correttamente */
+  padding-right: 18px; /* Bilancia l'icona a sinistra per centrare il testo */
+}
+
+/* Footer del modal notifiche */
 .notifications-footer {
-  padding: 15px 20px;
-  border-top: 1px solid #ddd;
-  text-align: center;
-  background: #ffffff;
+  padding: 10px 20px;
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
   border-radius: 0 0 10px 10px;
 }
 
-.mark-all-read-btn {
-  background: #247fd8;
-  color: white;
-  border: none;
+.mark-all-read-btn, .delete-all-btn {
   padding: 8px 16px;
-  border-radius: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 13px;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  flex: 1;
+  max-width: 150px;
+}
+
+.mark-all-read-btn {
+  background: #28a745;
+  color: white;
 }
 
 .mark-all-read-btn:hover {
-  background: #1a5ba3;
+  background: #218838;
+  transform: translateY(-1px);
 }
 
 .mark-all-read-btn:disabled {
-  background: #ccc;
+  background: #6c757d;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .notifications-modal-content {
-    width: 95vw;
-    max-height: 80vh;
-  }
-  
-  .notification-item {
-    padding: 12px 15px;
-  }
-  
-  .notifications-header {
-    padding: 15px;
-  }
-  
-  .notifications-footer {
-    padding: 12px 15px;
-  }
+.delete-all-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-all-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.delete-all-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Stili per le icone SVG nelle azioni di swipe */
+.swipe-icon-left svg,
+.swipe-icon-right svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
+}
+
+.swipe-icon-left svg {
+  color: white;
+}
+
+.swipe-icon-right svg {
+  color: white;
+}
+
+/* Assicurarsi che gli SVG ereditino il colore e dimensione corretti */
+.swipe-icon-left svg path,
+.swipe-icon-right svg path {
+  stroke: currentColor;
 }
 
 

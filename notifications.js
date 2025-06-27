@@ -232,33 +232,145 @@ function renderNotificationsList(notifications) {
         const icon = getNotificationIcon(notification.type);
         const timeAgo = getTimeAgo(notification.timestamp);
         
-        // DEBUG: Log per capire il problema
-        console.log(`🔍 Notifica ${notification.id}:`, {
-            readBy: notification.readBy,
-            currentUserId: currentUserId,
-            isUnread: isUnread,
-            includes: notification.readBy ? notification.readBy.includes(currentUserId) : false
-        });
+        // Parsing del messaggio per evidenziare nome autore e titolo
+        const { authorName, action, title } = parseNotificationMessage(notification.message, notification.type);
         
         return `
             <div class="notification-item ${isUnread ? 'unread' : ''}" data-id="${notification.id}">
-                <div class="notification-icon">${icon}</div>
-                <div class="notification-content">
-                    <div class="notification-message">${notification.message}</div>
-                    <div class="notification-time">${timeAgo}</div>
+                <!-- Background fissi per azioni swipe -->
+                <div class="swipe-background-left"></div>
+                <div class="swipe-background-right"></div>
+                
+                <!-- Icone fisse -->
+                <div class="swipe-icon-left">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6h18l-2 13H5L3 6zM8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="swipe-icon-right">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <!-- Contenuto notifica (quello che si muove) -->
+                <div class="notification-content-wrapper">
+                    <div class="notification-icon">${icon}</div>
+                    <div class="notification-content">
+                        <div class="notification-message">
+                            <span class="notification-author">${authorName}</span>
+                            <span class="notification-action">${action}</span>
+                            ${title ? `<span class="notification-title">${title}</span>` : ''}
+                        </div>
+                        <div class="notification-time">${timeAgo}</div>
+                    </div>
+                </div>
+                
+                <!-- Overlay per staging (nascosto di default) -->
+                <div class="staging-overlay" style="display: none;">
+                    <div class="staging-content">
+                        <span class="staging-text"></span>
+                        <span class="staging-countdown"></span>
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
 
-    // Aggiorna pulsante "Segna tutte come lette"
+    // Aggiorna pulsanti footer
     const markAllBtn = document.getElementById('markAllReadBtn');
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+    
     if (markAllBtn) {
         const hasUnread = notifications.some(n => 
             !n.readBy || !n.readBy.includes(currentUserId)
         );
         markAllBtn.disabled = !hasUnread;
     }
+    
+    if (deleteAllBtn) {
+        deleteAllBtn.disabled = notifications.length === 0;
+    }
+
+    // Inizializza swipe gestures per ogni notifica
+    initializeSwipeGestures();
+}
+
+// ===== PARSING MESSAGGI NOTIFICHE =====
+
+function parseNotificationMessage(message, type) {
+    let authorName = '';
+    let action = '';
+    let title = '';
+
+    switch (type) {
+        case 'note':
+        case 'note_added':
+            // Formato: "Nome ha creato una nuova nota: Titolo"
+            const noteMatch = message.match(/^(.+?) ha creato una nuova nota: (.+)$/);
+            if (noteMatch) {
+                authorName = noteMatch[1];
+                action = ' ha creato una nuova nota:';
+                title = noteMatch[2];
+            }
+            break;
+
+        case 'recipe_added':
+            // Formato: "Nome ha aggiunto una ricetta: "Titolo""
+            const recipeMatch = message.match(/^(.+?) ha aggiunto una ricetta: "(.+)"$/);
+            if (recipeMatch) {
+                authorName = recipeMatch[1];
+                action = ' ha aggiunto una ricetta:';
+                title = recipeMatch[2];
+            }
+            break;
+
+        case 'todo_updated':
+            // Formato: "Nome ha modificato la lista todo"
+            const todoMatch = message.match(/^(.+?) ha modificato la lista todo$/);
+            if (todoMatch) {
+                authorName = todoMatch[1];
+                action = ' ha modificato la lista todo';
+                title = '';
+            }
+            break;
+
+        case 'user_joined':
+            // Formato: "Nome è entrato nel gruppo"
+            const joinMatch = message.match(/^(.+?) è entrato nel gruppo$/);
+            if (joinMatch) {
+                authorName = joinMatch[1];
+                action = ' è entrato nel gruppo';
+                title = '';
+            }
+            break;
+
+        case 'user_left':
+            // Formato: "Nome ha lasciato il gruppo"
+            const leftMatch = message.match(/^(.+?) ha lasciato il gruppo$/);
+            if (leftMatch) {
+                authorName = leftMatch[1];
+                action = ' ha lasciato il gruppo';
+                title = '';
+            }
+            break;
+
+        case 'system':
+            // Messaggi di sistema
+            authorName = 'Sistema';
+            action = '';
+            title = message;
+            break;
+
+        default:
+            // Fallback per messaggi non riconosciuti
+            authorName = '';
+            action = message;
+            title = '';
+            break;
+    }
+
+    return { authorName, action, title };
 }
 
 // ===== UTILITÀ =====
@@ -294,8 +406,6 @@ function getTimeAgo(date) {
 export async function markAllAsRead() {
     if (!currentUserId || !currentUserGroup) return;
 
-    console.log(`🔄 Marcando tutte le notifiche come lette per utente: ${currentUserId}`);
-
     try {
         const notificationsRef = collection(db, 'notifications');
         const q = query(
@@ -309,17 +419,9 @@ export async function markAllAsRead() {
             const notification = docSnap.data();
             const readBy = notification.readBy || [];
             
-            console.log(`📄 Processando notifica ${docSnap.id}:`, {
-                currentReadBy: readBy,
-                includesUser: readBy.includes(currentUserId)
-            });
-            
             if (!readBy.includes(currentUserId)) {
                 readBy.push(currentUserId);
-                console.log(`✅ Aggiornando notifica ${docSnap.id} con readBy:`, readBy);
                 return updateDoc(doc(db, 'notifications', docSnap.id), { readBy });
-            } else {
-                console.log(`⏭️ Notifica ${docSnap.id} già marcata come letta`);
             }
         });
 
@@ -359,5 +461,480 @@ export function destroyNotifications() {
     console.log('🔔 Sistema notifiche distrutto');
 }
 
+// ===== SISTEMA SWIPE GESTURES =====
+
+// Variabili per il tracking del swipe
+let swipeState = {
+    startX: 0,
+    currentX: 0,
+    startY: 0,
+    currentY: 0,
+    isDragging: false,
+    currentElement: null,
+    startTime: 0
+};
+
+// Soglie per le azioni
+const SWIPE_THRESHOLD = 100; // Distanza minima per attivare l'azione
+const PREVIEW_THRESHOLD = 40; // Quando mostrare l'anteprima (aumentato per evitare sovrapposizioni)
+const MAX_Y_DRIFT = 50; // Massima deriva verticale per considerarlo swipe orizzontale
+const STAGING_DURATION = 4000; // 4 secondi per annullare (solo per eliminazione)
+
+// Mappa per tenere traccia degli staging attivi
+const activeStaging = new Map();
+
+// Inizializza gesture per tutte le notifiche
+function initializeSwipeGestures() {
+    const notificationItems = document.querySelectorAll('.notification-item');
+    
+    notificationItems.forEach(item => {
+        const contentWrapper = item.querySelector('.notification-content-wrapper');
+        
+        if (contentWrapper) {
+            // Eventi touch
+            contentWrapper.addEventListener('touchstart', handleTouchStart, { passive: false });
+            contentWrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
+            contentWrapper.addEventListener('touchend', handleTouchEnd, { passive: false });
+            
+            // Eventi mouse per desktop
+            contentWrapper.addEventListener('mousedown', handleMouseDown);
+            contentWrapper.addEventListener('mousemove', handleMouseMove);
+            contentWrapper.addEventListener('mouseup', handleMouseUp);
+            contentWrapper.addEventListener('mouseleave', handleMouseUp);
+        }
+    });
+}
+
+// ===== GESTORI EVENTI TOUCH =====
+
+function handleTouchStart(e) {
+    const touch = e.touches[0];
+    startSwipe(touch.clientX, touch.clientY, e.currentTarget);
+}
+
+function handleTouchMove(e) {
+    if (!swipeState.isDragging) return;
+    
+    e.preventDefault();
+    const touch = e.touches[0];
+    updateSwipe(touch.clientX, touch.clientY);
+}
+
+function handleTouchEnd(e) {
+    if (!swipeState.isDragging) return;
+    endSwipe();
+}
+
+// ===== GESTORI EVENTI MOUSE =====
+
+function handleMouseDown(e) {
+    startSwipe(e.clientX, e.clientY, e.currentTarget);
+}
+
+function handleMouseMove(e) {
+    if (!swipeState.isDragging) return;
+    updateSwipe(e.clientX, e.clientY);
+}
+
+function handleMouseUp(e) {
+    if (!swipeState.isDragging) return;
+    endSwipe();
+}
+
+// ===== LOGICA SWIPE =====
+
+function startSwipe(x, y, element) {
+    // Non iniziare swipe se l'elemento è in staging
+    const notificationItem = element.closest('.notification-item');
+    if (notificationItem && activeStaging.has(notificationItem.dataset.id)) {
+        return;
+    }
+
+    // Reset pulito dello stato precedente prima di iniziare un nuovo swipe
+    if (swipeState.currentElement) {
+        const prevNotificationItem = swipeState.currentElement.closest('.notification-item');
+        clearSwipeClasses(prevNotificationItem);
+    }
+
+    swipeState.startX = x;
+    swipeState.currentX = x;
+    swipeState.startY = y;
+    swipeState.currentY = y;
+    swipeState.isDragging = true;
+    swipeState.currentElement = element;
+    swipeState.startTime = Date.now();
+
+    // Rimuovi transizioni durante il drag
+    element.style.transition = 'none';
+    
+    console.log('🎯 Swipe iniziato con sistema a classi');
+}
+
+function updateSwipe(x, y) {
+    if (!swipeState.currentElement) return;
+
+    swipeState.currentX = x;
+    swipeState.currentY = y;
+
+    const deltaX = x - swipeState.startX;
+    const deltaY = Math.abs(y - swipeState.startY);
+
+    // Se c'è troppa deriva verticale, non è uno swipe orizzontale
+    if (deltaY > MAX_Y_DRIFT) {
+        cancelSwipe();
+        return;
+    }
+
+    // Applica trasformazione
+    const element = swipeState.currentElement;
+    const notificationItem = element.closest('.notification-item');
+
+    element.style.transform = `translateX(${deltaX}px)`;
+    
+    console.log(`🔄 UpdateSwipe: deltaX=${deltaX}, soglia=${PREVIEW_THRESHOLD}`);
+
+    // Gestisci classi per mostrare/nascondere background e icone
+    if (Math.abs(deltaX) > PREVIEW_THRESHOLD) {
+        if (deltaX > 0) {
+            // Swipe verso destra - mostra azione SINISTRA (elimina)
+            notificationItem.classList.add('show-left-action');
+            notificationItem.classList.remove('show-right-action');
+            
+            // Debug: verifica che l'icona sia visibile
+            const leftIcon = notificationItem.querySelector('.swipe-icon-left');
+            const leftBg = notificationItem.querySelector('.swipe-background-left');
+            console.log(`✅ SWIPE DESTRA → AZIONE SINISTRA (ELIMINA) - Icona:`, {
+                elemento: leftIcon,
+                classiNotifica: Array.from(notificationItem.classList),
+                opacityIcona: getComputedStyle(leftIcon).opacity,
+                opacityBg: getComputedStyle(leftBg).opacity
+            });
+        } else {
+            // Swipe verso sinistra - mostra azione DESTRA (marca come letta)
+            notificationItem.classList.add('show-right-action');
+            notificationItem.classList.remove('show-left-action');
+            
+            // Debug: verifica che l'icona sia visibile
+            const rightIcon = notificationItem.querySelector('.swipe-icon-right');
+            const rightBg = notificationItem.querySelector('.swipe-background-right');
+            console.log(`✅ SWIPE SINISTRA → AZIONE DESTRA (LETTA) - Icona:`, {
+                elemento: rightIcon,
+                classiNotifica: Array.from(notificationItem.classList),
+                opacityIcona: getComputedStyle(rightIcon).opacity,
+                opacityBg: getComputedStyle(rightBg).opacity
+            });
+        }
+    } else {
+        // Rimuovi tutte le classi quando sotto la soglia
+        notificationItem.classList.remove('show-left-action', 'show-right-action');
+        console.log(`❌ Rimosse tutte le classi di azione per deltaX=${deltaX}`);
+    }
+}
+
+// Funzione helper per pulire classi swipe
+function clearSwipeClasses(notificationItem) {
+    notificationItem.classList.remove('show-left-action', 'show-right-action');
+    
+    // Assicurati che non ci siano stili inline sulle icone che potrebbero interferire
+    const leftIcon = notificationItem.querySelector('.swipe-icon-left');
+    const rightIcon = notificationItem.querySelector('.swipe-icon-right');
+    
+    if (leftIcon && leftIcon.hasAttribute('style')) {
+        leftIcon.removeAttribute('style');
+        console.log('🧹 Rimossi stili inline da icona sinistra');
+    }
+    if (rightIcon && rightIcon.hasAttribute('style')) {
+        rightIcon.removeAttribute('style');
+        console.log('🧹 Rimossi stili inline da icona destra');
+    }
+}
+
+function endSwipe() {
+    if (!swipeState.currentElement) return;
+
+    const deltaX = swipeState.currentX - swipeState.startX;
+    const element = swipeState.currentElement;
+    const notificationItem = element.closest('.notification-item');
+    const notificationId = notificationItem.dataset.id;
+
+    // Ripristina transizioni
+    element.style.transition = 'transform 0.3s ease';
+
+    // Controlla se l'azione deve essere eseguita
+    if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+        if (deltaX > 0) {
+            // Swipe verso destra - Elimina (azione sulla sinistra)
+            executeAction('delete', notificationId, notificationItem);
+        } else {
+            // Swipe verso sinistra - Marca come letta (azione sulla destra)
+            executeAction('markRead', notificationId, notificationItem);
+        }
+    } else {
+        // Swipe non completato, torna alla posizione originale
+        cancelSwipe();
+    }
+
+    // Reset stato
+    resetSwipeState();
+}
+
+function cancelSwipe() {
+    if (!swipeState.currentElement) return;
+
+    const element = swipeState.currentElement;
+    const notificationItem = element.closest('.notification-item');
+
+    element.style.transition = 'transform 0.3s ease';
+    element.style.transform = 'translateX(0)';
+    
+    // Rimuovi classi di azione
+    clearSwipeClasses(notificationItem);
+
+    resetSwipeState();
+}
+
+function resetSwipeState() {
+    if (swipeState.currentElement) {
+        const notificationItem = swipeState.currentElement.closest('.notification-item');
+        clearSwipeClasses(notificationItem);
+        
+        // Ripristina stile transizione dopo un breve ritardo
+        setTimeout(() => {
+            if (swipeState.currentElement) {
+                swipeState.currentElement.style.transition = '';
+            }
+        }, 300);
+    }
+
+    swipeState.isDragging = false;
+    swipeState.currentElement = null;
+    swipeState.startX = 0;
+    swipeState.currentX = 0;
+    swipeState.startY = 0;
+    swipeState.currentY = 0;
+    swipeState.startTime = 0;
+}
+
+// ===== ESECUZIONE AZIONI =====
+
+function executeAction(action, notificationId, notificationItem) {
+    if (action === 'delete') {
+        startDeleteStaging(notificationId, notificationItem);
+    } else if (action === 'markRead') {
+        startMarkReadStaging(notificationId, notificationItem);
+    }
+}
+
+function startDeleteStaging(notificationId, notificationItem) {
+    const contentWrapper = notificationItem.querySelector('.notification-content-wrapper');
+    const stagingOverlay = notificationItem.querySelector('.staging-overlay');
+    const stagingText = stagingOverlay.querySelector('.staging-text');
+    const stagingCountdown = stagingOverlay.querySelector('.staging-countdown');
+
+    // Configura UI staging
+    contentWrapper.style.transform = 'translateX(0)';
+    contentWrapper.style.opacity = '0.5';
+    contentWrapper.style.filter = 'grayscale(1)';
+    
+    stagingOverlay.style.display = 'flex';
+    stagingText.textContent = 'Notifica eliminata. Tocca per annullare.';
+
+    let countdown = 4;
+    stagingCountdown.textContent = countdown;
+
+    // Timer con countdown
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        stagingCountdown.textContent = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            confirmDeleteNotification(notificationId);
+        }
+    }, 1000);
+
+    // Gestione click per annullare
+    const cancelHandler = () => {
+        clearInterval(countdownInterval);
+        cancelStaging(notificationId, notificationItem);
+    };
+
+    notificationItem.addEventListener('click', cancelHandler, { once: true });
+
+    // Salva riferimenti per cleanup
+    activeStaging.set(notificationId, {
+        type: 'delete',
+        interval: countdownInterval,
+        cancelHandler: cancelHandler,
+        notificationItem: notificationItem
+    });
+}
+
+function startMarkReadStaging(notificationId, notificationItem) {
+    // Per "marca come letto" eseguiamo l'azione immediatamente
+    // senza countdown ma con feedback visivo temporaneo
+    
+    const contentWrapper = notificationItem.querySelector('.notification-content-wrapper');
+    const stagingOverlay = notificationItem.querySelector('.staging-overlay');
+    const stagingText = stagingOverlay.querySelector('.staging-text');
+    const stagingCountdown = stagingOverlay.querySelector('.staging-countdown');
+
+    // Configura UI feedback immediato
+    contentWrapper.style.transform = 'translateX(0)';
+    contentWrapper.style.opacity = '0.7';
+    
+    stagingOverlay.style.display = 'flex';
+    stagingText.textContent = 'Notifica marcata come letta';
+    stagingCountdown.textContent = '✓'; // Mostra spunta invece del countdown
+
+    // Esegui immediatamente l'azione
+    confirmMarkAsRead(notificationId);
+
+    // Nascondi il feedback dopo 1.5 secondi
+    setTimeout(() => {
+        if (stagingOverlay) {
+            stagingOverlay.style.display = 'none';
+            contentWrapper.style.transform = '';
+            contentWrapper.style.opacity = '';
+        }
+    }, 1500);
+
+    console.log(`✅ Notifica ${notificationId} marcata come letta immediatamente`);
+}
+
+function cancelStaging(notificationId, notificationItem) {
+    const staging = activeStaging.get(notificationId);
+    if (!staging) return;
+
+    // Cleanup timer
+    clearInterval(staging.interval);
+    activeStaging.delete(notificationId);
+
+    // Ripristina UI
+    const contentWrapper = notificationItem.querySelector('.notification-content-wrapper');
+    const stagingOverlay = notificationItem.querySelector('.staging-overlay');
+
+    contentWrapper.style.transform = '';
+    contentWrapper.style.opacity = '';
+    contentWrapper.style.filter = '';
+    stagingOverlay.style.display = 'none';
+
+    console.log(`🔄 Staging annullato per notifica ${notificationId}`);
+}
+
+// ===== CONFERMA AZIONI =====
+
+async function confirmDeleteNotification(notificationId) {
+    try {
+        await deleteDoc(doc(db, 'notifications', notificationId));
+        activeStaging.delete(notificationId);
+        console.log(`🗑️ Notifica ${notificationId} eliminata definitivamente`);
+    } catch (error) {
+        console.error('❌ Errore nell\'eliminazione notifica:', error);
+        // In caso di errore, ripristina lo staging
+        const staging = activeStaging.get(notificationId);
+        if (staging) {
+            cancelStaging(notificationId, staging.notificationItem);
+        }
+    }
+}
+
+async function confirmMarkAsRead(notificationId) {
+    try {
+        const notificationRef = doc(db, 'notifications', notificationId);
+        const notificationDoc = await getDocs(query(collection(db, 'notifications'), where('__name__', '==', notificationId)));
+        
+        if (!notificationDoc.empty) {
+            const notification = notificationDoc.docs[0].data();
+            const readBy = notification.readBy || [];
+            
+            if (!readBy.includes(currentUserId)) {
+                readBy.push(currentUserId);
+                await updateDoc(notificationRef, { readBy });
+            }
+        }
+
+        activeStaging.delete(notificationId);
+        console.log(`✅ Notifica ${notificationId} marcata come letta definitivamente`);
+    } catch (error) {
+        console.error('❌ Errore nel marcare come letta:', error);
+        // In caso di errore, ripristina lo staging
+        const staging = activeStaging.get(notificationId);
+        if (staging) {
+            cancelStaging(notificationId, staging.notificationItem);
+        }
+    }
+}
+
+// ===== FUNZIONE ELIMINA TUTTE LE NOTIFICHE =====
+export async function deleteAllNotifications() {
+    if (!currentUserId || !currentUserGroup) {
+        console.warn('⚠️ Informazioni utente/gruppo mancanti per eliminare tutte le notifiche');
+        return;
+    }
+
+    // Conferma prima di eliminare tutto
+    if (!confirm('Sei sicuro di voler eliminare tutte le notifiche? Questa azione non può essere annullata.')) {
+        return;
+    }
+
+    const deleteBtn = document.getElementById('deleteAllBtn');
+    const originalText = deleteBtn ? deleteBtn.textContent : '';
+
+    try {
+        // Feedback visivo durante l'operazione
+        if (deleteBtn) {
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Eliminando...';
+        }
+
+        const notificationsRef = collection(db, 'notifications');
+        const q = query(
+            notificationsRef,
+            where('groupId', '==', currentUserGroup)
+        );
+
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            console.log('📭 Nessuna notifica da eliminare');
+            return;
+        }
+
+        // Elimina tutte le notifiche del gruppo
+        const deletePromises = querySnapshot.docs.map(docSnap => 
+            deleteDoc(doc(db, 'notifications', docSnap.id))
+        );
+
+        await Promise.all(deletePromises);
+        
+        console.log(`🗑️ Eliminate ${querySnapshot.docs.length} notifiche del gruppo`);
+        
+        // Feedback successo
+        if (deleteBtn) {
+            deleteBtn.textContent = 'Eliminato!';
+            setTimeout(() => {
+                deleteBtn.textContent = originalText;
+                deleteBtn.disabled = true; // Rimane disabilitato perché non ci sono più notifiche
+            }, 2000);
+        }
+
+    } catch (error) {
+        console.error('❌ Errore nell\'eliminazione di tutte le notifiche:', error);
+        
+        // Feedback errore
+        if (deleteBtn) {
+            deleteBtn.textContent = 'Errore!';
+            setTimeout(() => {
+                deleteBtn.textContent = originalText;
+                deleteBtn.disabled = false;
+            }, 2000);
+        }
+        
+        alert('Errore durante l\'eliminazione delle notifiche. Riprova.');
+    }
+}
+
 // ===== FUNZIONI GLOBALI PER LA UI =====
-window.markAllAsRead = markAllAsRead;
+window.initializeSwipeGestures = initializeSwipeGestures;
+window.deleteAllNotifications = deleteAllNotifications;
