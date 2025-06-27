@@ -79,7 +79,10 @@
         const user = auth.currentUser;
         if (!user) return alert("User not authenticated.");
 
-        await updateDoc(doc(db, "users", user.uid), { groupId });
+        await updateDoc(doc(db, "users", user.uid), { 
+          groupId,
+          groupJoinedAt: serverTimestamp()
+        });
         window.location.href = "index.html";
       });
 
@@ -103,7 +106,10 @@
           });
 
           await setDoc(doc(db, "inviteCodes", inviteCode), { groupId });
-          await updateDoc(doc(db, "users", user.uid), { groupId });
+          await updateDoc(doc(db, "users", user.uid), { 
+            groupId,
+            groupJoinedAt: serverTimestamp()
+          });
 
           console.log("✅ Gruppo creato con successo:", groupId);
           alert(`Gruppo creato! Codice invito: ${inviteCode}`);

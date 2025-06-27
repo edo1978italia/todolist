@@ -29,14 +29,38 @@ let notificationsListener = null;
 let currentUserGroup = null;
 let currentUserId = null;
 let currentUserName = null;
+let userJoinedAt = null; // Timestamp di quando l'utente si è unito al gruppo
 
 // ===== INIZIALIZZAZIONE =====
-export function initNotifications(userId, userName, groupId) {
+export function initNotifications(userId, userName, groupId, joinedAt = null) {
     currentUserId = userId;
     currentUserName = userName;
     currentUserGroup = groupId;
     
+    // Gestisci timestamp Firebase o Date JavaScript
+    if (joinedAt) {
+        if (joinedAt.toDate && typeof joinedAt.toDate === 'function') {
+            // È un Timestamp Firebase
+            userJoinedAt = joinedAt.toDate();
+        } else if (joinedAt instanceof Date) {
+            // È già una Date
+            userJoinedAt = joinedAt;
+        } else if (typeof joinedAt === 'string') {
+            // È una stringa, prova a parsarla
+            userJoinedAt = new Date(joinedAt);
+        } else {
+            console.warn('⚠️ Formato joinedAt non riconosciuto:', joinedAt);
+            userJoinedAt = new Date();
+        }
+    } else {
+        // Se non viene fornita una data di ingresso, usa il momento corrente
+        // Questo significa che il nuovo utente vedrà solo notifiche future
+        userJoinedAt = new Date();
+    }
+    
     console.log(`🔔 Inizializzazione notifiche per ${userName} nel gruppo ${groupId}`);
+    console.log(`👋 Utente unito al gruppo il: ${userJoinedAt.toLocaleString()}`);
+    console.log(`🕒 Timestamp completo: ${userJoinedAt.toISOString()}`);
     
     // Avvia il listener per le notifiche del gruppo
     startNotificationsListener();
@@ -65,16 +89,30 @@ function startNotificationsListener() {
             const notification = { id: doc.id, ...doc.data() };
             
             // Non mostrare le notifiche create dall'utente corrente
+            // E non mostrare le notifiche nascoste dall'utente corrente
             if (notification.authorId !== currentUserId) {
-                // Converte timestamp Firebase in Date
-                if (notification.timestamp?.toDate) {
-                    notification.timestamp = notification.timestamp.toDate();
+                const hiddenBy = notification.hiddenBy || [];
+                if (!hiddenBy.includes(currentUserId)) {
+                    // Converte timestamp Firebase in Date
+                    if (notification.timestamp?.toDate) {
+                        notification.timestamp = notification.timestamp.toDate();
+                    }
+                    
+                    // 🕒 FILTRO TEMPORALE: Mostra solo notifiche create DOPO l'ingresso dell'utente
+                    if (notification.timestamp && userJoinedAt && notification.timestamp >= userJoinedAt) {
+                        notifications.push(notification);
+                        console.log(`✅ Notifica inclusa: ${notification.message} (creata: ${notification.timestamp.toLocaleString()})`);
+                    } else if (notification.timestamp) {
+                        console.log(`❌ Notifica esclusa (precedente all'ingresso): ${notification.message} (creata: ${notification.timestamp.toLocaleString()})`);
+                    } else {
+                        // Se non ha timestamp, non includerla per sicurezza
+                        console.log(`⚠️ Notifica senza timestamp esclusa: ${notification.message}`);
+                    }
                 }
-                notifications.push(notification);
             }
         });
 
-        console.log(`🔔 Ricevute ${notifications.length} notifiche per il gruppo`);
+        console.log(`🔔 Ricevute ${notifications.length} notifiche visibili per il gruppo (filtrate per timestamp)`);
         updateNotificationsUI(notifications);
     }, (error) => {
         console.error('❌ Errore nel listener notifiche:', error);
@@ -97,6 +135,7 @@ export async function createNotification(type, message, replaceKey = null) {
             groupId: currentUserGroup,
             timestamp: serverTimestamp(),
             readBy: [], // Array di user ID che hanno letto la notifica
+            hiddenBy: [], // Array di user ID che hanno nascosto la notifica
             replaceKey: replaceKey || `${type}_${currentUserId}_${Date.now()}`
         };
 
@@ -132,7 +171,8 @@ async function replaceExistingNotification(newNotificationData) {
             const existingDoc = querySnapshot.docs[0];
             await updateDoc(doc(db, 'notifications', existingDoc.id), {
                 ...newNotificationData,
-                readBy: [] // Reset stato lettura quando si sostituisce
+                readBy: [], // Reset stato lettura quando si sostituisce
+                hiddenBy: [] // Reset stato nascosto quando si sostituisce
             });
             console.log(`🔄 Notifica sostituita con replaceKey: ${newNotificationData.replaceKey}`);
         } else {
@@ -457,6 +497,7 @@ export function destroyNotifications() {
     currentUserGroup = null;
     currentUserId = null;
     currentUserName = null;
+    userJoinedAt = null; // Reset anche timestamp ingresso
     
     console.log('🔔 Sistema notifiche distrutto');
 }
@@ -737,7 +778,7 @@ function startDeleteStaging(notificationId, notificationItem) {
     contentWrapper.style.filter = 'grayscale(1)';
     
     stagingOverlay.style.display = 'flex';
-    stagingText.textContent = 'Notifica eliminata. Tocca per annullare.';
+    stagingText.textContent = 'Notifica nascosta. Tocca per annullare.';
 
     let countdown = 4;
     stagingCountdown.textContent = countdown;
@@ -826,16 +867,101 @@ function cancelStaging(notificationId, notificationItem) {
 
 async function confirmDeleteNotification(notificationId) {
     try {
-        await deleteDoc(doc(db, 'notifications', notificationId));
+        // Invece di eliminare, nascondi la notifica per l'utente corrente
+        const notificationRef = doc(db, 'notifications', notificationId);
+        const notificationDoc = await getDocs(query(collection(db, 'notifications'), where('__name__', '==', notificationId)));
+        
+        if (!notificationDoc.empty) {
+            const notification = notificationDoc.docs[0].data();
+            const hiddenBy = notification.hiddenBy || [];
+            
+            // Aggiungi l'utente corrente alla lista di chi ha nascosto la notifica
+            if (!hiddenBy.includes(currentUserId)) {
+                hiddenBy.push(currentUserId);
+                await updateDoc(notificationRef, { hiddenBy });
+                
+                console.log(`👁️‍�️ Notifica ${notificationId} nascosta per ${currentUserId}`);
+                
+                // Verifica se tutti i membri del gruppo hanno nascosto la notifica
+                await checkAndCleanupNotification(notificationId, hiddenBy);
+            }
+        }
+        
         activeStaging.delete(notificationId);
-        console.log(`🗑️ Notifica ${notificationId} eliminata definitivamente`);
     } catch (error) {
-        console.error('❌ Errore nell\'eliminazione notifica:', error);
+        console.error('❌ Errore nel nascondere notifica:', error);
         // In caso di errore, ripristina lo staging
         const staging = activeStaging.get(notificationId);
         if (staging) {
             cancelStaging(notificationId, staging.notificationItem);
         }
+    }
+}
+
+// ===== PULIZIA AUTOMATICA NOTIFICHE =====
+async function checkAndCleanupNotification(notificationId, hiddenBy) {
+    try {
+        // Per determinare se eliminare fisicamente, consideriamo solo i membri
+        // che erano presenti quando la notifica è stata creata
+        
+        // Prima ottieni la notifica specifica per controllare il suo timestamp
+        const notificationRef = doc(db, 'notifications', notificationId);
+        const notificationSnap = await getDocs(query(collection(db, 'notifications'), where('__name__', '==', notificationId)));
+        
+        if (notificationSnap.empty) {
+            console.log('🔍 Notifica non trovata per cleanup');
+            return;
+        }
+        
+        const notificationData = notificationSnap.docs[0].data();
+        const notificationTimestamp = notificationData.timestamp?.toDate();
+        
+        if (!notificationTimestamp) {
+            console.log('🔍 Notifica senza timestamp, skip cleanup');
+            return;
+        }
+        
+        // Ottieni tutti i membri che erano presenti al momento della notifica
+        const groupMembersQuery = query(
+            collection(db, 'notifications'),
+            where('groupId', '==', currentUserGroup)
+        );
+        
+        const groupNotifications = await getDocs(groupMembersQuery);
+        const relevantMembers = new Set();
+        
+        // Raccogli utenti che hanno interagito CON NOTIFICHE PRECEDENTI O CONTEMPORANEE
+        groupNotifications.forEach(doc => {
+            const data = doc.data();
+            const docTimestamp = data.timestamp?.toDate();
+            
+            // Considera solo utenti che erano già attivi quando questa notifica è stata creata
+            if (docTimestamp && docTimestamp <= notificationTimestamp) {
+                if (data.authorId) {
+                    relevantMembers.add(data.authorId);
+                }
+                // Utenti che hanno letto/nascosto notifiche precedenti
+                if (data.readBy) {
+                    data.readBy.forEach(userId => relevantMembers.add(userId));
+                }
+                if (data.hiddenBy) {
+                    data.hiddenBy.forEach(userId => relevantMembers.add(userId));
+                }
+            }
+        });
+        
+        const totalRelevantMembers = relevantMembers.size;
+        
+        console.log(`🔍 Controllo pulizia intelligente: ${hiddenBy.length}/${totalRelevantMembers} membri rilevanti hanno nascosto la notifica`);
+        console.log(`👥 Membri rilevanti:`, Array.from(relevantMembers));
+        
+        // Se tutti i membri RILEVANTI hanno nascosto la notifica, eliminala fisicamente
+        if (hiddenBy.length >= totalRelevantMembers && totalRelevantMembers > 0) {
+            await deleteDoc(doc(db, 'notifications', notificationId));
+            console.log(`🧹 Notifica ${notificationId} eliminata fisicamente: tutti i ${totalRelevantMembers} membri rilevanti l'hanno nascosta`);
+        }
+    } catch (error) {
+        console.error('❌ Errore nella verifica pulizia notifica:', error);
     }
 }
 
@@ -866,15 +992,15 @@ async function confirmMarkAsRead(notificationId) {
     }
 }
 
-// ===== FUNZIONE ELIMINA TUTTE LE NOTIFICHE =====
+// ===== FUNZIONE NASCONDI TUTTE LE NOTIFICHE =====
 export async function deleteAllNotifications() {
     if (!currentUserId || !currentUserGroup) {
-        console.warn('⚠️ Informazioni utente/gruppo mancanti per eliminare tutte le notifiche');
+        console.warn('⚠️ Informazioni utente/gruppo mancanti per nascondere tutte le notifiche');
         return;
     }
 
-    // Conferma prima di eliminare tutto
-    if (!confirm('Sei sicuro di voler eliminare tutte le notifiche? Questa azione non può essere annullata.')) {
+    // Conferma prima di nascondere tutto
+    if (!confirm('Sei sicuro di voler nascondere tutte le notifiche? Potrai sempre vedere quelle nuove.')) {
         return;
     }
 
@@ -885,10 +1011,12 @@ export async function deleteAllNotifications() {
         // Feedback visivo durante l'operazione
         if (deleteBtn) {
             deleteBtn.disabled = true;
-            deleteBtn.textContent = 'Eliminando...';
+            deleteBtn.textContent = 'Nascondendo...';
         }
 
         const notificationsRef = collection(db, 'notifications');
+        
+        // Ottieni tutte le notifiche del gruppo che non sono ancora nascoste dall'utente corrente
         const q = query(
             notificationsRef,
             where('groupId', '==', currentUserGroup)
@@ -896,31 +1024,57 @@ export async function deleteAllNotifications() {
 
         const querySnapshot = await getDocs(q);
         
-        if (querySnapshot.empty) {
-            console.log('📭 Nessuna notifica da eliminare');
+        // Filtra solo le notifiche visibili all'utente corrente
+        const visibleNotifications = querySnapshot.docs.filter(docSnap => {
+            const notification = docSnap.data();
+            const hiddenBy = notification.hiddenBy || [];
+            // Deve essere visibile: non creata dall'utente E non già nascosta
+            return notification.authorId !== currentUserId && !hiddenBy.includes(currentUserId);
+        });
+        
+        if (visibleNotifications.length === 0) {
+            console.log('📭 Nessuna notifica visibile da nascondere');
+            
+            // Feedback per utente
+            if (deleteBtn) {
+                deleteBtn.textContent = 'Nessuna da nascondere';
+                setTimeout(() => {
+                    deleteBtn.textContent = originalText;
+                    deleteBtn.disabled = true;
+                }, 2000);
+            }
             return;
         }
 
-        // Elimina tutte le notifiche del gruppo
-        const deletePromises = querySnapshot.docs.map(docSnap => 
-            deleteDoc(doc(db, 'notifications', docSnap.id))
-        );
+        // Nascondi tutte le notifiche visibili aggiungendo l'utente a hiddenBy
+        const hidePromises = visibleNotifications.map(async (docSnap) => {
+            const notification = docSnap.data();
+            const hiddenBy = notification.hiddenBy || [];
+            
+            if (!hiddenBy.includes(currentUserId)) {
+                hiddenBy.push(currentUserId);
+                await updateDoc(doc(db, 'notifications', docSnap.id), { hiddenBy });
+                
+                // Controlla se può essere pulita fisicamente
+                await checkAndCleanupNotification(docSnap.id, hiddenBy);
+            }
+        });
 
-        await Promise.all(deletePromises);
+        await Promise.all(hidePromises);
         
-        console.log(`🗑️ Eliminate ${querySnapshot.docs.length} notifiche del gruppo`);
+        console.log(`�️‍🗨️ Nascoste ${visibleNotifications.length} notifiche per l'utente corrente`);
         
         // Feedback successo
         if (deleteBtn) {
-            deleteBtn.textContent = 'Eliminato!';
+            deleteBtn.textContent = 'Nascoste!';
             setTimeout(() => {
                 deleteBtn.textContent = originalText;
-                deleteBtn.disabled = true; // Rimane disabilitato perché non ci sono più notifiche
+                // Il pulsante sarà disabilitato automaticamente quando non ci sono più notifiche visibili
             }, 2000);
         }
 
     } catch (error) {
-        console.error('❌ Errore nell\'eliminazione di tutte le notifiche:', error);
+        console.error('❌ Errore nel nascondere le notifiche:', error);
         
         // Feedback errore
         if (deleteBtn) {
@@ -931,7 +1085,7 @@ export async function deleteAllNotifications() {
             }, 2000);
         }
         
-        alert('Errore durante l\'eliminazione delle notifiche. Riprova.');
+        alert('Errore durante il nascondimento delle notifiche. Riprova.');
     }
 }
 
