@@ -4,12 +4,7 @@ import {
   getFirestore,
   doc,
   getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  writeBatch
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import firebaseConfig from "./config.js";
 
@@ -52,46 +47,9 @@ window.updateAllUserAvatars = function(newAvatarUrl) {
   }
 };
 
-// 🔄 Funzione per aggiornare tutti gli avatar nelle note dell'utente
-async function updateUserNotesAvatars(userId, newAvatarUrl) {
-  console.log("🔄 Aggiornando avatar in tutte le note dell'utente:", userId);
-  
-  try {
-    // Trova tutte le note create dall'utente
-    const notesQuery = query(
-      collection(db, "notes"),
-      where("createdBy.uid", "==", userId)
-    );
-    
-    const notesSnapshot = await getDocs(notesQuery);
-    
-    if (notesSnapshot.empty) {
-      console.log("📝 Nessuna nota trovata per l'utente");
-      return;
-    }
-    
-    // Usa batch per aggiornare tutte le note in una transazione
-    const batch = writeBatch(db);
-    let updateCount = 0;
-    
-    notesSnapshot.forEach((noteDoc) => {
-      const noteRef = doc(db, "notes", noteDoc.id);
-      batch.update(noteRef, {
-        "createdBy.photoURL": newAvatarUrl
-      });
-      updateCount++;
-    });
-    
-    // Esegui tutti gli aggiornamenti
-    await batch.commit();
-    console.log(`✅ Aggiornate ${updateCount} note con il nuovo avatar`);
-    
-    return updateCount;
-  } catch (error) {
-    console.error("❌ Errore nell'aggiornamento avatar note:", error);
-    throw error;
-  }
-}
+// 🔄 Funzione rimossa: updateUserNotesAvatars
+// Il real-time listener in notes-home.js gestisce automaticamente
+// l'aggiornamento degli avatar in tutte le note quando l'utente cambia avatar
 
 // 🔄 Listener per sincronizzazione tra tab/finestre
 window.addEventListener('storage', (e) => {
@@ -253,11 +211,10 @@ document.addEventListener("DOMContentLoaded", () => {
               window.updateAllUserAvatars(imageUrl);
             }
             
-            // 🔄 Aggiorna anche tutte le note dell'utente
-            console.log("🔄 Avvio aggiornamento avatar nelle note...");
-            const updatedNotes = await updateUserNotesAvatars(user.uid, imageUrl);
+            // 🆕 Il real-time listener si occupa automaticamente di aggiornare le note
+            // Non è più necessario aggiornare manualmente le note
             
-            alert(`✅ Foto aggiornata!\n📝 Aggiornate anche ${updatedNotes} note esistenti.`);
+            alert(`✅ Foto aggiornata! Il nuovo avatar si sincronizzerà automaticamente.`);
           } catch (e) {
             console.error("Errore salvataggio foto:", e);
             alert("❌ Errore nel salvataggio: " + e.message);
