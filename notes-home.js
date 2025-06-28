@@ -134,44 +134,48 @@ function renderFilteredNotes(groupId) {
           const tempDiv = document.createElement('div');
           tempDiv.innerHTML = data.content;
           
-          // Otteniamo solo il testo senza HTML
-          const allText = tempDiv.textContent || tempDiv.innerText || '';
-          console.log("🔍 Tutto il testo:", JSON.stringify(allText));
+          // 🎯 NUOVA STRATEGIA: Prendiamo solo il PRIMO elemento con contenuto
+          const allElements = tempDiv.children;
+          let firstElementText = "";
           
-          // Dividiamo per ritorni a capo reali nel testo
-          const lines = allText.split(/[\r\n]+/);
-          console.log("🔍 Righe trovate:", lines);
-          
-          // Prendiamo la prima riga non vuota
-          let firstLine = "";
-          for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (line !== "") {
-              firstLine = line;
-              break; // 🛑 FERMATI alla prima riga trovata
+          // Cerchiamo il primo elemento che contiene testo
+          for (let i = 0; i < allElements.length; i++) {
+            const element = allElements[i];
+            const elementText = (element.textContent || element.innerText || "").trim();
+            if (elementText) {
+              firstElementText = elementText;
+              break; // 🛑 FERMATI al primo elemento con contenuto
             }
           }
           
-          // Se non troviamo righe separate, prendiamo i primi 80 caratteri
-          if (!firstLine && allText.trim()) {
-            firstLine = allText.trim().substring(0, 80);
+          // Se non troviamo elementi, prendiamo solo i primi caratteri del testo totale
+          if (!firstElementText) {
+            const allText = tempDiv.textContent || tempDiv.innerText || '';
+            firstElementText = allText.trim().substring(0, 60);
+          }
+          
+          // Limitiamo comunque la lunghezza per sicurezza
+          if (firstElementText.length > 80) {
+            const lastSpaceIndex = firstElementText.lastIndexOf(' ', 80);
+            const cutIndex = lastSpaceIndex > 40 ? lastSpaceIndex : 80;
+            firstElementText = firstElementText.substring(0, cutIndex).trim() + "...";
           }
           
           // Pulisci spazi multipli
-          noteContent = firstLine.replace(/\s+/g, " ").trim();
+          noteContent = firstElementText.replace(/\s+/g, " ").trim();
           
         } catch (err) {
           console.warn("🔍 Errore parsing HTML:", err);
-          // Fallback: rimuovi solo i tag HTML
-          noteContent = data.content.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().substring(0, 80);
+          // Fallback: rimuovi solo i tag HTML e limita
+          noteContent = data.content.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().substring(0, 60) + "...";
         }
         
-        console.log("🔍 Prima riga estratta:", JSON.stringify(noteContent));
+        console.log("🔍 Preview finale:", JSON.stringify(noteContent));
       }
       
       const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
-      // Assicuriamoci che previewContent sia sempre una singola riga - MOLTO più corto
-      const previewContent = noteContent.length > 80 ? noteContent.slice(0, 80) + "..." : noteContent;
+      // Ora noteContent è già limitato e ottimizzato nel codice sopra
+      const previewContent = noteContent;
 
       const li = document.createElement("div");
       li.classList.add("note-box", noteCount % 2 === 0 ? "even" : "odd");
