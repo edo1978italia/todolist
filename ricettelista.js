@@ -19,6 +19,47 @@ const auth = getAuth(app);
 const params = new URLSearchParams(window.location.search);
 const recipeId = params.get("id");
 
+onAuthStateChanged(auth, async (user) => {
+  const userEmailElement = document.getElementById("userEmail");
+  const mainContainer = document.getElementById("mainContainer");
+
+  if (!user) {
+    console.warn("🚪 Utente non autenticato — redirect");
+    window.location.href = "index.html";
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      console.error("❌ Documento utente assente");
+      await signOut(auth);
+      window.location.href = "index.html";
+      return;
+    }
+
+    const data = userSnap.data();
+    if (!data.groupId || data.groupId.trim() === "") {
+      console.warn("🚧 Nessun groupId — redirect a group-setup.html");
+      window.location.href = "group-setup.html";
+      return;
+    }
+
+    console.log("✅ Accesso abilitato con groupId:", data.groupId);
+    if (userEmailElement) userEmailElement.innerText = user.email;
+    if (mainContainer) mainContainer.style.display = "block";
+
+    loadRecipes(data.groupId); // ⬅️ chiamata filtrata
+
+  } catch (err) {
+    console.error("💥 Errore nel controllo utente:", err);
+    await signOut(auth);
+    window.location.href = "index.html";
+  }
+});
+
 if (recipeId) {
     document.body.classList.add("single-recipe"); // 🔥 Applica lo stile per la singola ricetta
 }
@@ -144,21 +185,6 @@ window.logoutUser = logoutUser;
 
 
 
-function updateUserInfo() {
-    const userEmailElement = document.getElementById("userEmail");
-    if (!userEmailElement) {
-        console.warn("⚠ Elemento userEmail non trovato!");
-        return;
-    }
-
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            userEmailElement.innerText = user.email;
-        } else {
-            userEmailElement.innerText = "Non autenticato";
-        }
-    });
-}
 
 // 🔥 Gestione sidebar
 window.toggleSidebar = function () {

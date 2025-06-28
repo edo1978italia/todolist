@@ -653,3 +653,58 @@ body.loading > *:not(.loader) {
         background-position: 250px 0;
     }
 }
+
+/* 🔥 FAB (Floating Action Button) per creare nuove note */
+.fab-button {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: #007bff; /* Blu stesso colore dei bottoni dell'app */
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000; /* Sopra alle note */
+    user-select: none;
+}
+
+.fab-button:hover {
+    background: #0056b3;
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 123, 255, 0.6);
+}
+
+.fab-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+.fab-icon {
+    font-size: 28px;
+    line-height: 1;
+    margin-top: -2px; /* Piccolo aggiustamento per centrare meglio il + */
+}
+
+/* 📱 Responsive per mobile */
+@media (max-width: 768px) {
+    .fab-button {
+        bottom: 30px;
+        right: 30px;
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+    
+    .fab-icon {
+        font-size: 26px;
+    }
+}

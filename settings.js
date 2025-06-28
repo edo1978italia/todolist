@@ -40,7 +40,7 @@ async function createLeaveNotification(groupId, userName, userId) {
             timestamp: serverTimestamp(),
             readBy: [], 
             hiddenBy: [],
-            replaceKey: `user_left_${userId}_${Date.now()}`
+            replaceKey: `user_left_${userId}_${groupId}`
         };
         
         console.log(`🔔 [DEBUG] Dati notifica da creare:`, notificationData);
@@ -187,8 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                         
                                         // Gestione errore caricamento immagine
                                         avatar.onerror = function() {
-                                            console.warn(`[SETTING] ⚠️ Errore caricamento avatar per ${displayName}, fallback a default`);
-                                            this.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(avatarName) + "&background=cccccc&color=444&size=48";
+                                            console.warn(`[SETTING] ⚠️ Errore caricamento avatar per ${displayName}, fallback a default locale`);
+                                            this.src = "icone/default-avatar.png";
                                         };
                                         
                                         chip.appendChild(avatar);
@@ -225,8 +225,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (groupMembersListEl) groupMembersListEl.innerHTML = "—";
                 }
             }
-            // AVATAR (indipendente)
-            // avatarEl rimosso: non viene più gestito l'avatar
+            // AVATAR dell'utente corrente
+            const avatarEl = document.getElementById("userAvatar");
+            if (avatarEl) {
+                avatarEl.src = data?.photoURL || "icone/default-avatar.png";
+                console.log("[SETTING] Avatar utente aggiornato:", avatarEl.src);
+            }
         } catch (err) {
             console.error("[SETTING] Errore caricamento dettagli utente:", err);
         }
@@ -276,6 +280,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Gestione abbandono gruppo tramite modale custom
     if (typeof confirmLeaveGroupBtn !== 'undefined' && confirmLeaveGroupBtn) {
         confirmLeaveGroupBtn.addEventListener("click", async function() {
+            // Chiudi il modale prima di eseguire l'azione
+            const leaveGroupModal = document.getElementById("leaveGroupModal");
+            if (leaveGroupModal) {
+                leaveGroupModal.style.display = "none";
+            }
             // Usa la funzione centralizzata leaveGroup()
             await leaveGroup();
         });
@@ -400,5 +409,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Esporta leaveGroup globalmente
     window.leaveGroup = leaveGroup;
+
+    // 🔄 Listener per sincronizzazione avatar tra tab/finestre
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'userAvatarUpdated' && e.newValue) {
+        try {
+          const data = JSON.parse(e.newValue);
+          console.log("[SETTING] 🔄 Ricevuto aggiornamento avatar:", data.url);
+          
+          // Aggiorna avatar in questa pagina
+          const avatarEl = document.getElementById("userAvatar");
+          if (avatarEl) {
+            avatarEl.src = data.url;
+            console.log("[SETTING] ✅ Avatar aggiornato");
+          }
+        } catch (err) {
+          console.warn("[SETTING] ⚠️ Errore parsing avatar update:", err);
+        }
+      }
+    });
 });
 

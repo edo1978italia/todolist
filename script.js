@@ -45,7 +45,7 @@ async function loginUser() {
 
         localStorage.setItem("userLoggedIn", "true");
         localStorage.setItem("userEmail", userCredential.user.email);
-        localStorage.setItem("userPhoto", userCredential.user.photoURL || "https://via.placeholder.com/80");
+        localStorage.setItem("userPhoto", userCredential.user.photoURL || "icone/default-avatar.png");
 
         window.location.replace("index.html");
     } catch (error) {
@@ -298,13 +298,12 @@ if (sidebarContainer) {
         });
 }
 
-onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-
-    const userSnap = await getDoc(doc(db, "users", user.uid));
-    const userData = userSnap.data();
-    const groupId = userData?.groupId;
+// 🔥 Funzione per caricare i dati del gruppo (task, note, ricette)
+async function loadGroupData(groupId) {
     if (!groupId) return;
+    
+    console.log("[SCRIPT] 🔄 Caricamento dati gruppo:", groupId);
+    window._groupId = groupId; // Salva per uso successivo
 
     // 🔹 TASK PREVIEW
     const taskPreview = document.getElementById("taskPreview");
@@ -319,9 +318,10 @@ onAuthStateChanged(auth, async (user) => {
             } else {
                 html = taskSnap.docs
                     .map((doc) => {
-                        const t = doc.data();
-                        const checked = t.completed ? "checked" : "";
-                        return `<li class="${checked}">${t.name}</li>`;
+                        const task = doc.data();
+                        const title = task.title || "Task senza nome";
+                        const completed = task.completed ? "✅" : "⬜";
+                        return `<li>${completed} ${title}</li>`;
                     })
                     .join("");
             }
@@ -343,25 +343,57 @@ onAuthStateChanged(auth, async (user) => {
             if (noteSnap.empty) {
                 html = "<p>❌ Nessuna nota da mostrare</p>";
             } else {
-                html = noteSnap.docs
-                    .map((doc) => {
-                        const note = doc.data();
-                        const title = (note.title || "Senza titolo").slice(0, 15);
-                        const content = (note.content || "").replace(/<[^>]+>/g, "").slice(0, 180);
-                        let avatar = "";
-                        if (note.createdBy && note.createdBy.photoURL) {
-                            avatar = `<img src="${note.createdBy.photoURL}" class="note-preview-avatar">`;
-                        } else {
-                            avatar = `<div class="note-preview-avatar-placeholder">👤</div>`;
+                // Cache per gli avatar degli utenti per evitare chiamate multiple
+                const userAvatarCache = new Map();
+                
+                const notePromises = noteSnap.docs.map(async (doc) => {
+                    const note = doc.data();
+                    const title = (note.title || "Senza titolo").slice(0, 15);
+                    const content = (note.content || "").replace(/<[^>]+>/g, "").slice(0, 180);
+                    
+                    let avatarURL = "icone/default-avatar.png";
+                    const createdBy = note.createdBy || {};
+                    
+                    // 🔥 Recupera l'avatar attuale dell'utente da Firestore invece di usare quello memorizzato
+                    if (createdBy.uid) {
+                        try {
+                            if (userAvatarCache.has(createdBy.uid)) {
+                                // Usa cache se disponibile
+                                const cachedData = userAvatarCache.get(createdBy.uid);
+                                avatarURL = cachedData.photoURL || "icone/default-avatar.png";
+                            } else {
+                                // Recupera da Firestore e metti in cache
+                                const userRef = doc(db, "users", createdBy.uid);
+                                const userSnap = await getDoc(userRef);
+                                if (userSnap.exists()) {
+                                    const userData = userSnap.data();
+                                    avatarURL = userData.photoURL || "icone/default-avatar.png";
+                                    userAvatarCache.set(createdBy.uid, { photoURL: userData.photoURL });
+                                } else {
+                                    // Fallback ai dati memorizzati nella nota
+                                    avatarURL = createdBy.photoURL || "icone/default-avatar.png";
+                                    userAvatarCache.set(createdBy.uid, { photoURL: createdBy.photoURL });
+                                }
+                            }
+                        } catch (err) {
+                            console.warn("⚠ Errore recupero avatar utente in preview:", err);
+                            // Fallback ai dati memorizzati nella nota
+                            avatarURL = createdBy.photoURL || "icone/default-avatar.png";
                         }
-                        return `
+                    }
+                    
+                    const avatar = `<img src="${avatarURL}" class="note-preview-avatar">`;
+                    
+                    return `
             <div class="note-preview-box">
               <div class="note-preview-avatar-wrap">${avatar}</div>
               <h4 class="note-preview-title">${title}</h4>
               <p class="note-preview-content">${content}</p>
             </div>`;
-                    })
-                    .join("");
+                });
+                
+                const noteResults = await Promise.all(notePromises);
+                html = noteResults.join("");
             }
             notesPreviewList.innerHTML = html;
         } catch (err) {
@@ -378,7 +410,7 @@ onAuthStateChanged(auth, async (user) => {
                 query(
                     collection(db, "ricette"),
                     where("groupId", "==", groupId),
-                    orderBy("timestamp", "desc"),
+                    orderBy("dataCreazione", "desc"),
                     limit(3)
                 )
             );
@@ -405,4 +437,44 @@ onAuthStateChanged(auth, async (user) => {
             ricettePreviewList.innerHTML = "<p>Errore nel caricamento delle ricette.</p>";
         }
     }
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    const userData = userSnap.data();
+    const groupId = userData?.groupId;
+    if (!groupId) return;
+
+    // Carica i dati del gruppo usando la nuova funzione
+    await loadGroupData(groupId);
+});
+
+// 🔄 Listener per sincronizzazione avatar tra tab/finestre
+window.addEventListener('storage', (e) => {
+  if (e.key === 'userAvatarUpdated' && e.newValue) {
+    try {
+      const data = JSON.parse(e.newValue);
+      console.log("[SCRIPT] 🔄 Ricevuto aggiornamento avatar:", data.url);
+      
+      // Aggiorna avatar nella sidebar se presente
+      const avatarEl = document.getElementById("userAvatar");
+      if (avatarEl) {
+        avatarEl.src = data.url;
+        console.log("[SCRIPT] ✅ Avatar sidebar aggiornato");
+      }
+      
+      // 🔥 Se siamo in una pagina di gruppo, refresh del dashboard per aggiornare i preview delle note
+      if (window._groupId && typeof loadGroupData === 'function') {
+        console.log("[SCRIPT] 🔄 Refresh dashboard gruppo per aggiornamento avatar...");
+        setTimeout(() => {
+          loadGroupData(window._groupId);
+        }, 500); // Piccolo delay per permettere alla sincronizzazione Firebase di completarsi
+      }
+      
+    } catch (err) {
+      console.warn("[SCRIPT] ⚠️ Errore parsing avatar update:", err);
+    }
+  }
 });

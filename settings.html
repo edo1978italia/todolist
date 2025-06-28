@@ -161,11 +161,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
   if (confirmLeaveGroupBtn) {
-    confirmLeaveGroupBtn.addEventListener("click", function() {
-      leaveGroupModal.style.display = "none";
-      // Qui va la logica di abbandono gruppo vera e propria
-      window.leaveGroup && window.leaveGroup();
-    });
+    // L'event listener per confirmLeaveGroupBtn è gestito in settings.js
+    // per evitare duplicazioni di chiamate
   }
 });
 </script>

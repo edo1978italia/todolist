@@ -8,7 +8,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import firebaseConfig from "./config.js";
 
@@ -21,7 +22,101 @@ const db = getFirestore(app);
 
 console.log("[✓] Firebase inizializzato");
 
-// 🔒 Protezione accesso: login + groupId
+// 🔄 Funzione globale per aggiornare tutti gli avatar dell'utente corrente
+window.updateAllUserAvatars = function(newAvatarUrl) {
+  console.log("🔄 Aggiornando tutti gli avatar utente a:", newAvatarUrl);
+  
+  // 1. Avatar nella sidebar (presente in tutte le pagine)
+  const sidebarAvatar = document.getElementById("userAvatar");
+  if (sidebarAvatar) {
+    sidebarAvatar.src = newAvatarUrl;
+    console.log("✅ Avatar sidebar aggiornato");
+  }
+  
+  // 2. Avatar nel profilo (se presente)
+  const profileAvatar = document.getElementById("avatarPreview");
+  if (profileAvatar) {
+    profileAvatar.src = newAvatarUrl;
+    console.log("✅ Avatar profilo aggiornato");
+  }
+  
+  // 3. Invia messaggio a tutte le finestre/tab aperte per sincronizzare
+  try {
+    localStorage.setItem("userAvatarUpdated", JSON.stringify({
+      url: newAvatarUrl,
+      timestamp: Date.now()
+    }));
+    console.log("✅ Avatar sincronizzato via localStorage");
+  } catch (e) {
+    console.warn("⚠️ Errore sync localStorage:", e);
+  }
+};
+
+// 🔄 Funzione per aggiornare tutti gli avatar nelle note dell'utente
+async function updateUserNotesAvatars(userId, newAvatarUrl) {
+  console.log("🔄 Aggiornando avatar in tutte le note dell'utente:", userId);
+  
+  try {
+    // Trova tutte le note create dall'utente
+    const notesQuery = query(
+      collection(db, "notes"),
+      where("createdBy.uid", "==", userId)
+    );
+    
+    const notesSnapshot = await getDocs(notesQuery);
+    
+    if (notesSnapshot.empty) {
+      console.log("📝 Nessuna nota trovata per l'utente");
+      return;
+    }
+    
+    // Usa batch per aggiornare tutte le note in una transazione
+    const batch = writeBatch(db);
+    let updateCount = 0;
+    
+    notesSnapshot.forEach((noteDoc) => {
+      const noteRef = doc(db, "notes", noteDoc.id);
+      batch.update(noteRef, {
+        "createdBy.photoURL": newAvatarUrl
+      });
+      updateCount++;
+    });
+    
+    // Esegui tutti gli aggiornamenti
+    await batch.commit();
+    console.log(`✅ Aggiornate ${updateCount} note con il nuovo avatar`);
+    
+    return updateCount;
+  } catch (error) {
+    console.error("❌ Errore nell'aggiornamento avatar note:", error);
+    throw error;
+  }
+}
+
+// 🔄 Listener per sincronizzazione tra tab/finestre
+window.addEventListener('storage', (e) => {
+  if (e.key === 'userAvatarUpdated' && e.newValue) {
+    try {
+      const data = JSON.parse(e.newValue);
+      console.log("🔄 Ricevuto aggiornamento avatar da altra tab:", data.url);
+      
+      // Aggiorna avatar in questa pagina
+      const sidebarAvatar = document.getElementById("userAvatar");
+      if (sidebarAvatar) {
+        sidebarAvatar.src = data.url;
+      }
+      
+      const profileAvatar = document.getElementById("avatarPreview");
+      if (profileAvatar) {
+        profileAvatar.src = data.url;
+      }
+    } catch (err) {
+      console.warn("⚠️ Errore parsing avatar update:", err);
+    }
+  }
+});
+
+// �🔒 Protezione accesso: login + groupId
 auth.onAuthStateChanged(async (user) => {
   if (!user) {
     console.warn("🔐 Nessun utente — redirect");
@@ -71,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Nickname
       if (nameEl) nameEl.value = data?.nickname || "";
       // Avatar
-      if (avatarEl) avatarEl.src = data?.photoURL || "/todolist/img/default-avatar.png";
+      if (avatarEl) avatarEl.src = data?.photoURL || "icone/default-avatar.png";
       // Name
       const firstNameEl = document.getElementById("firstName");
       if (firstNameEl) firstNameEl.textContent = data?.firstName || "—";
@@ -152,9 +247,20 @@ document.addEventListener("DOMContentLoaded", () => {
             await updateDoc(userRef, { photoURL: imageUrl, email: user.email });
             const { updateProfile } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
             await updateProfile(user, { photoURL: imageUrl });
-            alert("✅ Foto aggiornata!");
+            
+            // 🔄 Aggiorna tutti gli avatar dell'utente nell'app
+            if (typeof window.updateAllUserAvatars === 'function') {
+              window.updateAllUserAvatars(imageUrl);
+            }
+            
+            // 🔄 Aggiorna anche tutte le note dell'utente
+            console.log("🔄 Avvio aggiornamento avatar nelle note...");
+            const updatedNotes = await updateUserNotesAvatars(user.uid, imageUrl);
+            
+            alert(`✅ Foto aggiornata!\n📝 Aggiornate anche ${updatedNotes} note esistenti.`);
           } catch (e) {
             console.error("Errore salvataggio foto:", e);
+            alert("❌ Errore nel salvataggio: " + e.message);
           }
         }
       }
@@ -209,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 window.logoutUser = logoutUser;
 
-// 📥 Carica sidebar dinamica
+//  Carica sidebar dinamica
 const sidebarContainer = document.createElement("div");
 sidebarContainer.id = "sidebar-container";
 document.body.insertBefore(sidebarContainer, document.getElementById("profile-container"));

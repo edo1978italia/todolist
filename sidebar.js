@@ -1,7 +1,7 @@
 import firebaseConfig from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 import { initNotifications, destroyNotifications, markAllAsRead } from "./notifications.js";
 
 console.log("🔥 Avvio sidebar.js...");
@@ -14,10 +14,33 @@ const db = getFirestore(app);
 function initializeSidebar() {
   console.log("[✓] DOM caricato o sidebar disponibile");
 
-  const avatarEl = document.getElementById("userAvatar");
-  const emailEl = document.getElementById("userEmail");
-  const nameEl = document.getElementById("welcomeMessage");
-  const logoutBtn = document.getElementById("logoutButton");
+  // Aspetta che gli elementi siano disponibili nel DOM
+  const waitForElements = () => {
+    const avatarEl = document.getElementById("userAvatar");
+    const emailEl = document.getElementById("userEmail");
+    const nameEl = document.getElementById("welcomeMessage");
+    const logoutBtn = document.getElementById("logoutButton");
+
+    console.log("[DEBUG] Elementi sidebar trovati:", {
+      avatar: !!avatarEl,
+      email: !!emailEl,
+      name: !!nameEl,
+      logout: !!logoutBtn
+    });
+
+    if (avatarEl && emailEl && nameEl) {
+      startSidebarLogic(avatarEl, emailEl, nameEl, logoutBtn);
+    } else {
+      console.log("[DEBUG] Elementi non ancora pronti, riprovo tra 100ms...");
+      setTimeout(waitForElements, 100);
+    }
+  };
+
+  waitForElements();
+}
+
+function startSidebarLogic(avatarEl, emailEl, nameEl, logoutBtn) {
+  console.log("[✓] Avvio logica sidebar con elementi pronti");
 
   onAuthStateChanged(auth, async (user) => {
     console.log("[DEBUG] onAuthStateChanged triggerato");
@@ -40,19 +63,65 @@ function initializeSidebar() {
 
       console.log("[DEBUG] Dati da Firestore:", data);
 
+      // Carica avatar iniziale
+      console.log("[DEBUG] photoURL da Firestore:", data?.photoURL);
+      console.log("[DEBUG] avatarEl disponibile:", !!avatarEl);
+      
       if (data?.photoURL && avatarEl) {
         avatarEl.src = data.photoURL;
-        console.log("Foto caricata:", data.photoURL);
+        console.log("✅ Foto caricata:", data.photoURL);
+        console.log("[DEBUG] Avatar src impostato a:", avatarEl.src);
+      } else if (avatarEl) {
+        avatarEl.src = "icone/default-avatar.png";
+        console.log("✅ Foto di default caricata");
+        console.log("[DEBUG] Avatar src impostato a:", avatarEl.src);
       } else {
-        console.warn("⚠ Nessuna foto trovata o elemento mancante");
+        console.warn("⚠ Elemento avatar mancante - ID userAvatar non trovato");
       }
 
-      if (data?.displayName && nameEl) {
+      // Carica nome/nickname iniziale
+      if (data?.nickname && nameEl) {
+        nameEl.textContent = "Welcome, " + data.nickname;
+        console.log("Nome mostrato:", data.nickname);
+      } else if (data?.displayName && nameEl) {
         nameEl.textContent = "Welcome, " + data.displayName;
         console.log("Nome mostrato:", data.displayName);
+      } else if (nameEl) {
+        nameEl.textContent = "Welcome, " + (user.email?.split("@")[0] || "User");
       } else {
         console.warn("⚠ Nessun nome trovato o elemento mancante");
       }
+
+      // 🔄 Aggiungi listener real-time DOPO il caricamento iniziale
+      onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const updatedData = docSnap.data();
+          console.log("[DEBUG] Aggiornamento real-time dati utente:", updatedData);
+
+          // Aggiorna solo se diverso dall'attuale
+          if (avatarEl && updatedData?.photoURL !== avatarEl.src) {
+            if (updatedData?.photoURL) {
+              avatarEl.src = updatedData.photoURL;
+              console.log("✅ Avatar aggiornato via Firestore:", updatedData.photoURL);
+            } else {
+              avatarEl.src = "icone/default-avatar.png";
+              console.log("✅ Avatar reset a default");
+            }
+          }
+
+          // Aggiorna nome se cambiato
+          if (nameEl) {
+            const newName = updatedData?.nickname || updatedData?.displayName || user.email?.split("@")[0] || "User";
+            const expectedText = "Welcome, " + newName;
+            if (nameEl.textContent !== expectedText) {
+              nameEl.textContent = expectedText;
+              console.log("✅ Nome aggiornato via Firestore:", newName);
+            }
+          }
+        }
+      }, (error) => {
+        console.error("❌ Errore listener utente:", error);
+      });
 
       // ✅ Inizializza sistema notifiche SOLO se abbiamo i dati del gruppo
       if (data?.groupId) {
@@ -213,4 +282,23 @@ function initializeNotificationsModal() {
 // Inizializza il modal quando la sidebar è pronta
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(initializeNotificationsModal, 200);
+});
+
+// 🔄 Listener per sincronizzazione avatar tra tab/finestre
+window.addEventListener('storage', (e) => {
+  if (e.key === 'userAvatarUpdated' && e.newValue) {
+    try {
+      const data = JSON.parse(e.newValue);
+      console.log("[SIDEBAR] 🔄 Ricevuto aggiornamento avatar:", data.url);
+      
+      // Aggiorna avatar nella sidebar
+      const avatarEl = document.getElementById("userAvatar");
+      if (avatarEl) {
+        avatarEl.src = data.url;
+        console.log("[SIDEBAR] ✅ Avatar aggiornato");
+      }
+    } catch (err) {
+      console.warn("[SIDEBAR] ⚠️ Errore parsing avatar update:", err);
+    }
+  }
 });
