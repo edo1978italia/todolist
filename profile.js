@@ -8,7 +8,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import firebaseConfig from "./config.js";
 
-console.log("[log] Inizio esecuzione profile.js");
+console.log("[log] Inizio esecuzione profile.js - Versione AGGIORNATA senza updateUserNotesAvatars");
+console.log("[log] Timestamp caricamento:", new Date().toISOString());
 
 // ✅ Inizializzazione Firebase
 const app = initializeApp(firebaseConfig);
@@ -37,11 +38,13 @@ window.updateAllUserAvatars = function(newAvatarUrl) {
   
   // 3. Invia messaggio a tutte le finestre/tab aperte per sincronizzare
   try {
+    const currentUser = auth.currentUser;
     localStorage.setItem("userAvatarUpdated", JSON.stringify({
       url: newAvatarUrl,
+      userId: currentUser ? currentUser.uid : null,
       timestamp: Date.now()
     }));
-    console.log("✅ Avatar sincronizzato via localStorage");
+    console.log("✅ Avatar sincronizzato via localStorage con userId");
   } catch (e) {
     console.warn("⚠️ Errore sync localStorage:", e);
   }

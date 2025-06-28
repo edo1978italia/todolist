@@ -28,6 +28,91 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// 🆕 Real-time listener per aggiornamenti avatar di tutti gli utenti del gruppo (per widget note)
+function setupAvatarRealTimeListener(groupId) {
+  // Query per tutti gli utenti del gruppo
+  const usersQuery = query(collection(db, "users"), where("groupId", "==", groupId));
+  
+  // Listener per cambiamenti in tempo reale
+  window._dashboardAvatarUnsubscribe = onSnapshot(usersQuery, (snapshot) => {
+    // 🆕 Inizializza la cache globale se non esiste
+    if (!window.userAvatarCache) window.userAvatarCache = {};
+    
+    // 🆕 PRIMA volta: carica TUTTI gli avatar nella cache
+    if (!snapshot.metadata.fromCache || snapshot.docChanges().length === snapshot.docs.length) {
+      console.log("[SCRIPT] 🔄 Caricamento iniziale avatar nella cache globale...");
+      snapshot.docs.forEach((doc) => {
+        const userId = doc.id;
+        const userData = doc.data();
+        if (userData.photoURL) {
+          window.userAvatarCache[userId] = userData.photoURL;
+          console.log(`[SCRIPT] 📦 Avatar caricato in cache per ${userId}:`, userData.photoURL);
+        }
+      });
+      
+      // 🚀 IMPORTANTE: Segnala che la cache è pronta
+      window._avatarCacheReady = true;
+      console.log("[SCRIPT] ✅ Cache avatar pronta!");
+      
+      // 🔥 Se il widget note è già in attesa, forza il refresh ora che abbiamo gli avatar
+      if (window._waitingForAvatarCache) {
+        console.log("[SCRIPT] 🔄 Widget note era in attesa, refresh ora...");
+        window._waitingForAvatarCache = false;
+        // Ricarica il widget note ora che la cache è pronta
+        if (window._groupId) {
+          setTimeout(() => {
+            const event = new CustomEvent('avatarCacheReady');
+            window.dispatchEvent(event);
+          }, 100);
+        }
+      }
+    }
+    
+    // Gestisce i cambiamenti successivi
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "modified") {
+        const userId = change.doc.id;
+        const userData = change.doc.data();
+        
+        // Controlla se è cambiato l'avatar
+        if (userData.photoURL) {
+          console.log(`[SCRIPT] 🔄 Avatar aggiornato per utente ${userId}:`, userData.photoURL);
+          
+          // 🆕 Aggiorna la cache globale
+          window.userAvatarCache[userId] = userData.photoURL;
+          
+          // Aggiorna tutti gli avatar di questo utente nel widget note
+          updateUserAvatarInNoteWidget(userId, userData.photoURL);
+          
+          // 🆕 Il widget note ora è real-time, quindi si aggiorna automaticamente
+          // Non serve più forzare il refresh manuale
+        }
+      }
+    });
+  }, (error) => {
+    console.error("❌ Errore listener avatar real-time in dashboard:", error);
+  });
+}
+
+// 🆕 Aggiorna avatar di un utente specifico nel widget note
+function updateUserAvatarInNoteWidget(userId, newAvatarURL) {
+  const noteAvatars = document.querySelectorAll('.note-preview-avatar');
+  let updated = false;
+  
+  noteAvatars.forEach(avatar => {
+    if (avatar.dataset.userId === userId) {
+      avatar.src = newAvatarURL;
+      updated = true;
+      console.log(`[SCRIPT] ✅ Avatar aggiornato nel widget note per utente ${userId}`);
+    }
+  });
+  
+  // Se non abbiamo trovato avatar da aggiornare, potrebbe essere che il widget note non sia ancora caricato
+  // o che l'utente non abbia note visibili. In questo caso, non facciamo nulla
+  if (!updated) {
+    console.log(`[SCRIPT] ℹ️ Nessun avatar trovato nel widget note per utente ${userId}`);
+  }
+}
 
 // 🔥 Gestione login
 async function loginUser() {
@@ -104,6 +189,23 @@ onAuthStateChanged(auth, async (user) => {
 // 🔥 Gestione logout
 async function logoutUser() {
     try {
+        // 🆕 Pulisci listener avatar real-time
+        if (window._dashboardAvatarUnsubscribe) {
+            window._dashboardAvatarUnsubscribe();
+            window._dashboardAvatarUnsubscribe = null;
+        }
+        
+        // 🆕 Pulisci listener widget note real-time
+        if (window._notesWidgetUnsubscribe) {
+            window._notesWidgetUnsubscribe();
+            window._notesWidgetUnsubscribe = null;
+        }
+        
+        // 🆕 Pulisci variabili di sincronizzazione
+        window._avatarCacheReady = false;
+        window._waitingForAvatarCache = false;
+        window.userAvatarCache = null;
+        
         await signOut(auth);
         localStorage.clear();
         console.log("✅ Logout completato, utente disconnesso!");
@@ -305,6 +407,11 @@ async function loadGroupData(groupId) {
     console.log("[SCRIPT] 🔄 Caricamento dati gruppo:", groupId);
     window._groupId = groupId; // Salva per uso successivo
 
+    // 🆕 Avvia real-time listener per aggiornamenti avatar (se non già attivo)
+    if (!window._dashboardAvatarUnsubscribe) {
+        setupAvatarRealTimeListener(groupId);
+    }
+
     // 🔹 TASK PREVIEW
     const taskPreview = document.getElementById("taskPreview");
     if (taskPreview) {
@@ -319,9 +426,11 @@ async function loadGroupData(groupId) {
                 html = taskSnap.docs
                     .map((doc) => {
                         const task = doc.data();
-                        const title = task.title || "Task senza nome";
-                        const completed = task.completed ? "✅" : "⬜";
-                        return `<li>${completed} ${title}</li>`;
+                        // 🔧 Supporta sia 'name' che 'title' per compatibilità
+                        const title = task.name || task.title || "Task senza nome";
+                        // 🎨 Applica classe CSS 'completed' se il task è completato (senza icone)
+                        const completedClass = task.completed ? ' class="completed"' : '';
+                        return `<li${completedClass}>${title}</li>`;
                     })
                     .join("");
             }
@@ -332,75 +441,8 @@ async function loadGroupData(groupId) {
         }
     }
 
-    // 🔹 NOTES PREVIEW
-    const notesPreviewList = document.getElementById("notesPreviewList");
-    if (notesPreviewList) {
-        try {
-            const noteSnap = await getDocs(
-                query(collection(db, "notes"), where("groupId", "==", groupId), orderBy("timestamp", "desc"), limit(3))
-            );
-            let html = "";
-            if (noteSnap.empty) {
-                html = "<p>❌ Nessuna nota da mostrare</p>";
-            } else {
-                // Cache per gli avatar degli utenti per evitare chiamate multiple
-                const userAvatarCache = new Map();
-                
-                const notePromises = noteSnap.docs.map(async (doc) => {
-                    const note = doc.data();
-                    const title = (note.title || "Senza titolo").slice(0, 15);
-                    const content = (note.content || "").replace(/<[^>]+>/g, "").slice(0, 180);
-                    
-                    let avatarURL = "icone/default-avatar.png";
-                    const createdBy = note.createdBy || {};
-                    
-                    // 🔥 Recupera l'avatar attuale dell'utente da Firestore invece di usare quello memorizzato
-                    if (createdBy.uid) {
-                        try {
-                            if (userAvatarCache.has(createdBy.uid)) {
-                                // Usa cache se disponibile
-                                const cachedData = userAvatarCache.get(createdBy.uid);
-                                avatarURL = cachedData.photoURL || "icone/default-avatar.png";
-                            } else {
-                                // Recupera da Firestore e metti in cache
-                                const userRef = doc(db, "users", createdBy.uid);
-                                const userSnap = await getDoc(userRef);
-                                if (userSnap.exists()) {
-                                    const userData = userSnap.data();
-                                    avatarURL = userData.photoURL || "icone/default-avatar.png";
-                                    userAvatarCache.set(createdBy.uid, { photoURL: userData.photoURL });
-                                } else {
-                                    // Fallback ai dati memorizzati nella nota
-                                    avatarURL = createdBy.photoURL || "icone/default-avatar.png";
-                                    userAvatarCache.set(createdBy.uid, { photoURL: createdBy.photoURL });
-                                }
-                            }
-                        } catch (err) {
-                            console.warn("⚠ Errore recupero avatar utente in preview:", err);
-                            // Fallback ai dati memorizzati nella nota
-                            avatarURL = createdBy.photoURL || "icone/default-avatar.png";
-                        }
-                    }
-                    
-                    const avatar = `<img src="${avatarURL}" class="note-preview-avatar">`;
-                    
-                    return `
-            <div class="note-preview-box">
-              <div class="note-preview-avatar-wrap">${avatar}</div>
-              <h4 class="note-preview-title">${title}</h4>
-              <p class="note-preview-content">${content}</p>
-            </div>`;
-                });
-                
-                const noteResults = await Promise.all(notePromises);
-                html = noteResults.join("");
-            }
-            notesPreviewList.innerHTML = html;
-        } catch (err) {
-            console.error("❌ Errore nelle note preview:", err);
-            notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note</p>";
-        }
-    }
+    // 🔹 NOTES PREVIEW con REAL-TIME listener
+    setupNotesWidgetRealTime(groupId);
 
     // 🔹 RICETTE PREVIEW
     const ricettePreviewList = document.getElementById("latestRecipesList");
@@ -439,6 +481,132 @@ async function loadGroupData(groupId) {
     }
 }
 
+// 🆕 Funzione dedicata per refresh del widget note con REAL-TIME listener
+function setupNotesWidgetRealTime(groupId) {
+  const notesPreviewList = document.getElementById("notesPreviewList");
+  if (!notesPreviewList || !groupId) return;
+  
+  console.log("[SCRIPT] 🔄 Setup real-time listener per widget note...");
+  
+  // 🔥 REAL-TIME listener per le note del gruppo (come in notes-home.js)
+  const notesQuery = query(
+    collection(db, "notes"), 
+    where("groupId", "==", groupId), 
+    orderBy("timestamp", "desc"), 
+    limit(3)
+  );
+  
+  // 🆕 Cleanup del listener precedente se esiste
+  if (window._notesWidgetUnsubscribe) {
+    window._notesWidgetUnsubscribe();
+  }
+  
+  // 🆕 Listener per quando la cache avatar è pronta
+  window.addEventListener('avatarCacheReady', () => {
+    console.log("[SCRIPT] 🔄 Cache avatar pronta, refresh widget note...");
+    // Il listener onSnapshot si riattiva automaticamente
+  });
+  
+  window._notesWidgetUnsubscribe = onSnapshot(notesQuery, async (snapshot) => {
+    try {
+      console.log("[SCRIPT] 🔄 Aggiornamento real-time widget note...");
+      
+      // 🚀 Se la cache avatar non è ancora pronta, aspetta
+      if (!window._avatarCacheReady) {
+        console.log("[SCRIPT] ⏳ Cache avatar non pronta, aspetto...");
+        window._waitingForAvatarCache = true;
+        // Mostra un placeholder temporaneo
+        notesPreviewList.innerHTML = "<p>🔄 Caricamento note...</p>";
+        return;
+      }
+      
+      let html = "";
+      if (snapshot.empty) {
+        html = "<p>❌ Nessuna nota da mostrare</p>";
+      } else {
+        const notePromises = snapshot.docs.map(async (doc) => {
+          const note = doc.data();
+          const title = (note.title || "Senza titolo").slice(0, 15);
+          
+          // Estrae solo la prima riga di testo puro
+          let noteContent = "No content";
+          if (note.content) {
+            try {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = note.content;
+              
+              const allElements = tempDiv.children;
+              let firstElementText = "";
+              
+              for (let i = 0; i < allElements.length; i++) {
+                const element = allElements[i];
+                const elementText = (element.textContent || element.innerText || "").trim();
+                if (elementText) {
+                  firstElementText = elementText;
+                  break;
+                }
+              }
+              
+              if (!firstElementText) {
+                const allText = tempDiv.textContent || tempDiv.innerText || '';
+                firstElementText = allText.trim().substring(0, 60);
+              }
+              
+              if (firstElementText.length > 60) {
+                const lastSpaceIndex = firstElementText.lastIndexOf(' ', 60);
+                const cutIndex = lastSpaceIndex > 30 ? lastSpaceIndex : 60;
+                firstElementText = firstElementText.substring(0, cutIndex).trim() + "...";
+              }
+              
+              noteContent = firstElementText.replace(/\s+/g, " ").trim();
+              
+            } catch (err) {
+              console.warn("🔍 Errore parsing HTML in preview:", err);
+              noteContent = note.content.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().substring(0, 60) + "...";
+            }
+          }
+          
+          let avatarURL = "icone/default-avatar.png";
+          const createdBy = note.createdBy || {};
+          
+          // 🔥 ORA che la cache è pronta, usala SEMPRE
+          if (createdBy.uid) {
+            if (window.userAvatarCache && window.userAvatarCache[createdBy.uid]) {
+              avatarURL = window.userAvatarCache[createdBy.uid];
+              console.log(`[SCRIPT] ✅ Avatar da cache pronta per ${createdBy.uid}:`, avatarURL);
+            } else {
+              // Solo se proprio non trovato in cache (raro)
+              avatarURL = createdBy.photoURL || "icone/default-avatar.png";
+              console.log(`[SCRIPT] ⚠️ Avatar fallback per ${createdBy.uid}:`, avatarURL);
+            }
+          }
+          
+          const avatar = `<img src="${avatarURL}" class="note-preview-avatar" data-user-id="${createdBy.uid || ''}">`;
+          
+          return `
+            <div class="note-preview-box">
+              <div class="note-preview-avatar-wrap">${avatar}</div>
+              <h4 class="note-preview-title">${title}</h4>
+              <p class="note-preview-content">${noteContent}</p>
+            </div>`;
+        });
+        
+        const noteResults = await Promise.all(notePromises);
+        html = noteResults.join("");
+      }
+      
+      notesPreviewList.innerHTML = html;
+      console.log("[SCRIPT] ✅ Widget note aggiornato con cache avatar pronta");
+      
+    } catch (err) {
+      console.error("❌ Errore real-time widget note:", err);
+      notesPreviewList.innerHTML = "<p>Errore nel caricamento delle note</p>";
+    }
+  }, (error) => {
+    console.error("❌ Errore listener real-time widget note:", error);
+  });
+}
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) return;
 
@@ -465,12 +633,23 @@ window.addEventListener('storage', (e) => {
         console.log("[SCRIPT] ✅ Avatar sidebar aggiornato");
       }
       
-      // 🔥 Se siamo in una pagina di gruppo, refresh del dashboard per aggiornare i preview delle note
-      if (window._groupId && typeof loadGroupData === 'function') {
-        console.log("[SCRIPT] 🔄 Refresh dashboard gruppo per aggiornamento avatar...");
-        setTimeout(() => {
-          loadGroupData(window._groupId);
-        }, 500); // Piccolo delay per permettere alla sincronizzazione Firebase di completarsi
+      // 🔥 Aggiorna la cache globale con il nuovo avatar
+      if (window._groupId) {
+        console.log("[SCRIPT] 🔄 Avatar aggiornato via localStorage per gruppo:", window._groupId);
+        
+        // 🆕 Aggiorna la cache globale con il nuovo avatar
+        if (!window.userAvatarCache) window.userAvatarCache = {};
+        
+        // 🆕 IMPORTANTE: aggiungiamo l'userId se disponibile nei dati
+        if (data.userId) {
+          window.userAvatarCache[data.userId] = data.url;
+          console.log(`[SCRIPT] ✅ Cache avatar aggiornata per utente ${data.userId}:`, data.url);
+          
+          // Aggiorna immediatamente gli avatar nel widget se presenti
+          updateUserAvatarInNoteWidget(data.userId, data.url);
+        }
+        
+        console.log("[SCRIPT] ✅ Widget note real-time si aggiornerà automaticamente");
       }
       
     } catch (err) {
