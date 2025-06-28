@@ -493,18 +493,21 @@ body.loading > *:not(.loader) {
 /* 📌 Note listate impostazione preview lunghezza testo*/
 .note-preview-content {
     font-size: 15px !important;
-    line-height: 1.8;
-    max-height: 1.8em; /* 🔁 1.8 * 1 riga */
-    display: -webkit-box;
-    -webkit-line-clamp: 1; /* 👈 CAMBIATO da 3 a 1 */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-wrap: break-word;
-    white-space: normal;
-    width: 100%;
-    max-width: 100%;
-    text-align: left;
+    line-height: 1.4 !important;
+    max-height: 1.4em !important; /* 🔁 Altezza per esattamente 1 riga */
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1 !important; /* Mostra solo 1 riga */
+    line-clamp: 1 !important; /* Proprietà standard per compatibilità */
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-wrap: break-word !important;
+    white-space: nowrap !important; /* 🔧 Forza tutto su una sola riga */
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
     margin-left: 1px !important;
 }
 

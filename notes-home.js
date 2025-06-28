@@ -122,9 +122,40 @@ function renderFilteredNotes(groupId) {
       noteCount++;
 
       const noteTitle = data.title || "Senza titolo";
-      const noteContent = data.content ? data.content.replace(/<[^>]+>/g, "") : "No content";
+      
+      // 🔧 Estrae solo la prima riga di testo puro (senza HTML e ritorni a capo)
+      let noteContent = "No content";
+      if (data.content) {
+        // Rimuovi tutti i tag HTML
+        let cleanText = data.content.replace(/<[^>]+>/g, "");
+        // Rimuovi entità HTML comuni
+        cleanText = cleanText.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        
+        // 🔥 DEBUG: vediamo cosa contiene il testo pulito
+        console.log("🔍 Testo pulito:", JSON.stringify(cleanText));
+        
+        // Dividi per QUALSIASI tipo di separatore di riga
+        const lines = cleanText.split(/[\r\n\u2028\u2029]+/);
+        console.log("🔍 Righe trovate:", lines);
+        
+        // Prendi SOLO la prima riga non vuota e FERMATI LI
+        let firstLine = "";
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (line !== "") {
+            firstLine = line;
+            break; // 🛑 FERMATI alla prima riga trovata
+          }
+        }
+        
+        // Pulisci spazi multipli solo sulla prima riga
+        noteContent = firstLine.replace(/\s+/g, " ").trim();
+        console.log("🔍 Prima riga estratta:", JSON.stringify(noteContent));
+      }
+      
       const shortTitle = noteTitle.length > 25 ? noteTitle.slice(0, 25) + "..." : noteTitle;
-      const previewContent = noteContent.length > 180 ? noteContent.slice(0, 180) + "..." : noteContent;
+      // Assicuriamoci che previewContent sia sempre una singola riga - MOLTO più corto
+      const previewContent = noteContent.length > 80 ? noteContent.slice(0, 80) + "..." : noteContent;
 
       const li = document.createElement("div");
       li.classList.add("note-box", noteCount % 2 === 0 ? "even" : "odd");
