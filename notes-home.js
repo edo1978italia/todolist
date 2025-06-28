@@ -185,12 +185,27 @@ function renderFilteredNotes(groupId) {
       li.setAttribute("data-id", docSnap.id);
       li.addEventListener("click", (event) => {
         if (event.target.closest(".options-button") || event.target.closest(".options-menu")) return;
+        
+        // 🆕 Marca la nota come letta quando viene aperta
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const lastReadKey = `noteLastRead_${currentUser.uid}_${docSnap.id}`;
+          localStorage.setItem(lastReadKey, new Date().toISOString());
+          
+          // Rimuovi il pallino rosso immediatamente
+          const unreadIndicator = li.querySelector('.note-unread-indicator');
+          if (unreadIndicator) {
+            unreadIndicator.remove();
+          }
+        }
+        
         openEditorModal(docSnap.id);
       });
 
       const createdBy = data.createdBy || {};
       let avatarURL = "icone/default-avatar.png";
       let displayName = createdBy.displayName || "";
+      let userNickname = ""; // 🆕 Nickname dell'utente
 
       // 🔥 Recupera l'avatar attuale dell'utente da Firestore invece di usare quello memorizzato
       if (createdBy.uid) {
@@ -200,6 +215,7 @@ function renderFilteredNotes(groupId) {
             const cachedData = userAvatarCache.get(createdBy.uid);
             avatarURL = cachedData.photoURL || "icone/default-avatar.png";
             displayName = cachedData.displayName || displayName;
+            userNickname = cachedData.nickname || cachedData.firstName || displayName; // 🆕 Nickname con fallback
           } else {
             // Recupera da Firestore e metti in cache
             const userRef = doc(db, "users", createdBy.uid);
@@ -208,10 +224,17 @@ function renderFilteredNotes(groupId) {
               const userData = userSnap.data();
               avatarURL = userData.photoURL || "icone/default-avatar.png";
               displayName = userData.displayName || displayName;
-              userAvatarCache.set(createdBy.uid, { photoURL: userData.photoURL, displayName: userData.displayName });
+              userNickname = userData.nickname || userData.firstName || displayName; // 🆕 Priorità: nickname > firstName > displayName
+              userAvatarCache.set(createdBy.uid, { 
+                photoURL: userData.photoURL, 
+                displayName: userData.displayName,
+                nickname: userData.nickname,
+                firstName: userData.firstName
+              });
             } else {
               // Fallback ai dati memorizzati nella nota
               avatarURL = createdBy.photoURL || "icone/default-avatar.png";
+              userNickname = displayName; // 🆕 Fallback al displayName esistente
               userAvatarCache.set(createdBy.uid, { photoURL: createdBy.photoURL, displayName: createdBy.displayName });
             }
           }
@@ -219,12 +242,48 @@ function renderFilteredNotes(groupId) {
           console.warn("⚠ Errore recupero avatar utente:", err);
           // Fallback ai dati memorizzati nella nota
           avatarURL = createdBy.photoURL || "icone/default-avatar.png";
+          userNickname = displayName; // 🆕 Fallback al displayName
         }
       }
 
-      const avatarHTML = `<img class="note-avatar" src="${avatarURL}" alt="${displayName}" title="${displayName}" />`;
+      const avatarHTML = `
+        <img class="note-avatar" src="${avatarURL}" alt="${displayName}" title="${displayName}" />
+        <div class="note-author-name">${userNickname || "Unknown"}</div>
+      `;
+
+      // 🆕 Sistema di notifica per note non lette
+      const currentUser = auth.currentUser;
+      let isUnread = false;
+      
+      if (currentUser && data.lastModified) {
+        // 🚫 Non mostrare il pallino all'autore della modifica
+        const lastModifiedBy = data.lastModifiedBy || data.createdBy?.uid;
+        
+        if (currentUser.uid === lastModifiedBy) {
+          // Se l'utente corrente ha fatto l'ultima modifica, non mostrare il pallino
+          isUnread = false;
+        } else {
+          // Recupera l'ultima volta che l'utente ha visto questa nota
+          const lastReadKey = `noteLastRead_${currentUser.uid}_${docSnap.id}`;
+          const lastReadTime = localStorage.getItem(lastReadKey);
+          
+          if (!lastReadTime) {
+            // Se non ha mai letto la nota e non è l'autore originale, è non letta
+            isUnread = currentUser.uid !== createdBy.uid;
+          } else {
+            // Confronta timestamp di ultima modifica con ultima lettura
+            const lastRead = new Date(lastReadTime);
+            const lastModified = data.lastModified.toDate();
+            isUnread = lastModified > lastRead;
+          }
+        }
+      }
+      
+      // 🔥 Pallino rosso di notifica se non letta (senza tooltip)
+      const unreadIndicator = isUnread ? '<div class="note-unread-indicator"></div>' : '';
 
       li.innerHTML = `
+${unreadIndicator}
 <div class="note-box-inner">
   <div class="note-author">${avatarHTML}</div>
   <div class="note-content">
@@ -262,7 +321,12 @@ function renderFilteredNotes(groupId) {
       li.querySelector(".menu-pin").addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-          await updateDoc(doc(db, "notes", docSnap.id), { pinned: !data.pinned });
+          const currentUser = auth.currentUser;
+          await updateDoc(doc(db, "notes", docSnap.id), { 
+            pinned: !data.pinned,
+            lastModified: new Date(), // 🆕 Aggiorna timestamp per notificare modifica
+            lastModifiedBy: currentUser?.uid // 🆕 Traccia chi ha fatto il pin/unpin
+          });
         } catch (error) {
           console.error("❌ Errore nel fissare/sfissare:", error);
         }
@@ -567,6 +631,8 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             content,
             pinned: false,
             timestamp: new Date(),
+            lastModified: new Date(), // 🆕 Timestamp per tracciare modifiche
+            lastModifiedBy: user.uid, // 🆕 UID di chi ha fatto l'ultima modifica
             category,
             groupId: window._groupId, // <--- AGGIUNTO groupId obbligatorio
             createdBy: {
@@ -583,6 +649,8 @@ document.getElementById("saveNoteEditorButton").addEventListener("click", async 
             title,
             content,
             timestamp: new Date(),
+            lastModified: new Date(), // 🆕 Timestamp per tracciare modifiche
+            lastModifiedBy: user.uid, // 🆕 UID di chi ha fatto l'ultima modifica
             category
         });
     }

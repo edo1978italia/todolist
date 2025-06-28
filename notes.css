@@ -25,6 +25,17 @@ body:not(.loading) {
     margin: 0 auto; /* ✅ Centra il contenitore orizzontalmente */
 }
 
+/* 🔥 data creazione e info singolo box note */
+.note-content {
+    flex: 1;
+    min-width: 0; /* 🔥 NECESSARIO per far funzionare l'ellissi */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 8px; /* 🆕 Aumentato da 1px a 8px per bilanciare il margine superiore del titolo */
+    margin-left: 10px; /* 🆕 Sposta il contenuto 10px più a destra */
+}
+
 /* 📦 Contenitore visivo di ogni singola nota */
 .note-box {
     position: relative;
@@ -53,6 +64,7 @@ body:not(.loading) {
 .note-box h3 {
     text-align: left; /* ✅ Mantiene l'allineamento */
     margin: 0;
+    margin-top: 8px; /* 🆕 Margine superiore per centrare verticalmente il contenuto */
     padding: 1px;
     flex: 1;
     font-size: 16px; /* 📏 Dimensione leggibile */
@@ -68,7 +80,7 @@ body:not(.loading) {
     display: flex;
     align-items: flex-start;
     justify-content: space-between; /* 🔥 Spinge contenuti e opzioni alle estremità */
-    gap: 11px;
+    gap: 15px; /* 🆕 Aumentato da 11px a 15px per più spazio */
     width: 100%;
     margin-bottom: 1px;
 }
@@ -76,19 +88,36 @@ body:not(.loading) {
 .note-author {
     flex-shrink: 0;
     margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 66px; /* 🆕 Aumentato da 56px a 66px per avatar da 56px */
 }
 
 .note-avatar, .note-avatar-placeholder {
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  min-height: 40px !important;
-  max-width: 40px !important;
-  max-height: 40px !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   font-size: 18px !important;
+}
+
+/* 🆕 Nome utente sotto l'avatar */
+.note-author-name {
+    font-size: 10px;
+    color: #666;
+    margin-top: 3px;
+    max-width: 66px; /* 🆕 Aumentato da 56px a 66px per allineamento con avatar da 56px */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
 }
 
 /* Spinner di caricamento */
@@ -434,6 +463,7 @@ body.loading > *:not(.loader) {
     flex-direction: column;
     justify-content: center;
     margin-bottom: 1px;
+    margin-left: 10px; /* 🆕 Sposta il contenuto 10px più a destra per equilibrio */
 }
 
 .note-meta {
@@ -627,6 +657,33 @@ body.loading > *:not(.loader) {
     font-size: 13px;
     color: grey;
     vertical-align: middle;
+}
+
+/* 🆕 Pallino rosso per nota modificata/non letta */
+.note-unread-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    background: #ff4444;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+    }
 }
 
 .note-box.pinned {
