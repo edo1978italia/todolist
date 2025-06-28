@@ -126,30 +126,46 @@ function renderFilteredNotes(groupId) {
       // 🔧 Estrae solo la prima riga di testo puro (senza HTML e ritorni a capo)
       let noteContent = "No content";
       if (data.content) {
-        // Rimuovi tutti i tag HTML
-        let cleanText = data.content.replace(/<[^>]+>/g, "");
-        // Rimuovi entità HTML comuni
-        cleanText = cleanText.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        // 🔥 DEBUG: vediamo il contenuto HTML originale
+        console.log("🔍 HTML originale:", JSON.stringify(data.content));
         
-        // 🔥 DEBUG: vediamo cosa contiene il testo pulito
-        console.log("🔍 Testo pulito:", JSON.stringify(cleanText));
-        
-        // Dividi per QUALSIASI tipo di separatore di riga
-        const lines = cleanText.split(/[\r\n\u2028\u2029]+/);
-        console.log("🔍 Righe trovate:", lines);
-        
-        // Prendi SOLO la prima riga non vuota e FERMATI LI
-        let firstLine = "";
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (line !== "") {
-            firstLine = line;
-            break; // 🛑 FERMATI alla prima riga trovata
+        try {
+          // Creiamo un elemento DOM temporaneo per parsare l'HTML
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = data.content;
+          
+          // Otteniamo solo il testo senza HTML
+          const allText = tempDiv.textContent || tempDiv.innerText || '';
+          console.log("🔍 Tutto il testo:", JSON.stringify(allText));
+          
+          // Dividiamo per ritorni a capo reali nel testo
+          const lines = allText.split(/[\r\n]+/);
+          console.log("🔍 Righe trovate:", lines);
+          
+          // Prendiamo la prima riga non vuota
+          let firstLine = "";
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line !== "") {
+              firstLine = line;
+              break; // 🛑 FERMATI alla prima riga trovata
+            }
           }
+          
+          // Se non troviamo righe separate, prendiamo i primi 80 caratteri
+          if (!firstLine && allText.trim()) {
+            firstLine = allText.trim().substring(0, 80);
+          }
+          
+          // Pulisci spazi multipli
+          noteContent = firstLine.replace(/\s+/g, " ").trim();
+          
+        } catch (err) {
+          console.warn("🔍 Errore parsing HTML:", err);
+          // Fallback: rimuovi solo i tag HTML
+          noteContent = data.content.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().substring(0, 80);
         }
         
-        // Pulisci spazi multipli solo sulla prima riga
-        noteContent = firstLine.replace(/\s+/g, " ").trim();
         console.log("🔍 Prima riga estratta:", JSON.stringify(noteContent));
       }
       
