@@ -73,6 +73,10 @@ onAuthStateChanged(auth, async (user) => {
   console.log("✅ Accesso consentito con groupId:", data.groupId);
   if (userEmailElement) userEmailElement.innerText = user.email;
   window._groupId = data.groupId;
+  
+  // 🆕 Avvia real-time listener per aggiornamenti avatar
+  setupAvatarRealTimeListener(data.groupId);
+  
   await populateCategorySelect("noteCategoryFilter", { includeAllOption: true });
   renderFilteredNotes(window._groupId);
   // Rimuovi loading solo dopo che utente e note sono pronte
@@ -91,6 +95,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// 🆕 Real-time listener per aggiornamenti avatar di tutti gli utenti del gruppo
+function setupAvatarRealTimeListener(groupId) {
+  // Query per tutti gli utenti del gruppo
+  const usersQuery = query(collection(db, "users"), where("groupId", "==", groupId));
+  
+  // Listener per cambiamenti in tempo reale
+  window._avatarUnsubscribe = onSnapshot(usersQuery, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "modified") {
+        const userId = change.doc.id;
+        const userData = change.doc.data();
+        
+        // Controlla se è cambiato l'avatar
+        if (userData.photoURL) {
+          console.log(`🔄 Avatar aggiornato per utente ${userId}:`, userData.photoURL);
+          
+          // Aggiorna cache avatar
+          if (window._globalAvatarCache) {
+            window._globalAvatarCache.set(userId, {
+              photoURL: userData.photoURL,
+              displayName: userData.displayName,
+              nickname: userData.nickname,
+              firstName: userData.firstName
+            });
+          }
+          
+          // Aggiorna tutti gli avatar di questo utente nelle note visibili
+          updateUserAvatarInNotes(userId, userData.photoURL, userData.nickname || userData.firstName || userData.displayName);
+          
+          // Aggiorna avatar nella sidebar se è l'utente corrente
+          const currentUser = auth.currentUser;
+          if (currentUser && currentUser.uid === userId) {
+            const avatarEl = document.getElementById("userAvatar");
+            if (avatarEl) {
+              avatarEl.src = userData.photoURL;
+              console.log("[NOTES-HOME] ✅ Avatar sidebar aggiornato in real-time");
+            }
+          }
+        }
+      }
+    });
+  }, (error) => {
+    console.error("❌ Errore listener avatar real-time:", error);
+  });
+}
+
+// 🆕 Aggiorna avatar di un utente specifico in tutte le note visibili
+function updateUserAvatarInNotes(userId, newAvatarURL, newNickname) {
+  const noteBoxes = document.querySelectorAll('.note-box');
+  
+  noteBoxes.forEach(noteBox => {
+    const avatar = noteBox.querySelector('.note-avatar');
+    const authorName = noteBox.querySelector('.note-author-name');
+    
+    if (avatar && avatar.dataset.userId === userId) {
+      avatar.src = newAvatarURL;
+      if (authorName && newNickname) {
+        authorName.textContent = newNickname;
+      }
+      console.log(`✅ Avatar aggiornato nella nota per utente ${userId}`);
+    }
+  });
+}
 
 
 function renderFilteredNotes(groupId) {
@@ -111,8 +179,11 @@ function renderFilteredNotes(groupId) {
     noteList.innerHTML = "";
     let noteCount = 0;
     
-    // Cache per gli avatar degli utenti per evitare chiamate multiple
-    const userAvatarCache = new Map();
+    // 🆕 Cache globale per gli avatar (condivisa tra funzioni)
+    if (!window._globalAvatarCache) {
+      window._globalAvatarCache = new Map();
+    }
+    const userAvatarCache = window._globalAvatarCache;
     
     for (const docSnap of snapshot.docs) {
       const data = docSnap.data();
@@ -247,7 +318,7 @@ function renderFilteredNotes(groupId) {
       }
 
       const avatarHTML = `
-        <img class="note-avatar" src="${avatarURL}" alt="${displayName}" title="${displayName}" />
+        <img class="note-avatar" src="${avatarURL}" alt="${displayName}" title="${displayName}" data-user-id="${createdBy.uid || ''}" />
         <div class="note-author-name">${userNickname || "Unknown"}</div>
       `;
 
@@ -693,6 +764,17 @@ emojiEditorBtn?.addEventListener("click", () => {
 // 🔥 Gestione logout
 async function logoutUser() {
     try {
+        // 🆕 Pulisci listener avatar real-time
+        if (window._avatarUnsubscribe) {
+            window._avatarUnsubscribe();
+            window._avatarUnsubscribe = null;
+        }
+        
+        // 🆕 Pulisci cache avatar globale
+        if (window._globalAvatarCache) {
+            window._globalAvatarCache.clear();
+        }
+        
         await signOut(auth);
         localStorage.clear();
         console.log("✅ Logout completato, utente disconnesso!");
