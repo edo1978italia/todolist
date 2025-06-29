@@ -86,10 +86,10 @@ body {
     color: inherit;
 }
 
-.menu-icon {
+.settings-menu .menu-icon {
     width: 24px;
     height: 24px;
-    margin-right: 16px;
+    margin-right: 23px !important;
     flex-shrink: 0;
     color: #007bff;
 }
@@ -149,7 +149,7 @@ body {
 .side-panel {
     position: fixed;
     top: 0;
-    left: 50%;
+    right: -100vw;
     width: 100%;
     max-width: 600px;
     height: 100%;
@@ -158,12 +158,12 @@ body {
     z-index: 1002;
     display: flex;
     flex-direction: column;
-    transform: translateX(100%);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .side-panel.active {
-    transform: translateX(-50%);
+    right: 50%;
+    transform: translateX(50%);
 }
 
 /* 🔝 Header del pannello */
@@ -435,12 +435,13 @@ body {
     .side-panel {
         width: 100%;
         max-width: none;
-        left: 0;
-        transform: translateX(100%);
+        right: -100%;
+        transform: none;
     }
     
     .side-panel.active {
-        transform: translateX(0);
+        right: 0;
+        transform: none;
     }
     
     .panel-content {
@@ -458,33 +459,36 @@ body {
     }
     
     .side-panel {
-        left: 50%;
+        right: -100vw;
         width: 100%;
         max-width: 600px;
-        transform: translateX(100%);
+        transform: none;
     }
     
     .side-panel.active {
-        transform: translateX(-50%);
+        right: 50%;
+        transform: translateX(50%);
     }
 }
 
 /* 🎭 Animazioni */
 @keyframes slideInFromRight {
     from {
-        transform: translateX(100%);
+        right: -100vw;
+        transform: none;
     }
     to {
-        transform: translateX(-50%);
+        right: 50%;
+        transform: translateX(50%);
     }
 }
 
 @keyframes slideInFromRightMobile {
     from {
-        transform: translateX(100%);
+        right: -100%;
     }
     to {
-        transform: translateX(0);
+        right: 0;
     }
 }
 
