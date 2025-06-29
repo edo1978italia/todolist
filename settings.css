@@ -1,6 +1,17 @@
 /* 🎨 Reset e Base Styles */
 * {
-    margin: 0;
+    m/* 📋 Container principale */
+.settings-container {
+    margin-top: 60px;
+    padding: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
     padding: 0;
     box-sizing: border-box;
 }
@@ -56,8 +67,8 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     overflow: hidden;
     margin-bottom: 20px;
-    width: 600px !important;
-    max-width: none !important;
+    width: 100%;
+    max-width: 600px;
 }
 
 .menu-item {
@@ -426,51 +437,6 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* 📱 Responsive Design */
-@media (max-width: 768px) {
-    .settings-container {
-        padding: 8px;
-    }
-    
-    .side-panel {
-        width: 100%;
-        max-width: none;
-        right: -100%;
-        transform: none;
-    }
-    
-    .side-panel.active {
-        right: 0;
-        transform: none;
-    }
-    
-    .panel-content {
-        padding: 20px;
-    }
-    
-    .info-section {
-        padding: 16px;
-    }
-}
-
-@media (min-width: 769px) {
-    .settings-container {
-        padding: 8px 0;
-    }
-    
-    .side-panel {
-        right: -100vw;
-        width: 100%;
-        max-width: 600px;
-        transform: none;
-    }
-    
-    .side-panel.active {
-        right: 50%;
-        transform: translateX(50%);
-    }
-}
-
 /* 🎭 Animazioni */
 @keyframes slideInFromRight {
     from {
@@ -483,15 +449,6 @@ body {
     }
 }
 
-@keyframes slideInFromRightMobile {
-    from {
-        right: -100%;
-    }
-    to {
-        right: 0;
-    }
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -501,16 +458,8 @@ body {
     }
 }
 
-@media (min-width: 769px) {
-    .side-panel.active {
-        animation: slideInFromRight 0.3s ease-out;
-    }
-}
-
-@media (max-width: 768px) {
-    .side-panel.active {
-        animation: slideInFromRightMobile 0.3s ease-out;
-    }
+.side-panel.active {
+    animation: slideInFromRight 0.3s ease-out;
 }
 
 .panel-overlay.active {
