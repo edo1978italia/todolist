@@ -18,8 +18,10 @@ body {
 .settings-header {
     position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
     background: linear-gradient(135deg, #007bff, #0056b3);
     color: white;
     height: 60px;
@@ -147,18 +149,21 @@ body {
 .side-panel {
     position: fixed;
     top: 0;
-    right: -100%;
+    left: 50%;
     width: 100%;
+    max-width: 600px;
     height: 100%;
     background: white;
     transition: all 0.3s ease;
     z-index: 1002;
     display: flex;
     flex-direction: column;
+    transform: translateX(100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .side-panel.active {
-    right: 0;
+    transform: translateX(-50%);
 }
 
 /* 🔝 Header del pannello */
@@ -169,7 +174,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 80px;
+    height: 60px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: relative;
 }
@@ -194,6 +199,7 @@ body {
 
 .panel-back-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .panel-title {
@@ -428,6 +434,13 @@ body {
     
     .side-panel {
         width: 100%;
+        max-width: none;
+        left: 0;
+        transform: translateX(100%);
+    }
+    
+    .side-panel.active {
+        transform: translateX(0);
     }
     
     .panel-content {
@@ -440,19 +453,33 @@ body {
 }
 
 @media (min-width: 769px) {
+    .settings-container {
+        padding: 8px 0;
+    }
+    
     .side-panel {
-        width: 400px;
-        max-width: 90%;
-        right: -400px;
+        left: 50%;
+        width: 100%;
+        max-width: 600px;
+        transform: translateX(100%);
     }
     
     .side-panel.active {
-        right: 0;
+        transform: translateX(-50%);
     }
 }
 
 /* 🎭 Animazioni */
-@keyframes slideInRight {
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes slideInFromRightMobile {
     from {
         transform: translateX(100%);
     }
@@ -470,8 +497,16 @@ body {
     }
 }
 
-.side-panel.active {
-    animation: slideInRight 0.3s ease-out;
+@media (min-width: 769px) {
+    .side-panel.active {
+        animation: slideInFromRight 0.3s ease-out;
+    }
+}
+
+@media (max-width: 768px) {
+    .side-panel.active {
+        animation: slideInFromRightMobile 0.3s ease-out;
+    }
 }
 
 .panel-overlay.active {
