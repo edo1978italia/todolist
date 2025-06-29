@@ -55,6 +55,10 @@ async function createLeaveNotification(groupId, userName, userId) {
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[SETTING] DOMContentLoaded");
+    
+    // 📋 Caricamento sidebar
+    loadSidebar();
+    
     // Selettori
     const emailEl = document.getElementById("userEmail");
     const groupNameEl = document.getElementById("userGroupName");
@@ -669,7 +673,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.closeLeaveGroupModal = closeLeaveGroupModal;
     window.toggleNotification = toggleNotification;
     window.showSwitchGroupPrompt = showSwitchGroupPrompt;
-    window.showDeleteAccountConfirmation = showDeleteAccountConfirmation;
     
     // 🔔 Funzione per caricare le preferenze delle notifiche
     function loadNotificationPreferences(notifications) {
@@ -759,8 +762,118 @@ document.addEventListener("DOMContentLoaded", () => {
         closePanel('deleteAccountPanel');
         
         // Aspetta un po' per l'animazione del pannello
-        setTimeout(() => {
-            openDeleteAccountModal();
-        }, 300);
     }
 });
+
+// 🌐 FUNZIONI GLOBALI ESSENZIALI PER I PANNELLI
+// Queste funzioni devono essere disponibili immediatamente per gli eventi onclick
+
+// 🚨 Funzione per mostrare la conferma finale di eliminazione account
+function showDeleteAccountConfirmation() {
+    console.log("[SETTING] Mostra conferma eliminazione account");
+    
+    if (confirm('⚠️ Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile!')) {
+        alert('🔥 Account eliminato! (simulazione)');
+        // Chiudi tutti i pannelli
+        const panels = document.querySelectorAll('.side-panel');
+        const overlay = document.getElementById('panelOverlay');
+        panels.forEach(panel => panel.classList.remove('active'));
+        if (overlay) overlay.classList.remove('active');
+    }
+}
+
+// 🎯 Funzioni per gestione pannelli (copiate dal settings-online.html funzionante)
+function openPanel(panelId) {
+    console.log("[SETTING] 🎯 Apertura pannello:", panelId);
+    closeActivePanel();
+    const panel = document.getElementById(panelId);
+    const overlay = document.getElementById('panelOverlay');
+    
+    if (panel) {
+        panel.classList.add('active');
+        if (overlay) overlay.classList.add('active');
+        console.log("[SETTING] ✅ Pannello aperto:", panelId);
+    } else {
+        console.error("[SETTING] ❌ Pannello non trovato:", panelId);
+    }
+}
+
+function closePanel(panelId) {
+    console.log("[SETTING] 🚪 Chiusura pannello:", panelId);
+    const panel = document.getElementById(panelId);
+    const overlay = document.getElementById('panelOverlay');
+    
+    if (panel) {
+        panel.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+        console.log("[SETTING] ✅ Pannello chiuso:", panelId);
+    }
+}
+
+function closeActivePanel() {
+    const panels = document.querySelectorAll('.side-panel');
+    const overlay = document.getElementById('panelOverlay');
+    
+    panels.forEach(panel => panel.classList.remove('active'));
+    if (overlay) overlay.classList.remove('active');
+}
+
+// 🔔 Toggle notifiche
+function toggleNotification(type, element) {
+    console.log("[SETTING] Toggle notifica:", type);
+    element.classList.toggle('active');
+    
+    // Simula salvataggio
+    const isEnabled = element.classList.contains('active');
+    console.log(`Notifica ${type} ${isEnabled ? 'abilitata' : 'disabilitata'}`);
+}
+
+// 🌐 Rendi le funzioni disponibili globalmente
+window.openPanel = openPanel;
+window.closePanel = closePanel;
+window.closeActivePanel = closeActivePanel;
+window.toggleNotification = toggleNotification;
+window.showDeleteAccountConfirmation = showDeleteAccountConfirmation;
+
+console.log("[SETTING] ✅ Funzioni globali inizializzate");
+
+// 📋 Funzione per caricare la sidebar
+function loadSidebar() {
+    console.log("[SETTING] 🔄 Caricamento sidebar...");
+    
+    const sidebarContainer = document.getElementById("sidebar-container");
+    if (!sidebarContainer) {
+        console.error("[SETTING] ❌ sidebar-container non trovato nel DOM!");
+        return;
+    }
+    
+    console.log("[SETTING] sidebar-container trovato nel DOM");
+    
+    fetch('sidebar.html')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            sidebarContainer.innerHTML = html;
+            console.log("[SETTING] ✅ Sidebar caricata con successo");
+            
+            // Inizializza la sidebar dopo il caricamento
+            if (typeof initializeSidebar === 'function') {
+                initializeSidebar();
+            }
+        })
+        .catch(error => {
+            console.warn("[SETTING] ⚠️ Errore caricamento sidebar:", error);
+            console.log("[SETTING] 🔄 Continuo senza sidebar");
+            
+            // Fallback: mostra un header semplice
+            sidebarContainer.innerHTML = `
+                <div style="padding: 10px; background: #2196F3; color: white; text-align: center;">
+                    <strong>Settings</strong>
+                </div>
+            `;
+        });
+}
