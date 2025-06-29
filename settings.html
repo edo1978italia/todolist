@@ -1,452 +1,67 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Settings page for To-Do List application" />
-  <meta name="robots" content="noindex, nofollow" />
-  
-  <title>Settings - To-Do List App</title>
-  
-  <!-- Fallback CSS inline per garantire il caricamento -->
-  <style>
-    /* 🎨 RESET E BASE */
-    * {
-      box-sizing: border-box;
-    }
-    
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    
-    /* 📱 CONTAINER PRINCIPALE */
-    .settings-container {
-      position: relative;
-      min-height: 100vh;
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      background: white;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
-    
-    /* 🎯 HEADER */
-    .settings-header {
-      background: linear-gradient(135deg, #2196F3, #1976D2);
-      color: white;
-      padding: 16px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    
-    .settings-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0;
-      text-align: center;
-    }
-    
-    /* 📋 MENU LISTA */
-    .settings-menu {
-      background: white;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    
-    .menu-item {
-      border-bottom: 1px solid #e0e0e0;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .menu-item:last-child {
-      border-bottom: none;
-    }
-    
-    .menu-item:hover {
-      background: #f8f9fa;
-      transform: translateX(4px);
-    }
-    
-    .menu-item:active {
-      background: #e3f2fd;
-    }
-    
-    .menu-link {
-      display: flex;
-      align-items: center;
-      padding: 18px 20px;
-      text-decoration: none;
-      color: #333;
-      gap: 16px;
-    }
-    
-    .menu-icon {
-      width: 24px;
-      height: 24px;
-      color: #2196F3;
-      flex-shrink: 0;
-    }
-    
-    .menu-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .menu-title {
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-      margin: 0;
-    }
-    
-    .menu-subtitle {
-      font-size: 14px;
-      color: #666;
-      margin: 2px 0 0 0;
-    }
-    
-    .menu-arrow {
-      width: 16px;
-      height: 16px;
-      color: #999;
-      flex-shrink: 0;
-      transform: rotate(0deg);
-      transition: transform 0.2s ease;
-    }
-    
-    .menu-item:hover .menu-arrow {
-      transform: rotate(90deg);
-    }
-    
-    /* 🎯 PANNELLI SLIDE */
-    .panel-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 200;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    
-    .panel-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .settings-panel {
-      position: fixed;
-      top: 0;
-      right: -100%;
-      width: 100%;
-      max-width: 600px;
-      height: 100%;
-      background: white;
-      z-index: 201;
-      transition: right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      overflow-y: auto;
-    }
-    
-    .settings-panel.active {
-      right: 0;
-    }
-    
-    /* 📱 HEADER PANNELLO */
-    .panel-header {
-      background: linear-gradient(135deg, #2196F3, #1976D2);
-      color: white;
-      padding: 16px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    
-    .panel-header-content {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    
-    .back-btn {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-      order: 2;
-    }
-    
-    .back-btn:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    
-    .panel-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0;
-      flex: 1;
-      text-align: center;
-      order: 1;
-    }
-    
-    /* 📝 CONTENUTO PANNELLI */
-    .panel-content {
-      padding: 24px 20px;
-    }
-    
-    .settings-section {
-      margin-bottom: 32px;
-    }
-    
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-      margin: 0 0 16px 0;
-    }
-    
-    .setting-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .setting-item:last-child {
-      border-bottom: none;
-    }
-    
-    .setting-info h4 {
-      margin: 0 0 4px 0;
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-    }
-    
-    .setting-info p {
-      margin: 0;
-      font-size: 14px;
-      color: #666;
-    }
-    
-    /* 🎛️ TOGGLE SWITCH */
-    .toggle-switch {
-      position: relative;
-      width: 52px;
-      height: 28px;
-      background: #ccc;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    
-    .toggle-switch.active {
-      background: #2196F3;
-    }
-    
-    .toggle-slider {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 24px;
-      height: 24px;
-      background: white;
-      border-radius: 50%;
-      transition: transform 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .toggle-switch.active .toggle-slider {
-      transform: translateX(24px);
-    }
-    
-    /* 🎨 BOTTONI */
-    .action-btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin: 8px;
-    }
-    
-    .action-btn.primary {
-      background: #2196F3;
-      color: white;
-    }
-    
-    .action-btn.primary:hover {
-      background: #1976D2;
-    }
-    
-    .action-btn.danger {
-      background: #f44336;
-      color: white;
-    }
-    
-    .action-btn.danger:hover {
-      background: #d32f2f;
-    }
-    
-    .action-btn.secondary {
-      background: #e0e0e0;
-      color: #333;
-    }
-    
-    .action-btn.secondary:hover {
-      background: #d5d5d5;
-    }
-    
-    /* 🎭 MODALI */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    
-    .modal-content {
-      background: white;
-      padding: 32px;
-      border-radius: 16px;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    }
-    
-    .modal-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 16px auto;
-    }
-    
-    .modal-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-      color: #333;
-    }
-    
-    .modal-text {
-      font-size: 16px;
-      color: #666;
-      margin: 0 0 24px 0;
-      line-height: 1.5;
-    }
-    
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-    
-    /* 📱 RESPONSIVE */
-    @media (max-width: 600px) {
-      .settings-container {
-        width: 100%;
-        box-shadow: none;
-      }
-      
-      .settings-panel {
-        width: 100%;
-      }
-      
-      .modal-content {
-        margin: 20px;
-        padding: 24px;
-      }
-    }
-    
-    /* 🎨 ANIMAZIONI */
-    @keyframes slideInRight {
-      from { right: -100%; }
-      to { right: 0; }
-    }
-    
-    @keyframes slideOutRight {
-      from { right: 0; }
-      to { right: -100%; }
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-  </style>
+
+  <title>Settings</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="settings.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" type="module"></script>
+
+  <!-- Cloudinary -->
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+
+  <!-- Il tuo script -->
+  <script type="module" src="settings.js"></script>
+
+
 </head>
 <body>
-  <!-- 📱 CONTAINER PRINCIPALE -->
-  <div class="settings-container">
-    <!-- 🎯 HEADER -->
-    <header class="settings-header">
-      <h1 class="settings-title">Settings</h1>
-    </header>
+  <!-- 🎯 Header fisso blu -->
+  <div class="settings-header">
+    <h1 class="settings-title">Settings</h1>
+  </div>
 
-    <!-- 📋 MENU PRINCIPALE -->
+  <div class="settings-container">
+    <!-- 📋 Menu principale -->
     <ul class="settings-menu">
-      <li class="menu-item" onclick="openPanel('groupInfoPanel')">
+      <!-- 👥 Group Info -->
+      <li class="menu-item" onclick="openPanel('groupPanel')">
         <div class="menu-link">
           <svg class="menu-icon" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-4h3v4H4zM1 18v-4h3v4H1zM7 18v-4h3v4H7zM10 18v-4h3v4h-3zM13 18v-4h3v4h-3zM16 18v-4h3v4h-3zM19 18v-4h3v4h-3z"/>
+            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-1c0-1.38 2.69-2.5 6-2.5.65 0 1.25.07 1.83.2.59-.73 1.43-1.2 2.37-1.2 1.08 0 2.07.63 2.53 1.61.46-.11.96-.17 1.47-.17 1.66 0 3 1.34 3 3v1h-17z"/>
           </svg>
           <div class="menu-content">
             <h3 class="menu-title">Group Info</h3>
-            <p class="menu-subtitle">Manage group settings and members</p>
+            <p class="menu-subtitle">Members, group details and actions</p>
           </div>
-          <svg class="menu-arrow" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+          <svg class="menu-chevron" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
           </svg>
         </div>
       </li>
 
+      <!-- 🔔 Notifications -->
       <li class="menu-item" onclick="openPanel('notificationsPanel')">
         <div class="menu-link">
           <svg class="menu-icon" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
           </svg>
           <div class="menu-content">
             <h3 class="menu-title">Notifications</h3>
             <p class="menu-subtitle">Configure notification preferences</p>
           </div>
-          <svg class="menu-arrow" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+          <svg class="menu-chevron" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
           </svg>
         </div>
       </li>
 
+      <!-- 🗑️ Delete Account -->
       <li class="menu-item" onclick="openPanel('deleteAccountPanel')">
         <div class="menu-link">
           <svg class="menu-icon" fill="currentColor" viewBox="0 0 24 24">
@@ -454,115 +69,92 @@
           </svg>
           <div class="menu-content">
             <h3 class="menu-title">Delete Account</h3>
-            <p class="menu-subtitle">Permanently delete your account</p>
+            <p class="menu-subtitle">Account information and deletion</p>
           </div>
-          <svg class="menu-arrow" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+          <svg class="menu-chevron" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
           </svg>
         </div>
       </li>
     </ul>
   </div>
 
-  <!-- 🎯 OVERLAY PANNELLI -->
+  <!-- 🎛️ Overlay per pannelli -->
   <div id="panelOverlay" class="panel-overlay" onclick="closeActivePanel()"></div>
 
-  <!-- 📋 PANNELLO GROUP INFO -->
-  <div id="groupInfoPanel" class="settings-panel">
+  <!-- 👥 Pannello Group Info -->
+  <div id="groupPanel" class="side-panel">
     <div class="panel-header">
-      <div class="panel-header-content">
-        <h2 class="panel-title">Group Info</h2>
-        <button class="back-btn" onclick="closeActivePanel()">
-          <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-        </button>
-      </div>
+      <h2 class="panel-title">Group Info</h2>
+      <button class="panel-back-btn" onclick="closePanel('groupPanel')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
     </div>
     
     <div class="panel-content">
-      <div class="settings-section">
-        <h3 class="section-title">Group Details</h3>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>Group Name</h4>
-            <p>My Family Group</p>
-          </div>
+      <div class="info-section">
+        <div class="info-row">
+          <span class="info-label">Group Name</span>
+          <span class="info-value" id="userGroupName">—</span>
         </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>Members</h4>
-            <p>4 active members</p>
-          </div>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>Created</h4>
-            <p>January 15, 2024</p>
-          </div>
+        <div class="info-row">
+          <span class="info-label">Number of members</span>
+          <span class="info-value" id="groupMembersCount">—</span>
         </div>
       </div>
-      
-      <div class="settings-section">
-        <h3 class="section-title">Actions</h3>
-        <button class="action-btn primary" onclick="editGroupName()">Edit Group Name</button>
-        <button class="action-btn secondary" onclick="inviteMembers()">Invite Members</button>
-        <button class="action-btn danger" onclick="openLeaveGroupModal()">Leave Group</button>
+
+      <div class="info-section">
+        <h3 style="margin: 0 0 16px 0; font-size: 16px; color: #333; text-align: left;">Members</h3>
+        <div class="members-grid" id="groupMembersList">
+          <!-- I membri saranno caricati dinamicamente dal JS -->
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn danger" onclick="showLeaveGroupModal()">Leave the group</button>
       </div>
     </div>
   </div>
 
-  <!-- 🔔 PANNELLO NOTIFICHE -->
-  <div id="notificationsPanel" class="settings-panel">
+  <!-- 🔔 Pannello Notifications -->
+  <div id="notificationsPanel" class="side-panel">
     <div class="panel-header">
-      <div class="panel-header-content">
-        <h2 class="panel-title">Notifications</h2>
-        <button class="back-btn" onclick="closeActivePanel()">
-          <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-        </button>
-      </div>
+      <h2 class="panel-title">Notifications</h2>
+      <button class="panel-back-btn" onclick="closePanel('notificationsPanel')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
     </div>
     
     <div class="panel-content">
-      <div class="settings-section">
-        <h3 class="section-title">Push Notifications</h3>
-        
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>New Tasks</h4>
-            <p>Get notified when new tasks are added</p>
+      <div class="info-section">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h3 class="toggle-title">New Notes</h3>
+            <p class="toggle-subtitle">Get notified when new notes are created</p>
           </div>
-          <div class="toggle-switch active" onclick="toggleNotification('newTasks', this)">
+          <div class="toggle-switch active" onclick="toggleNotification('newNotes', this)">
             <div class="toggle-slider"></div>
           </div>
         </div>
         
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>Task Completed</h4>
-            <p>Get notified when tasks are completed</p>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h3 class="toggle-title">Task Updates</h3>
+            <p class="toggle-subtitle">Get notified when tasks are completed</p>
           </div>
-          <div class="toggle-switch" onclick="toggleNotification('taskCompleted', this)">
+          <div class="toggle-switch active" onclick="toggleNotification('taskUpdates', this)">
             <div class="toggle-slider"></div>
           </div>
         </div>
         
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>Due Date Reminders</h4>
-            <p>Get reminded before task due dates</p>
-          </div>
-          <div class="toggle-switch active" onclick="toggleNotification('dueDates', this)">
-            <div class="toggle-slider"></div>
-          </div>
-        </div>
-        
-        <div class="setting-item">
-          <div class="setting-info">
-            <h4>Group Changes</h4>
-            <p>Get notified about group updates</p>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h3 class="toggle-title">Group Changes</h3>
+            <p class="toggle-subtitle">Get notified when someone joins or leaves</p>
           </div>
           <div class="toggle-switch" onclick="toggleNotification('groupChanges', this)">
             <div class="toggle-slider"></div>
@@ -572,216 +164,240 @@
     </div>
   </div>
 
-  <!-- 🚨 PANNELLO DELETE ACCOUNT -->
-  <div id="deleteAccountPanel" class="settings-panel">
+  <!-- 🗑️ Pannello Delete Account -->
+  <div id="deleteAccountPanel" class="side-panel">
     <div class="panel-header">
-      <div class="panel-header-content">
-        <h2 class="panel-title">Delete Account</h2>
-        <button class="back-btn" onclick="closeActivePanel()">
-          <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-        </button>
-      </div>
+      <h2 class="panel-title">Delete Account</h2>
+      <button class="panel-back-btn" onclick="closePanel('deleteAccountPanel')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
     </div>
     
     <div class="panel-content">
-      <div class="settings-section">
-        <div style="text-align: center; padding: 40px 20px;">
-          <svg width="80" height="80" fill="#f44336" viewBox="0 0 24 24" style="margin-bottom: 24px;">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          <h3 style="color: #333; margin-bottom: 16px;">Delete Your Account</h3>
-          <p style="color: #666; margin-bottom: 32px; line-height: 1.6;">
-            This action will permanently delete your account and all your data, including tasks, groups, and preferences. This cannot be undone.
-          </p>
-          <button class="action-btn danger" onclick="openDeleteAccountModal()" style="margin: 0;">
-            Delete My Account
-          </button>
+      <div class="info-section">
+        <h3 style="margin: 0 0 16px 0; font-size: 16px; color: #333; text-align: left;">Account Information</h3>
+        <div class="info-row">
+          <span class="info-label">Name</span>
+          <span class="info-value" id="firstName">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Last Name</span>
+          <span class="info-value" id="lastName">—</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn danger" onclick="deleteAccountBtn.click()">Delete Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manteniamo i bottoni esistenti nascosti per compatibilità -->
+  <button id="deleteAccountBtn" style="display: none;"></button>
+  <button id="leaveGroupBtn" style="display: none;"></button>
+    <div id="deleteAccountModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h4>Are you sure you want to permanently delete your account?</h4>
+        <p>This will completely delete all your details and you will no longer be able to log in to the system.</p>
+        <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
+          <button id="confirmDeleteBtn" style="background:#e53935;color:#fff;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, delete</button>
+          <button id="cancelDeleteBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- MODALE CONFERMA LEAVE GROUP -->
+    <div id="leaveGroupModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h4>Are you sure you want to leave the group?</h4>
+        <p>You will no longer have access to the group's activities and details. You can still rejoin the same group or another if you have the invitation code.</p>
+        <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
+          <button id="confirmLeaveGroupBtn" style="background:#fbc02d;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, leave</button>
+          <button id="cancelLeaveGroupBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 🎭 MODALI -->
-  <div id="deleteAccountModal" class="modal-overlay">
+  <!-- Manteniamo i modali esistenti per compatibilità -->
+  <div id="deleteAccountModal" class="modal" style="display:none;">
     <div class="modal-content">
-      <svg class="modal-icon" fill="#f44336" viewBox="0 0 24 24">
-        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-      </svg>
-      <h3 class="modal-title">Confirm Account Deletion</h3>
-      <p class="modal-text">Are you absolutely sure? This will permanently delete your account and all your data. This action cannot be undone.</p>
-      <div class="modal-actions">
-        <button class="action-btn danger" onclick="confirmDeleteAccount()">Yes, Delete</button>
-        <button class="action-btn secondary" onclick="closeDeleteAccountModal()">Cancel</button>
+      <h4>Are you sure you want to permanently delete your account?</h4>
+      <p>This will completely delete all your details and you will no longer be able to log in to the system.</p>
+      <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
+        <button id="confirmDeleteBtn" style="background:#e53935;color:#fff;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, delete</button>
+        <button id="cancelDeleteBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
       </div>
     </div>
   </div>
 
-  <div id="leaveGroupModal" class="modal-overlay">
+  <div id="leaveGroupModal" class="modal" style="display:none;">
     <div class="modal-content">
-      <svg class="modal-icon" fill="#ff9800" viewBox="0 0 24 24">
-        <path d="M16 13v-2H7V9l-4 4 4 4v-2h9zM20 3h-9c-1.11 0-2 .89-2 2v4h2V5h9v14h-9v-4H9v4c0 1.11.89 2 2 2h9c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2z"/>
-      </svg>
-      <h3 class="modal-title">Leave Group</h3>
-      <p class="modal-text">Are you sure you want to leave this group? You can rejoin later with the invite code.</p>
-      <div class="modal-actions">
-        <button class="action-btn danger" onclick="confirmLeaveGroup()">Yes, Leave</button>
-        <button class="action-btn secondary" onclick="closeLeaveGroupModal()">Cancel</button>
+      <h4>Are you sure you want to leave the group?</h4>
+      <p>You will no longer have access to the group's activities and details. You can still rejoin the same group or another if you have the invitation code.</p>
+      <div style="margin-top:24px;display:flex;gap:18px;justify-content:center;">
+        <button id="confirmLeaveGroupBtn" style="background:#fbc02d;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Yes, leave</button>
+        <button id="cancelLeaveGroupBtn" style="background:#ccc;color:#333;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- 🚀 JAVASCRIPT INLINE -->
   <script>
-    console.log("[SETTINGS] 🚀 Inizializzazione Settings ottimizzata...");
+// 🎯 Funzioni per gestione pannelli scorrevoli
+function openPanel(panelId) {
+  console.log("Opening panel:", panelId);
+  closeActivePanel();
+  const panel = document.getElementById(panelId);
+  const overlay = document.getElementById('panelOverlay');
+  
+  if (panel) {
+    panel.classList.add('active');
+    if (overlay) overlay.classList.add('active');
+  }
+}
 
-    // 🎯 Gestione pannelli slide
-    function openPanel(panelId) {
-      console.log("[SETTINGS] 🎯 Apertura pannello:", panelId);
-      closeActivePanel();
-      
-      const panel = document.getElementById(panelId);
-      const overlay = document.getElementById('panelOverlay');
-      
-      if (panel && overlay) {
-        panel.classList.add('active');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        console.log("[SETTINGS] ✅ Pannello aperto:", panelId);
-      } else {
-        console.error("[SETTINGS] ❌ Pannello non trovato:", panelId);
+function closePanel(panelId) {
+  console.log("Closing panel:", panelId);
+  const panel = document.getElementById(panelId);
+  const overlay = document.getElementById('panelOverlay');
+  
+  if (panel) {
+    panel.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+  }
+}
+
+function closeActivePanel() {
+  const panels = document.querySelectorAll('.side-panel');
+  const overlay = document.getElementById('panelOverlay');
+  
+  panels.forEach(panel => panel.classList.remove('active'));
+  if (overlay) overlay.classList.remove('active');
+}
+
+// 🔔 Toggle notifiche
+function toggleNotification(type, element) {
+  console.log("Toggle notification:", type);
+  element.classList.toggle('active');
+  
+  const isEnabled = element.classList.contains('active');
+  console.log(`Notification ${type} ${isEnabled ? 'enabled' : 'disabled'}`);
+}
+
+// 🗑️ Mostra modal leave group
+function showLeaveGroupModal() {
+  console.log("Showing leave group modal");
+  const modal = document.getElementById('leaveGroupModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    closeActivePanel();
+  }
+}
+
+// Listener ESC key per chiudere pannelli
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeActivePanel();
+  }
+});
+
+// Rendi le funzioni globali
+window.openPanel = openPanel;
+window.closePanel = closePanel;
+window.closeActivePanel = closeActivePanel;
+window.toggleNotification = toggleNotification;
+window.showLeaveGroupModal = showLeaveGroupModal;
+document.addEventListener("DOMContentLoaded", function() {
+  const shareIcon = document.getElementById("shareInviteCodeIcon");
+  const copyIcon = document.getElementById("copyInviteCodeIcon");
+  const copyMsg = document.getElementById("copyInviteCodeMsg");
+  const toast = document.getElementById("copyInviteCodeToast");
+  const inviteCodeEl = document.getElementById("userGroup");
+  if (shareIcon && inviteCodeEl) {
+    shareIcon.addEventListener("click", async () => {
+      const inviteCode = inviteCodeEl.textContent.trim();
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Join my group!",
+            text: `Here is the code to join my group on To Do App: ${inviteCode}`,
+          });
+        } catch (e) {}
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(inviteCode);
+        shareIcon.style.color = 'green';
+        setTimeout(() => { shareIcon.style.color = ''; }, 1200);
       }
-    }
-
-    function closeActivePanel() {
-      console.log("[SETTINGS] 🔄 Chiusura pannelli attivi...");
-      
-      const activePanels = document.querySelectorAll('.settings-panel.active');
-      const overlay = document.getElementById('panelOverlay');
-      
-      activePanels.forEach(panel => {
-        panel.classList.remove('active');
-      });
-      
-      if (overlay) {
-        overlay.classList.remove('active');
-      }
-      
-      document.body.style.overflow = 'auto';
-      console.log("[SETTINGS] ✅ Pannelli chiusi");
-    }
-
-    // 🔔 Gestione notifiche
-    function toggleNotification(notificationType, toggleElement) {
-      console.log("[SETTINGS] 🔔 Toggle notifica:", notificationType);
-      
-      const isActive = toggleElement.classList.contains('active');
-      
-      if (isActive) {
-        toggleElement.classList.remove('active');
-        console.log("[SETTINGS] 🔕 Notifica disabilitata:", notificationType);
-      } else {
-        toggleElement.classList.add('active');
-        console.log("[SETTINGS] 🔔 Notifica abilitata:", notificationType);
-      }
-      
-      // Simula salvataggio
-      setTimeout(() => {
-        console.log("[SETTINGS] 💾 Preferenza salvata:", notificationType, !isActive);
-      }, 300);
-    }
-
-    // 🎭 Gestione modali
-    function openDeleteAccountModal() {
-      console.log("[SETTINGS] 🚨 Apertura modal delete account...");
-      const modal = document.getElementById('deleteAccountModal');
-      if (modal) {
-        modal.style.display = 'flex';
-        setTimeout(() => modal.style.opacity = '1', 10);
-      }
-    }
-
-    function closeDeleteAccountModal() {
-      console.log("[SETTINGS] ❌ Chiusura modal delete account...");
-      const modal = document.getElementById('deleteAccountModal');
-      if (modal) {
-        modal.style.opacity = '0';
-        setTimeout(() => modal.style.display = 'none', 300);
-      }
-    }
-
-    function openLeaveGroupModal() {
-      console.log("[SETTINGS] 🚪 Apertura modal leave group...");
-      const modal = document.getElementById('leaveGroupModal');
-      if (modal) {
-        modal.style.display = 'flex';
-        setTimeout(() => modal.style.opacity = '1', 10);
-      }
-    }
-
-    function closeLeaveGroupModal() {
-      console.log("[SETTINGS] ❌ Chiusura modal leave group...");
-      const modal = document.getElementById('leaveGroupModal');
-      if (modal) {
-        modal.style.opacity = '0';
-        setTimeout(() => modal.style.display = 'none', 300);
-      }
-    }
-
-    // 🔧 Azioni varie
-    function editGroupName() {
-      console.log("[SETTINGS] ✏️ Edit group name...");
-      alert("Feature in sviluppo: Edit Group Name");
-    }
-
-    function inviteMembers() {
-      console.log("[SETTINGS] 👥 Invite members...");
-      alert("Feature in sviluppo: Invite Members");
-    }
-
-    function confirmDeleteAccount() {
-      console.log("[SETTINGS] 🚨 Conferma eliminazione account...");
-      alert("Feature in sviluppo: Delete Account");
-      closeDeleteAccountModal();
-    }
-
-    function confirmLeaveGroup() {
-      console.log("[SETTINGS] 🚪 Conferma uscita dal gruppo...");
-      alert("Feature in sviluppo: Leave Group");
-      closeLeaveGroupModal();
-    }
-
-    // 🎯 Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log("[SETTINGS] 📱 DOM caricato, inizializzazione completata");
-      
-      // Chiudi pannelli con ESC
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          closeActivePanel();
-          closeDeleteAccountModal();
-          closeLeaveGroupModal();
-        }
-      });
-      
-      // Gestisci click su modali per chiuderle
-      document.querySelectorAll('.modal-overlay').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-          if (e.target === modal) {
-            if (modal.id === 'deleteAccountModal') {
-              closeDeleteAccountModal();
-            } else if (modal.id === 'leaveGroupModal') {
-              closeLeaveGroupModal();
-            }
-          }
-        });
-      });
-      
-      console.log("[SETTINGS] ✅ Event listeners configurati");
     });
+  }
+  if (copyIcon && inviteCodeEl && toast) {
+    copyIcon.addEventListener("click", async () => {
+      const inviteCode = inviteCodeEl.textContent.trim();
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(inviteCode);
+        copyIcon.style.color = 'green';
+        // Mostra il toast
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.opacity = 1; }, 10);
+        setTimeout(() => {
+          toast.style.opacity = 0;
+          setTimeout(() => { toast.style.display = 'none'; }, 300);
+          copyIcon.style.color = '';
+        }, 2000); // Durata aumentata a 2 secondi
+      }
+    });
+  }
 
-    console.log("[SETTINGS] ✅ Script caricato completamente");
-  </script>
+  // Gestione modale custom delete account
+  const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+  const deleteAccountModal = document.getElementById("deleteAccountModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+
+  if (deleteAccountBtn && deleteAccountModal) {
+    deleteAccountBtn.addEventListener("click", function() {
+      deleteAccountModal.style.display = "flex";
+    });
+  }
+  if (cancelDeleteBtn && deleteAccountModal) {
+    cancelDeleteBtn.addEventListener("click", function() {
+      deleteAccountModal.style.display = "none";
+    });
+  }
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener("click", function() {
+      deleteAccountModal.style.display = "none";
+      // Qui va la logica di eliminazione account vera e propria
+      // Esempio: chiama la funzione che elimina l'account
+      // deleteUserAccount();
+    });
+  }
+
+  // Gestione modale custom leave group
+  const leaveGroupBtn = document.getElementById("leaveGroupBtn");
+  const leaveGroupModal = document.getElementById("leaveGroupModal");
+  const confirmLeaveGroupBtn = document.getElementById("confirmLeaveGroupBtn");
+  const cancelLeaveGroupBtn = document.getElementById("cancelLeaveGroupBtn");
+
+  if (leaveGroupBtn && leaveGroupModal) {
+    leaveGroupBtn.addEventListener("click", function() {
+      leaveGroupModal.style.display = "flex";
+    });
+  }
+  if (cancelLeaveGroupBtn && leaveGroupModal) {
+    cancelLeaveGroupBtn.addEventListener("click", function() {
+      leaveGroupModal.style.display = "none";
+    });
+  }
+  if (confirmLeaveGroupBtn) {
+    // L'event listener per confirmLeaveGroupBtn è gestito in settings.js
+    // per evitare duplicazioni di chiamate
+  }
+});
+</script>
+
+
 </body>
+
 </html>
