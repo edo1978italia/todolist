@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - Test Autosufficiente</title>
+  <link rel="stylesheet" href="settings-page.css" />
+  
+  <style>
+    /* Banner di test per confermare che funziona */
+    body::before {
+      content: "🔧 SETTINGS TEST AUTOSUFFICIENTE - Tutto inline per debug";
+      display: block;
+      background: #FF9800;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    /* Se il CSS esterno non carica, aggiungo il minimo indispensabile */
+    .settings-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+    }
+    
+    .settings-header {
+      background: #2196F3;
+      color: white;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    
+    .settings-menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      background: white;
+    }
+    
+    .menu-item {
+      border-bottom: 1px solid #e0e0e0;
+      cursor: pointer;
+    }
+    
+    .menu-item:hover {
+      background: #f5f5f5;
+    }
+    
+    .menu-link {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: #333;
+      gap: 16px;
+    }
+    
+    .menu-content {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .menu-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .menu-subtitle {
+      margin: 2px 0 0 0;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .menu-icon, .menu-chevron {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    
+    .side-panel {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 100%;
+      max-width: 600px;
+      height: 100vh;
+      background: white;
+      transition: right 0.3s ease;
+      z-index: 1001;
+      overflow-y: auto;
+    }
+    
+    .side-panel.active {
+      right: 0;
+    }
+    
+    .panel-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .panel-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .panel-header {
+      background: #2196F3;
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      text-align: center;
+      width: 100%;
+    }
+    
+    .panel-back-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      position: absolute;
+      right: 20px;
+    }
+    
+    .panel-content {
+      padding: 20px;
+    }
+    
+    .info-section {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .toggle-row:last-child {
+      border-bottom: none;
+    }
+    
+    .toggle-info {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .toggle-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin: 0 0 4px 0;
+    }
+    
+    .toggle-subtitle {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 32px;
+      background: #ccc;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .toggle-switch.active {
+      background: #2196F3;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 28px;
+      height: 28px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(20px);
+    }
+    
+    .action-buttons {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .action-btn {
+      padding: 16px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    
+    .action-btn.danger {
+      background: #ff5252;
+      color: white;
+    }
+    
+    .action-btn.danger:hover {
+      background: #f44336;
+    }
+    
+    .action-btn.secondary {
+      background: #f5f5f5;
+      color: #666;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .action-btn.secondary:hover {
+      background: #e0e0e0;
+    }
+  </style>
+  
+  <script>
+    console.log("🔧 AUTOSUFFICIENTE: Inizio caricamento...");
+    
+    // Funzioni essenziali
+    function openPanel(panelId) {
+      console.log("🔧 AUTOSUFFICIENTE: Apertura pannello:", panelId);
+      closeActivePanel();
+      const panel = document.getElementById(panelId);
+      const overlay = document.getElementById('panelOverlay');
+      
+      if (panel) {
+        panel.classList.add('active');
+        if (overlay) overlay.classList.add('active');
+        console.log("✅ Pannello aperto:", panelId);
+      } else {
+        console.error("❌ Pannello non trovato:", panelId);
+      }
+    }
+
+    function closePanel(panelId) {
+      console.log("🔧 AUTOSUFFICIENTE: Chiusura pannello:", panelId);
+      const panel = document.getElementById(panelId);
+      const overlay = document.getElementById('panelOverlay');
+      
+      if (panel) {
+        panel.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+        console.log("✅ Pannello chiuso:", panelId);
+      }
+    }
+
+    function closeActivePanel() {
+      const panels = document.querySelectorAll('.side-panel');
+      const overlay = document.getElementById('panelOverlay');
+      
+      panels.forEach(panel => panel.classList.remove('active'));
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    function toggleNotification(type, element) {
+      console.log("🔧 AUTOSUFFICIENTE: Toggle notifica:", type);
+      element.classList.toggle('active');
+      
+      const isEnabled = element.classList.contains('active');
+      console.log(`Notifica ${type} ${isEnabled ? 'abilitata' : 'disabilitata'}`);
+    }
+
+    function showDeleteAccountConfirmation() {
+      console.log("🔧 AUTOSUFFICIENTE: Conferma eliminazione account");
+      
+      if (confirm('⚠️ Sei sicuro di voler eliminare il tuo account?')) {
+        alert('🔥 Account eliminato! (simulazione)');
+        closeActivePanel();
+      }
+    }
+    
+    // Caricamento sidebar
+    function loadSidebar() {
+      console.log("🔧 AUTOSUFFICIENTE: Tentativo caricamento sidebar...");
+      
+      const sidebarContainer = document.getElementById("sidebar-container");
+      if (!sidebarContainer) {
+        console.error("❌ sidebar-container non trovato!");
+        return;
+      }
+      
+      fetch('sidebar.html')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(html => {
+          sidebarContainer.innerHTML = html;
+          console.log("✅ Sidebar caricata!");
+        })
+        .catch(error => {
+          console.warn("⚠️ Sidebar non caricata:", error.message);
+          sidebarContainer.innerHTML = `
+            <div style="padding: 10px; background: #FF9800; color: white; text-align: center; font-weight: bold;">
+              🔧 TEST: Sidebar non trovata (normale in test)
+            </div>
+          `;
+        });
+    }
+    
+    // Rendi funzioni globali
+    window.openPanel = openPanel;
+    window.closePanel = closePanel;
+    window.closeActivePanel = closeActivePanel;
+    window.toggleNotification = toggleNotification;
+    window.showDeleteAccountConfirmation = showDeleteAccountConfirmation;
+    window.loadSidebar = loadSidebar;
+    
+    // Auto-inizializzazione
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("🔧 AUTOSUFFICIENTE: DOM pronto");
+      
+      // Test delle funzioni
+      console.log("Verifica funzioni:");
+      console.log("- openPanel:", typeof window.openPanel);
+      console.log("- closePanel:", typeof window.closePanel);
+      console.log("- toggleNotification:", typeof window.toggleNotification);
+      console.log("- showDeleteAccountConfirmation:", typeof window.showDeleteAccountConfirmation);
+      
+      // Carica sidebar
+      loadSidebar();
+      
+      // ESC key listener
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeActivePanel();
+        }
+      });
+      
+      console.log("✅ AUTOSUFFICIENTE: Inizializzazione completata");
+    });
+    
+    console.log("✅ AUTOSUFFICIENTE: Script caricato");
+  </script>
+</head>
+<body>
+  <!-- Include sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="settings-container">
+    <!-- 🎯 Header principale -->
+    <div class="settings-header">
+      <h1 class="settings-title">Settings (Test Autosufficiente)</h1>
+    </div>
+
+    <!-- 📋 Menu principale -->
+    <ul class="settings-menu">
+      <!-- 👥 Group Info -->
+      <li class="menu-item" onclick="openPanel('groupPanel')">
+        <div class="menu-link">
+          <svg class="menu-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-1c0-1.38 2.69-2.5 6-2.5.65 0 1.25.07 1.83.2.59-.73 1.43-1.2 2.37-1.2 1.08 0 2.07.63 2.53 1.61.46-.11.96-.17 1.47-.17 1.66 0 3 1.34 3 3v1h-17z"/>
+          </svg>
+          <div class="menu-content">
+            <h3 class="menu-title">Group Info</h3>
+            <p class="menu-subtitle">Test apertura pannello</p>
+          </div>
+          <svg class="menu-chevron" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+          </svg>
+        </div>
+      </li>
+
+      <!-- 🔔 Notifications -->
+      <li class="menu-item" onclick="openPanel('notificationsPanel')">
+        <div class="menu-link">
+          <svg class="menu-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+          <div class="menu-content">
+            <h3 class="menu-title">Notifications</h3>
+            <p class="menu-subtitle">Test toggle notifiche</p>
+          </div>
+          <svg class="menu-chevron" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+          </svg>
+        </div>
+      </li>
+
+      <!-- 👤 Delete Account -->
+      <li class="menu-item" onclick="openPanel('deleteAccountPanel')">
+        <div class="menu-link">
+          <svg class="menu-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+          <div class="menu-content">
+            <h3 class="menu-title">Delete Account</h3>
+            <p class="menu-subtitle">Test conferma eliminazione</p>
+          </div>
+          <svg class="menu-chevron" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+          </svg>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Overlay -->
+  <div class="panel-overlay" id="panelOverlay" onclick="closeActivePanel()"></div>
+
+  <!-- 👥 Pannello Group Info -->
+  <div class="side-panel" id="groupPanel">
+    <div class="panel-header">
+      <h2 class="panel-title">Group Info (Test)</h2>
+      <button class="panel-back-btn" onclick="closePanel('groupPanel')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="panel-content">
+      <div class="info-section">
+        <div class="info-row">
+          <span class="info-label">Test Status</span>
+          <span class="info-value">✅ Tutto Funziona!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔔 Pannello Notifications -->
+  <div class="side-panel" id="notificationsPanel">
+    <div class="panel-header">
+      <h2 class="panel-title">Notifications (Test)</h2>
+      <button class="panel-back-btn" onclick="closePanel('notificationsPanel')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="panel-content">
+      <div class="info-section">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h3 class="toggle-title">Test Toggle</h3>
+            <p class="toggle-subtitle">Clicca per testare</p>
+          </div>
+          <div class="toggle-switch active" onclick="toggleNotification('test', this)">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 👤 Pannello Delete Account -->
+  <div class="side-panel" id="deleteAccountPanel">
+    <div class="panel-header">
+      <h2 class="panel-title">Delete Account (Test)</h2>
+      <button class="panel-back-btn" onclick="closePanel('deleteAccountPanel')">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="panel-content">
+      <div class="action-buttons">
+        <button class="action-btn danger" onclick="showDeleteAccountConfirmation()">Test Delete Account</button>
+        <button class="action-btn secondary" onclick="closePanel('deleteAccountPanel')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
