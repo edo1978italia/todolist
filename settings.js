@@ -392,30 +392,51 @@ document.addEventListener("DOMContentLoaded", () => {
     window.logoutUser = logoutUser;
 
     // 📥 Carica sidebar dinamica
-    const sidebarContainer = document.createElement("div");
-    sidebarContainer.id = "sidebar-container";
-    document.body.insertBefore(sidebarContainer, document.getElementById("profile-container"));
-    console.log("[SETTING] sidebar-container inserito nel DOM");
+    const sidebarContainer = document.getElementById("sidebar-container");
+    if (!sidebarContainer) {
+        console.error("[SETTING] ❌ sidebar-container non trovato nel DOM!");
+        return;
+    }
+    console.log("[SETTING] sidebar-container trovato nel DOM");
 
     fetch("sidebar.html")
-        .then((res) => res.text())
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.text();
+        })
         .then((html) => {
             sidebarContainer.innerHTML = html;
-            console.log("[SETTING] sidebar.html caricato");
+            console.log("[SETTING] ✅ sidebar.html caricato con successo");
+            
+            // Carica sidebar.js
             requestAnimationFrame(() => {
                 const script = document.createElement("script");
                 script.type = "module";
                 script.src = "sidebar.js";
                 script.onload = () => {
-                    console.log("[SETTING] sidebar.js caricato");
-                    if (typeof aggiornaEmail === "function") aggiornaEmail();
+                    console.log("[SETTING] ✅ sidebar.js caricato con successo");
+                    if (typeof aggiornaEmail === "function") {
+                        aggiornaEmail();
+                    }
+                };
+                script.onerror = (err) => {
+                    console.error("[SETTING] ❌ Errore nel caricamento sidebar.js:", err);
                 };
                 document.body.appendChild(script);
                 console.log("[SETTING] sidebar.js aggiunto al DOM");
             });
         })
         .catch((err) => {
-            console.error("[SETTING] Errore sidebar:", err);
+            console.error("[SETTING] ❌ Errore nel caricamento sidebar.html:", err);
+            sidebarContainer.innerHTML = `
+                <div style="padding: 20px; background: #ffebee; color: #c62828; border-radius: 8px; margin: 10px;">
+                    <strong>⚠️ Errore caricamento sidebar</strong><br>
+                    Verifica che sidebar.html sia presente sul server.<br>
+                    Errore: ${err.message}
+                </div>
+            `;
         });
 
     // 📦 Supporto funzioni globali
