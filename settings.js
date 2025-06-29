@@ -79,7 +79,21 @@ document.addEventListener("DOMContentLoaded", () => {
         groupMembersList: !!document.getElementById("groupMembersList")
     });
 
+    // Inserisci uno spinner nei dettagli gruppo
+    function showGroupLoader() {
+      const groupNameEl = document.getElementById("userGroupName");
+      const groupMembersCountEl = document.getElementById("groupMembersCount");
+      const groupMembersListEl = document.getElementById("groupMembersList");
+      if (groupNameEl) groupNameEl.innerHTML = '<span class="loader"></span>';
+      if (groupMembersCountEl) groupMembersCountEl.innerHTML = '<span class="loader"></span>';
+      if (groupMembersListEl) groupMembersListEl.innerHTML = '<span class="loader"></span>';
+    }
+    function hideGroupLoader() {
+      // Non serve, i dati verranno sovrascritti dal caricamento
+    }
+
     auth.onAuthStateChanged(async (user) => {
+        showGroupLoader();
         console.log("[SETTING] onAuthStateChanged triggerato", user);
         if (!user) {
             console.warn("[SETTING] Nessun utente autenticato, redirect...");
@@ -429,3 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 });
+
+// CSS spinner (aggiungi in settings.css):
+// .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid #007bff; border-radius: 50%; border-top: 3px solid transparent; animation: spin 0.8s linear infinite; vertical-align: middle; }
+// @keyframes spin { 100% { transform: rotate(360deg); } }
