@@ -3,7 +3,7 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Profilo Utente</title>
+  <title>Profile</title>
   <link rel="stylesheet" href="styles.css" />
 
   <!-- Firebase -->
@@ -26,14 +26,47 @@
       border: 2px solid #ccc;
       margin: 12px 0;
     }
-    
-
+    .profile-header-fixed {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 60px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 1000;
+      box-sizing: border-box;
+    }
+    .profile-header-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+    #profile-container {
+      padding: 0 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
+    }
   </style>
   
 </head>
 <body>
-  <h3>Your Profile</h3>
+  <div class="profile-header-fixed">
+    <h1 class="profile-header-title">Profile</h1>
+  </div>
   <div id="profile-container">
+    <img id="avatarPreview" alt="Avatar" class="avatar" /><br />
+    <button id="upload_widget">Change avatar</button>
+    <div class="button-separator"></div>
     <label for="displayName">Set your Nickname:</label><br />
     <input type="text" id="displayName" placeholder="Enter your display name" />
     <button id="saveProfile">Save</button>
@@ -81,9 +114,6 @@
       <!-- Qui puoi inserire una spiegazione su come usare/condividere il gruppo -->
       <p>To invite your friends and family to join your group, share "Invite Code" with them. They will need it during the registration process.</p>
     </div>
-    <div class="button-separator"></div>
-    <img id="avatarPreview" alt="Avatar" class="avatar" /><br />
-    <button id="upload_widget">Change avatar</button>
     <div class="button-separator"></div>
     <!-- Back button rimosso -->
   </div>
