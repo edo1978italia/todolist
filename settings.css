@@ -3,7 +3,7 @@
     m/* 📋 Container principale */
 .settings-container {
     margin-top: 60px;
-    padding: 10px;
+    padding: 0;
     width: 100%;
     max-width: 600px;
     margin-left: auto;
@@ -11,8 +11,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-    padding: 0;
     box-sizing: border-box;
 }
 
@@ -29,10 +27,10 @@ body {
 .settings-header {
     position: fixed;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
     width: 100%;
-    max-width: 600px;
+    box-sizing: border-box;
     background: linear-gradient(135deg, #007bff, #0056b3);
     color: white;
     height: 60px;
@@ -41,6 +39,8 @@ body {
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 1000;
+    border-radius: 0 0 12px 12px;
+    padding: 0;
 }
 
 .settings-title {
@@ -54,9 +54,13 @@ body {
     margin-top: 60px;
     padding: 0;
     width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-sizing: border-box;
 }
 
 /* 📝 Menu principale */
