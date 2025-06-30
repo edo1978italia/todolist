@@ -13,7 +13,9 @@ import {
     getDoc,
     query, // ✅ AGGIUNGI QUESTO
     where, // ✅ E QUESTO
-    serverTimestamp
+    serverTimestamp,
+    getDocs,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
 // Configura Firebase
@@ -23,13 +25,23 @@ const db = getFirestore(app);
 
 // Variabile per il listener Firestore
 let unsubscribeTasks = null;
+let unsubscribeLists = null;
+let selectedListId = null;
+let selectedListDocRef = null;
+let selectedListName = null;
+
+// UI references
+const listSelectorContainer = document.getElementById("listSelectorContainer");
+const userListsUl = document.getElementById("userLists");
+const addListButton = document.getElementById("addListButton");
+const mainContainer = document.getElementById("mainContainer");
+const backToListsButton = document.getElementById("backToListsButton");
 
 // 🔥 Debug Firebase
 console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
 
 // 🔥 Verifica sessione utente e aggiorna l'interfaccia
 onAuthStateChanged(auth, async (user) => {
-    const mainContainer = document.getElementById("mainContainer");
     const userEmailElement = document.getElementById("userEmail");
 
     if (!user) {
@@ -254,6 +266,11 @@ window.addTask = async function () {
     return;
   }
 
+  if (!selectedListId) {
+    alert("Seleziona una lista prima di aggiungere un task.");
+    return;
+  }
+
   const taskDisplayName = isPriorityHigh ? `${taskName} 🔴` : taskName;
 
   const nuovoTask = {
@@ -262,7 +279,8 @@ window.addTask = async function () {
     completed: false,
     createdAt: serverTimestamp(),
     createdBy: auth.currentUser.uid,
-    groupId: window.currentGroupId
+    groupId: window.currentGroupId,
+    listId: selectedListId
   };
 
   console.log("📤 Dati in scrittura:", nuovoTask);
@@ -282,7 +300,6 @@ window.addTask = async function () {
     console.groupEnd();
   }
 };
-
 
 
 
@@ -399,4 +416,114 @@ window.openEditModal = function (taskId) {
       alert("Errore durante il caricamento del task.");
     });
 };
+
+// === GESTIONE LISTE MULTIPLE ===
+
+// Carica e mostra tutte le liste dell'utente
+function listenUserLists(userId) {
+    console.log('[LISTE] Avvio caricamento liste per userId:', userId);
+    if (unsubscribeLists) unsubscribeLists();
+    const q = query(collection(db, "lists"), where("createdBy", "==", userId));
+    unsubscribeLists = onSnapshot(q, (snapshot) => {
+        console.log('[LISTE] Snapshot ricevuto. Numero liste:', snapshot.size);
+        userListsUl.innerHTML = "";
+        snapshot.forEach(docSnap => {
+            const list = docSnap.data();
+            console.log('[LISTE] Lista trovata:', docSnap.id, list);
+            const li = document.createElement("li");
+            li.textContent = list.name;
+            li.className = "user-list-item";
+            li.onclick = () => selectList(docSnap.id, list.name);
+            userListsUl.appendChild(li);
+        });
+        if(snapshot.size === 0) {
+            console.log('[LISTE] Nessuna lista trovata per questo utente.');
+        }
+    });
+}
+
+// Crea una nuova lista
+addListButton.onclick = async () => {
+    console.log('[LISTE] Click su aggiungi lista');
+    const name = prompt("Nome della nuova lista?");
+    if (!name) {
+        console.log('[LISTE] Creazione lista annullata: nome vuoto');
+        return;
+    }
+    const user = auth.currentUser;
+    if (!user) {
+        console.log('[LISTE] Nessun utente autenticato, impossibile creare lista');
+        return;
+    }
+    const newListRef = doc(collection(db, "lists"));
+    await setDoc(newListRef, {
+        name,
+        createdBy: user.uid,
+        createdAt: serverTimestamp()
+    });
+    console.log('[LISTE] Nuova lista creata con nome:', name, 'e id:', newListRef.id);
+};
+
+// Modifica: seleziona una lista e mostra i task relativi
+function selectList(listId, listName) {
+    console.log('[LISTE] Selezionata lista:', listId, listName);
+    selectedListId = listId;
+    selectedListDocRef = doc(db, "lists", listId);
+    listSelectorContainer.style.display = "none";
+    mainContainer.style.display = "block";
+    document.getElementById("header").innerHTML = `<h3>${listName}</h3>`;
+    // Precompila il campo titolo lista
+    document.getElementById("editListTitleInput").value = listName;
+    selectedListName = listName;
+    listenTasksForList(listId);
+}
+
+// Salva il nuovo titolo della lista su Firestore
+const saveListTitleButton = document.getElementById("saveListTitleButton");
+saveListTitleButton.onclick = async () => {
+    const input = document.getElementById("editListTitleInput");
+    const newName = input.value.trim();
+    if (!selectedListDocRef || !newName) {
+        console.log('[LISTE] Salvataggio nome lista annullato: dati mancanti');
+        return;
+    }
+    await updateDoc(selectedListDocRef, { name: newName });
+    // Aggiorna anche l'header
+    document.getElementById("header").innerHTML = `<h3>${newName}</h3>`;
+    selectedListName = newName;
+    console.log('[LISTE] Nome lista aggiornato su Firestore:', newName);
+};
+
+// Torna all'elenco delle liste
+backToListsButton.onclick = () => {
+    console.log('[LISTE] Click su torna alle liste');
+    mainContainer.style.display = "none";
+    listSelectorContainer.style.display = "block";
+    if (unsubscribeTasks) unsubscribeTasks();
+};
+
+// Carica i task della lista selezionata
+function listenTasksForList(listId) {
+    console.log('[LISTE] Caricamento task per lista:', listId);
+    if (unsubscribeTasks) unsubscribeTasks();
+    const user = auth.currentUser;
+    if (!user) {
+        console.log('[LISTE] Nessun utente autenticato, impossibile caricare task');
+        return;
+    }
+    const q = query(collection(db, "tasks"), where("createdBy", "==", user.uid), where("listId", "==", listId));
+    unsubscribeTasks = onSnapshot(q, (snapshot) => {
+        console.log('[LISTE] Snapshot task ricevuto per lista:', listId, 'Numero task:', snapshot.size);
+        loadTasks(snapshot);
+    });
+}
+
+// All'avvio: mostra solo le liste, carica le liste dell'utente autenticato
+onAuthStateChanged(auth, (user) => {
+    console.log('[LISTE] onAuthStateChanged triggerato. user:', user);
+    if (!user) return;
+    listSelectorContainer.style.display = "block";
+    mainContainer.style.display = "none";
+    listenUserLists(user.uid);
+});
 

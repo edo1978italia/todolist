@@ -6,39 +6,43 @@
         <title>TO BUY LIST EDO</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
         <link rel="stylesheet" href="styles.css" />
+        <link rel="stylesheet" href="todolist.css" />
     </head>
     <body>
         <!-- 🔥 Sidebar inclusa dinamicamente -->
         <div id="sidebar-container"></div>
 
-   
+        <!-- Schermata selezione lista -->
+        <div id="listSelectorContainer">
+            <h3>Le tue liste</h3>
+            <ul id="userLists"></ul>
+            <button id="addListButton">+ Nuova lista</button>
+        </div>
 
-        
-
-        <h3>TO-BUY LIST</h3>
-        <div id="mainContainer">
+        <!-- Schermata task della lista selezionata (inizialmente nascosta) -->
+        <div id="mainContainer" style="display:none;">
             <div id="header"></div>
-
+            <!-- Box modifica titolo lista -->
+            <div id="editListTitleBox" class="info-section">
+                <label for="editListTitleInput">Titolo lista:</label>
+                <input type="text" id="editListTitleInput" value="" />
+                <button id="saveListTitleButton">Salva</button>
+            </div>
             <div id="taskInputContainer">
-                <!-- 🔥 Prima riga con input del nome e checkbox -->
                 <div id="namePriorityContainer">
                     <input type="text" id="taskInput" placeholder="Add a product" />
                     <label id="priorityLabel"> <input type="checkbox" id="priorityHigh" /> 🔴 </label>
                 </div>
-
-                <!-- 🔥 Seconda riga con input del link -->
                 <input type="url" id="linkInput" placeholder="Link (optional)" />
-
                 <button id="addButton" onclick="addTask()">Add</button>
             </div>
-
             <div id="listContainer">
                 <ul id="taskList"></ul>
             </div>
-
             <div id="extraBox">
                 <p>E IO PAGO!</p>
             </div>
+            <button id="backToListsButton">&larr; Torna alle liste</button>
         </div>
 
         <!-- Modale di modifica -->

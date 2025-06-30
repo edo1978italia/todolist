@@ -1,0 +1,79 @@
+/* Stili specifici per la pagina ToDo List (todolist.html) */
+
+#listSelectorContainer {
+    max-width: 600px;
+    margin: 30px auto 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    text-align: center;
+}
+#userLists {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+.user-list-item {
+    padding: 10px;
+    margin-bottom: 5px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.user-list-item:hover {
+    background: #dbeafe;
+}
+#addListButton {
+    margin-top: 10px;
+    background: #2b8ae5;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+#addListButton:hover {
+    background: #1d4ed8;
+}
+#mainContainer {
+    margin-top: 15px;
+}
+#editListTitleBox {
+    margin-bottom: 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 10px 0;
+}
+#editListTitleInput {
+    width: 60%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 8px;
+}
+#saveListTitleButton {
+    background: #2b8ae5;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+#saveListTitleButton:hover {
+    background: #1d4ed8;
+}
+#backToListsButton {
+    margin-top: 20px;
+    background: #e5e7eb;
+    color: #2b8ae5;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+#backToListsButton:hover {
+    background: #dbeafe;
+}
