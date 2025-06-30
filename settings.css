@@ -1,11 +1,10 @@
-/* 🎨 Reset e Base Styles */
-* {
-    m/* 📋 Container principale */
+
+/* 📋 Container principale */
 .settings-container {
     margin-top: 60px;
     padding: 0;
     width: 100%;
-    max-width: 600px;
+    max-width: 640px;
     margin-left: auto;
     margin-right: auto;
     display: flex;
@@ -14,12 +13,7 @@
     box-sizing: border-box;
 }
 
-@media (max-width: 620px) {
-  .settings-container {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-}
+
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -32,42 +26,45 @@ body {
 
 /* 🎯 Header fisso blu */
 .settings-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    box-sizing: border-box;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    border-radius: 0 0 12px 12px;
-    padding: 0;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 620px;
+  padding: 0 10px;
+  height: 60px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  border-radius: 0 0 12px 12px;
+  box-sizing: border-box;
 }
 
 .settings-title {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 500;
     margin: 0;
 }
 
 /* 📋 Container principale */
 .settings-container {
-    margin-top: 60px;
+    margin-top: 50px;
     padding: 0;
     width: 100%;
-    max-width: 600px;
+    max-width: 640px;
     margin-left: auto;
     margin-right: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
     
 }
 
@@ -76,11 +73,11 @@ body {
     list-style: none;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 17px rgba(0,0,0,0.1);
     overflow: hidden;
     margin-bottom: 20px;
     width: 100%;
-    max-width: 600px;
+      max-width: inherit; /* eredita da .settings-container */
     padding: 0; /* Nessun padding */
 }
 
