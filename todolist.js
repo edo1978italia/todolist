@@ -29,6 +29,7 @@ let unsubscribeLists = null;
 let selectedListId = null;
 let selectedListDocRef = null;
 let selectedListName = null;
+let currentGroupId = null; // <-- aggiunto
 
 // UI references
 const listSelectorContainer = document.getElementById("listSelectorContainer");
@@ -40,61 +41,33 @@ const backToListsButton = document.getElementById("backToListsButton");
 // 🔥 Debug Firebase
 console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
 
-// 🔥 Verifica sessione utente e aggiorna l'interfaccia
+// 🔥 Gestione login e caricamento liste
 onAuthStateChanged(auth, async (user) => {
-    const userEmailElement = document.getElementById("userEmail");
-
     if (!user) {
-        console.warn("⚠ Utente non autenticato, redirect in corso...");
         if (unsubscribeTasks) unsubscribeTasks();
         window.location.replace("index.html");
         return;
     }
-
     try {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
-
         if (!userSnap.exists()) {
-            console.warn("❌ Documento utente assente — redirect");
             window.location.href = "group-setup.html";
             return;
         }
-
         const data = userSnap.data();
-
         if (!data || !data.groupId || data.groupId.trim() === "") {
-            console.warn("🚧 groupId mancante o vuoto — redirect a group-setup");
             window.location.href = "group-setup.html";
             return;
         }
-
-        const groupId = data.groupId;
-        console.log("✅ Accesso autorizzato con groupId:", groupId);
-
-        if (userEmailElement) userEmailElement.innerText = user.email;
-        if (mainContainer) mainContainer.style.display = "block";
-
-        // 🔥 Listener per task del gruppo
-        const q = query(collection(db, "tasks"), where("groupId", "==", groupId));
-        unsubscribeTasks = onSnapshot(q, (snapshot) => {
-            if (snapshot.empty) {
-                console.log("🟡 Nessun task trovato per questo gruppo.");
-                document.getElementById("tasksList").innerHTML =
-                    "<p class='empty'>Nessun task ancora. Aggiungine uno!</p>";
-                return;
-            }
-
-            console.log(
-                "📌 Tasks ricevuti:",
-                snapshot.docs.map((doc) => doc.data())
-            );
-            loadTasks(snapshot);
-        });
-
-        window.currentGroupId = groupId;
+        currentGroupId = data.groupId;
+        // Mostra solo il selettore liste, nascondi il mainContainer
+        if (listSelectorContainer) listSelectorContainer.style.display = "block";
+        if (mainContainer) mainContainer.style.display = "none";
+        // Svuota la lista visiva
+        if (userListsUl) userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata o caricamento...)</li>';
+        listenUserLists(currentGroupId);
     } catch (error) {
-        console.error("❌ Errore durante la verifica del gruppo:", error);
         window.location.href = "index.html";
     }
 });
@@ -417,23 +390,21 @@ window.openEditModal = function (taskId) {
     });
 };
 
-// === GESTIONE LISTE MULTIPLE ===
+// === GESTIONE LISTE MULTLE ===
 
 // Carica e mostra tutte le liste dell'utente
-function listenUserLists(userId) {
-    console.log('[LISTE] Avvio caricamento liste per userId:', userId);
+function listenUserLists(groupId) {
+    console.log('[LISTE] Avvio caricamento liste per groupId:', groupId);
     if (unsubscribeLists) unsubscribeLists();
-    const q = query(collection(db, "lists"), where("createdBy", "==", userId));
+    const q = query(collection(db, "lists"), where("groupId", "==", groupId));
     unsubscribeLists = onSnapshot(q, (snapshot) => {
         console.log('[LISTE] Snapshot ricevuto. Numero liste:', snapshot.size);
         userListsUl.innerHTML = "";
         if(snapshot.size === 0) {
             userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata)</li>';
-            console.log('[LISTE] Nessuna lista trovata per questo utente.');
         }
         snapshot.forEach(docSnap => {
             const list = docSnap.data();
-            console.log('[LISTE] Lista trovata:', docSnap.id, list);
             const li = document.createElement("li");
             li.textContent = list.name;
             li.className = "user-list-item";
@@ -441,7 +412,6 @@ function listenUserLists(userId) {
             userListsUl.appendChild(li);
         });
     }, (err) => {
-        console.error('[LISTE] Errore caricamento liste:', err);
         userListsUl.innerHTML = '<li style="color:red;">Errore caricamento liste</li>';
     });
 }
@@ -508,22 +478,31 @@ backToListsButton.onclick = () => {
 
 // Carica i task della lista selezionata
 function listenTasksForList(listId) {
-    console.log('[LISTE] Caricamento task per lista:', listId);
+    console.log('[LISTE] Caricamento task per lista:', listId, 'groupId:', currentGroupId);
     if (unsubscribeTasks) unsubscribeTasks();
-    const user = auth.currentUser;
-    if (!user) {
-        console.log('[LISTE] Nessun utente autenticato, impossibile caricare task');
+    if (!currentGroupId) {
+        console.log('[LISTE] groupId non disponibile, impossibile caricare task');
         return;
     }
-    const q = query(collection(db, "tasks"), where("createdBy", "==", user.uid), where("listId", "==", listId));
+    const q = query(
+        collection(db, "tasks"),
+        where("groupId", "==", currentGroupId),
+        where("listId", "==", listId)
+    );
     unsubscribeTasks = onSnapshot(q, (snapshot) => {
         console.log('[LISTE] Snapshot task ricevuto per lista:', listId, 'Numero task:', snapshot.size);
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            console.log('[LISTE][DEBUG] Task trovato:', docSnap.id, data);
+        });
         loadTasks(snapshot);
+    }, (err) => {
+        console.error('[LISTE] Errore caricamento task:', err);
     });
 }
 
-// All'avvio: mostra solo le liste, carica le liste dell'utente autenticato
-onAuthStateChanged(auth, (user) => {
+// All'avvio: mostra solo le liste, carica le liste del gruppo SOLO dopo aver ottenuto il groupId
+onAuthStateChanged(auth, async (user) => {
     console.log('[LISTE] onAuthStateChanged triggerato. user:', user);
     if (!user) return;
     // Forza la visibilità corretta all'avvio
@@ -531,6 +510,22 @@ onAuthStateChanged(auth, (user) => {
     if (mainContainer) mainContainer.style.display = "none";
     // Svuota la lista visiva
     if (userListsUl) userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata o caricamento...)</li>';
-    listenUserLists(user.uid);
+    try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) {
+            window.location.href = "group-setup.html";
+            return;
+        }
+        const data = userSnap.data();
+        if (!data || !data.groupId || data.groupId.trim() === "") {
+            window.location.href = "group-setup.html";
+            return;
+        }
+        currentGroupId = data.groupId;
+        listenUserLists(currentGroupId);
+    } catch (error) {
+        window.location.href = "index.html";
+    }
 });
 
