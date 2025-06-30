@@ -427,6 +427,10 @@ function listenUserLists(userId) {
     unsubscribeLists = onSnapshot(q, (snapshot) => {
         console.log('[LISTE] Snapshot ricevuto. Numero liste:', snapshot.size);
         userListsUl.innerHTML = "";
+        if(snapshot.size === 0) {
+            userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata)</li>';
+            console.log('[LISTE] Nessuna lista trovata per questo utente.');
+        }
         snapshot.forEach(docSnap => {
             const list = docSnap.data();
             console.log('[LISTE] Lista trovata:', docSnap.id, list);
@@ -436,9 +440,9 @@ function listenUserLists(userId) {
             li.onclick = () => selectList(docSnap.id, list.name);
             userListsUl.appendChild(li);
         });
-        if(snapshot.size === 0) {
-            console.log('[LISTE] Nessuna lista trovata per questo utente.');
-        }
+    }, (err) => {
+        console.error('[LISTE] Errore caricamento liste:', err);
+        userListsUl.innerHTML = '<li style="color:red;">Errore caricamento liste</li>';
     });
 }
 
@@ -522,8 +526,11 @@ function listenTasksForList(listId) {
 onAuthStateChanged(auth, (user) => {
     console.log('[LISTE] onAuthStateChanged triggerato. user:', user);
     if (!user) return;
-    listSelectorContainer.style.display = "block";
-    mainContainer.style.display = "none";
+    // Forza la visibilità corretta all'avvio
+    if (listSelectorContainer) listSelectorContainer.style.display = "block";
+    if (mainContainer) mainContainer.style.display = "none";
+    // Svuota la lista visiva
+    if (userListsUl) userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata o caricamento...)</li>';
     listenUserLists(user.uid);
 });
 
