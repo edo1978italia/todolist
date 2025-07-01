@@ -534,7 +534,9 @@ async function deleteList(listId) {
 }
 
 // Crea una nuova lista
-addListButton.onclick = async () => {
+
+// Funzione globale per creazione lista da modale
+window.createNewListWithTitle = async function(titolo) {
     console.log('[LISTE] Click su aggiungi lista');
     const user = auth.currentUser;
     if (!user) {
@@ -545,17 +547,16 @@ addListButton.onclick = async () => {
         alert("Errore: groupId non disponibile. Ricarica la pagina.");
         return;
     }
-    // Crea lista temporanea senza nome
     const newListRef = doc(collection(db, "lists"));
     await setDoc(newListRef, {
-        name: "",
+        name: titolo,
         createdBy: user.uid,
         groupId: currentGroupId,
         createdAt: serverTimestamp()
     });
     console.log('[LISTE] Nuova lista creata con id:', newListRef.id);
     // Apri subito la gestione task per la nuova lista
-    selectList(newListRef.id, "");
+    selectList(newListRef.id, titolo);
 };
 
 // Modifica: seleziona una lista e mostra i task relativi

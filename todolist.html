@@ -16,7 +16,126 @@
         <div id="listSelectorContainer">
             <h3>Your Lists</h3>
             <ul id="userLists"></ul>
-            <button id="addListButton">+ New List</button>
+            <button id="addListButton" class="fab-button" title="Crea nuova lista" style="border-radius:50%; aspect-ratio:1/1; padding:0;"><span class="fab-icon">+</span></button>
+            <!-- Modale per nuova lista (unico modale, hidden di default) -->
+            <div id="newListModal" class="modal" style="display:none;z-index:2000;">
+                <div class="modal-content" style="max-width:350px;margin:auto;padding:24px 20px 18px 20px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);text-align:center;">
+                    <h4 style="margin-bottom:12px;">New List</h4>
+                    <input id="newListTitleInput" type="text" placeholder="List Title" style="width:90%;padding:10px 12px;border-radius:6px;border:1px solid #ccc;font-size:16px;" maxlength="40" />
+                    <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;">
+                        <button id="confirmNewListBtn" style="background:#2b8ae5;color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:15px;cursor:pointer;">Create</button>
+                        <button id="cancelNewListBtn" style="background:#e5e7eb;color:#2b8ae5;border:none;border-radius:6px;padding:8px 18px;font-size:15px;cursor:pointer;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+<style>
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content input:focus {
+    outline: 2px solid #2b8ae5;
+}
+</style>
+<script>
+// Modale nuova lista
+const addListButton = document.getElementById('addListButton');
+const newListModal = document.getElementById('newListModal');
+const newListTitleInput = document.getElementById('newListTitleInput');
+const confirmNewListBtn = document.getElementById('confirmNewListBtn');
+const cancelNewListBtn = document.getElementById('cancelNewListBtn');
+
+if (addListButton && newListModal) {
+    addListButton.onclick = () => {
+        newListModal.style.display = 'flex';
+        setTimeout(() => newListTitleInput && newListTitleInput.focus(), 100);
+    };
+}
+if (cancelNewListBtn) {
+    cancelNewListBtn.onclick = () => {
+        newListModal.style.display = 'none';
+        newListTitleInput.value = '';
+    };
+}
+if (confirmNewListBtn) {
+    confirmNewListBtn.onclick = () => {
+        const titolo = newListTitleInput.value.trim();
+        if (!titolo) {
+            newListTitleInput.focus();
+            newListTitleInput.style.borderColor = '#e11d48';
+            setTimeout(()=>{newListTitleInput.style.borderColor='#ccc';}, 900);
+            return;
+        }
+        newListModal.style.display = 'none';
+        newListTitleInput.value = '';
+        // Chiama la funzione per creare la lista (deve essere globale)
+        if (window.createNewListWithTitle) window.createNewListWithTitle(titolo);
+    };
+}
+// Chiudi modale con ESC
+document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && newListModal && newListModal.style.display !== 'none') {
+        newListModal.style.display = 'none';
+        newListTitleInput.value = '';
+    }
+});
+</script>
+</style>
+<!-- Stile FAB per ToDoList (copia/incolla da notes.css, adattato) -->
+<style>
+.fab-button {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    padding: 0;
+    background: #2b8ae5;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(43, 138, 229, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    user-select: none;
+}
+.fab-button:hover {
+    background: #1d4ed8;
+    box-shadow: 0 6px 25px rgba(43, 138, 229, 0.6);
+}
+.fab-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+.fab-icon {
+    font-size: 38px;
+    line-height: 1;
+    margin-top: -2px;
+}
+@media (max-width: 768px) {
+    .fab-button {
+        bottom: 20px;
+        right: 20px;
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+    }
+    .fab-icon {
+        font-size: 32px;
+    }
+}
+</style>
         </div>
 
         <!-- Schermata task della lista selezionata (inizialmente nascosta) -->
@@ -45,7 +164,7 @@
         </div>
 
         <!-- Modale di modifica -->
-        <div id="editModal" class="modal">
+        <div id="editModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closeEditModal()">&times;</span>
                 <h2>Edit</h2>
@@ -56,6 +175,14 @@
                 <button onclick="saveTaskChanges()">Save</button>
             </div>
         </div>
+
+        <script>
+        // Forza la chiusura del modale edit all'avvio della pagina
+        document.addEventListener("DOMContentLoaded", function() {
+            var editModal = document.getElementById("editModal");
+            if (editModal) editModal.style.display = "none";
+        });
+        </script>
 
         <!-- Importazione del JavaScript separato -->
         <script type="module" src="todolist.js"></script>
