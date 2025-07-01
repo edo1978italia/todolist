@@ -15,15 +15,68 @@
     margin-bottom: 15px;
 }
 .user-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 10px;
     margin-bottom: 5px;
     background: #f0f0f0;
     border-radius: 5px;
-    cursor: pointer;
     transition: background 0.2s;
+    position: relative;
 }
 .user-list-item:hover {
     background: #dbeafe;
+}
+.list-title-text {
+    flex: 1;
+    cursor: pointer;
+}
+.menu-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.menu-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 8px;
+    color: #888;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+.menu-button:hover {
+    background: #e5e7eb;
+}
+.menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    z-index: 10;
+    min-width: 120px;
+    padding: 4px 0;
+}
+.menu button {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.menu button:hover {
+    background: #f3f4f6;
+    color: #e11d48;
 }
 #addListButton {
     margin-top: 10px;

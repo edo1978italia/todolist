@@ -61,6 +61,7 @@ onAuthStateChanged(auth, async (user) => {
             return;
         }
         currentGroupId = data.groupId;
+        window.currentGroupId = data.groupId;
         // Mostra solo il selettore liste, nascondi il mainContainer
         if (listSelectorContainer) listSelectorContainer.style.display = "block";
         if (mainContainer) mainContainer.style.display = "none";
@@ -406,11 +407,72 @@ function listenUserLists(groupId) {
         snapshot.forEach(docSnap => {
             const list = docSnap.data();
             const li = document.createElement("li");
-            li.textContent = list.name;
             li.className = "user-list-item";
-            li.onclick = () => selectList(docSnap.id, list.name);
+            // Contenuto principale (nome lista)
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = list.name;
+            nameSpan.className = "list-title-text";
+            nameSpan.onclick = () => selectList(docSnap.id, list.name);
+
+            // Menu 3 puntini
+            const menuContainer = document.createElement("div");
+            menuContainer.className = "menu-container";
+            const menuButton = document.createElement("button");
+            menuButton.className = "menu-button";
+            menuButton.innerText = "⋮";
+            const menu = document.createElement("div");
+            menu.className = "menu";
+            menu.style.display = "none";
+            // Opzione elimina
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-list";
+            deleteBtn.innerText = "🗑 Elimina";
+            deleteBtn.onclick = async (e) => {
+                e.stopPropagation();
+                if (confirm("Vuoi davvero eliminare questa lista?")) {
+                    // Elimina lista da Firestore
+                    await deleteList(docSnap.id);
+                }
+                menu.style.display = "none";
+            };
+            menu.appendChild(deleteBtn);
+            menuContainer.appendChild(menuButton);
+            menuContainer.appendChild(menu);
+
+            // Gestione apertura/chiusura menu
+            menuButton.onclick = function(e) {
+                e.stopPropagation();
+                document.querySelectorAll('.menu').forEach(m => m.style.display = 'none');
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            };
+
+            // Chiudi menu cliccando fuori
+            document.addEventListener('click', function closeMenuList(e) {
+                if (!e.target.closest('.menu-container')) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            li.appendChild(nameSpan);
+            li.appendChild(menuContainer);
             userListsUl.appendChild(li);
         });
+// Funzione per eliminare una lista da Firestore (e opzionalmente i suoi task)
+async function deleteList(listId) {
+    try {
+        // Elimina la lista da Firestore
+        await deleteDoc(doc(db, "lists", listId));
+        // (Opzionale) Elimina anche i task associati a questa lista
+        // const q = query(collection(db, "tasks"), where("listId", "==", listId));
+        // const snapshot = await getDocs(q);
+        // for (const taskDoc of snapshot.docs) {
+        //     await deleteDoc(taskDoc.ref);
+        // }
+        // L'elenco si aggiorna automaticamente grazie a onSnapshot
+    } catch (err) {
+        alert("Errore durante l'eliminazione della lista: " + err.message);
+    }
+}
     }, (err) => {
         userListsUl.innerHTML = '<li style="color:red;">Errore caricamento liste</li>';
     });
@@ -419,23 +481,26 @@ function listenUserLists(groupId) {
 // Crea una nuova lista
 addListButton.onclick = async () => {
     console.log('[LISTE] Click su aggiungi lista');
-    const name = prompt("Nome della nuova lista?");
-    if (!name) {
-        console.log('[LISTE] Creazione lista annullata: nome vuoto');
-        return;
-    }
     const user = auth.currentUser;
     if (!user) {
         console.log('[LISTE] Nessun utente autenticato, impossibile creare lista');
         return;
     }
+    if (!currentGroupId) {
+        alert("Errore: groupId non disponibile. Ricarica la pagina.");
+        return;
+    }
+    // Crea lista temporanea senza nome
     const newListRef = doc(collection(db, "lists"));
     await setDoc(newListRef, {
-        name,
+        name: "",
         createdBy: user.uid,
+        groupId: currentGroupId,
         createdAt: serverTimestamp()
     });
-    console.log('[LISTE] Nuova lista creata con nome:', name, 'e id:', newListRef.id);
+    console.log('[LISTE] Nuova lista creata con id:', newListRef.id);
+    // Apri subito la gestione task per la nuova lista
+    selectList(newListRef.id, "");
 };
 
 // Modifica: seleziona una lista e mostra i task relativi
@@ -452,28 +517,32 @@ function selectList(listId, listName) {
     listenTasksForList(listId);
 }
 
-// Salva il nuovo titolo della lista su Firestore
-const saveListTitleButton = document.getElementById("saveListTitleButton");
-saveListTitleButton.onclick = async () => {
-    const input = document.getElementById("editListTitleInput");
-    const newName = input.value.trim();
-    if (!selectedListDocRef || !newName) {
-        console.log('[LISTE] Salvataggio nome lista annullato: dati mancanti');
-        return;
-    }
-    await updateDoc(selectedListDocRef, { name: newName });
-    // Aggiorna anche l'header
-    document.getElementById("header").innerHTML = `<h3>${newName}</h3>`;
-    selectedListName = newName;
-    console.log('[LISTE] Nome lista aggiornato su Firestore:', newName);
-};
+
+// (RIMOSSO) Salvataggio manuale del titolo lista: ora il salvataggio avviene su "torna alle liste"
 
 // Torna all'elenco delle liste
 backToListsButton.onclick = () => {
     console.log('[LISTE] Click su torna alle liste');
-    mainContainer.style.display = "none";
-    listSelectorContainer.style.display = "block";
-    if (unsubscribeTasks) unsubscribeTasks();
+    const titolo = document.getElementById("editListTitleInput").value.trim();
+    if (!titolo) {
+        alert("Devi inserire un titolo per la lista prima di tornare all'elenco.");
+        return;
+    }
+    // Salva il titolo su Firestore prima di tornare
+    if (selectedListDocRef) {
+        updateDoc(selectedListDocRef, { name: titolo }).then(() => {
+            document.getElementById("header").innerHTML = `<h3>${titolo}</h3>`;
+            selectedListName = titolo;
+            listenUserLists(currentGroupId);
+            mainContainer.style.display = "none";
+            listSelectorContainer.style.display = "block";
+            if (unsubscribeTasks) unsubscribeTasks();
+        });
+    } else {
+        mainContainer.style.display = "none";
+        listSelectorContainer.style.display = "block";
+        if (unsubscribeTasks) unsubscribeTasks();
+    }
 };
 
 // Carica i task della lista selezionata
