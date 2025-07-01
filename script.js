@@ -315,13 +315,16 @@ window.navigateTo = function (page) {
 async function renderListsPreviewWidget(groupId) {
   const container = document.getElementById("listsPreviewContainer");
   if (!container || !groupId) return;
+  // Rimuovi eventuale tasto "See all" se presente
+  const seeAllBtn = document.getElementById("listsSeeAllBtn");
+  if (seeAllBtn) seeAllBtn.remove();
+  // Allinea a sinistra il titolo del widget (se presente)
+  const widgetTitle = document.querySelector('#listsPreviewWidgetTitle, .lists-preview-widget-title, #listsPreviewTitle');
+  if (widgetTitle) widgetTitle.style.textAlign = 'left';
   container.innerHTML = '<div style="text-align:center;color:#888;">Loading...</div>';
 
   try {
-    // Prendi le 3 liste più recenti (modificate)
-    // NB: Firestore non permette due orderBy se non sono sempre presenti entrambi i campi e indicizzati
-    // Qui usiamo solo updatedAt (se presente su tutte le liste), altrimenti solo createdAt
-    // Fallback: ordina solo per createdAt (più compatibile se mancano updatedAt)
+    // Prendi le 3 liste più recenti (modificate o create)
     const q = query(
       collection(db, "lists"),
       where("groupId", "==", groupId),
@@ -341,21 +344,10 @@ async function renderListsPreviewWidget(groupId) {
       const qTasks = query(collection(db, "tasks"), where("groupId", "==", groupId), where("listId", "==", listId));
       const snapTasks = await getDocs(qTasks);
       const taskCount = snapTasks.size;
-      // Data
-      let dateStr = "";
-      if (list.updatedAt && list.updatedAt.toDate) {
-        const d = list.updatedAt.toDate();
-        dateStr = d.toLocaleDateString();
-      } else if (list.createdAt && list.createdAt.toDate) {
-        const d = list.createdAt.toDate();
-        dateStr = d.toLocaleDateString();
-      }
-      // HTML box stile note-preview
-      return `<div class="note-preview-box" data-list-id="${listId}">
-        <div class="note-preview-title">${list.name || '(No title)'}
-          <span class="list-preview-badge">${taskCount}</span>
-        </div>
-        <div class="list-preview-date">${dateStr}</div>
+      // HTML box stile note-preview, badge tondo blu accanto al titolo (posizione originale)
+      return `<div class="note-preview-box" data-list-id="${listId}" style="display: flex; align-items: center; min-height: 44px;">
+        <span class="list-preview-badge list-preview-badge-blue" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; min-width: 36px; min-height: 36px; border-radius: 50%; background: #1976d2; color: #fff; font-size: 15px; font-weight: bold; margin-right: 10px;">${taskCount}</span>
+        <div class="note-preview-title" style="margin: 0; text-align: left; flex: 1;">${list.name || '(No title)'}</div>
       </div>`;
     }));
     container.innerHTML = listHtmls.join("");
@@ -585,17 +577,17 @@ function setupNotesWidgetRealTime(groupId) {
         const notePromises = snapshot.docs.map(async (doc) => {
           const note = doc.data();
           const title = (note.title || "Senza titolo").slice(0, 15);
-          
+
           // Estrae solo la prima riga di testo puro
           let noteContent = "No content";
           if (note.content) {
             try {
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = note.content;
-              
+
               const allElements = tempDiv.children;
               let firstElementText = "";
-              
+
               for (let i = 0; i < allElements.length; i++) {
                 const element = allElements[i];
                 const elementText = (element.textContent || element.innerText || "").trim();
@@ -604,29 +596,29 @@ function setupNotesWidgetRealTime(groupId) {
                   break;
                 }
               }
-              
+
               if (!firstElementText) {
                 const allText = tempDiv.textContent || tempDiv.innerText || '';
                 firstElementText = allText.trim().substring(0, 60);
               }
-              
+
               if (firstElementText.length > 60) {
                 const lastSpaceIndex = firstElementText.lastIndexOf(' ', 60);
                 const cutIndex = lastSpaceIndex > 30 ? lastSpaceIndex : 60;
                 firstElementText = firstElementText.substring(0, cutIndex).trim() + "...";
               }
-              
+
               noteContent = firstElementText.replace(/\s+/g, " ").trim();
-              
+
             } catch (err) {
               console.warn("🔍 Errore parsing HTML in preview:", err);
               noteContent = note.content.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().substring(0, 60) + "...";
             }
           }
-          
+
           let avatarURL = "icone/default-avatar.png";
           const createdBy = note.createdBy || {};
-          
+
           // 🔥 ORA che la cache è pronta, usala SEMPRE
           if (createdBy.uid) {
             if (window.userAvatarCache && window.userAvatarCache[createdBy.uid]) {
@@ -638,14 +630,17 @@ function setupNotesWidgetRealTime(groupId) {
               console.log(`[SCRIPT] ⚠️ Avatar fallback per ${createdBy.uid}:`, avatarURL);
             }
           }
-          
+
           const avatar = `<img src="${avatarURL}" class="note-preview-avatar" data-user-id="${createdBy.uid || ''}">`;
-          
+
+          // Box con flex: avatar a sinistra, testo a destra, avatar leggermente più in alto (senza cambiare altezza box)
           return `
-            <div class="note-preview-box">
-              <div class="note-preview-avatar-wrap">${avatar}</div>
-              <h4 class="note-preview-title">${title}</h4>
-              <p class="note-preview-content">${noteContent}</p>
+            <div class="note-preview-box" style="display: flex; align-items: center;">
+              <div class="note-preview-avatar-wrap" style="flex-shrink:0; min-width:44px; min-height:44px; display:flex; align-items:flex-start; justify-content:center; padding-top:3px; transform: translateY(-8px);">${avatar}</div>
+              <div style="margin-left: 45px; text-align: left; flex:1;">
+                <h4 class="note-preview-title" style="margin:0 0 4px 0; text-align:left;">${title}</h4>
+                <p class="note-preview-content" style="margin:0; text-align:left;">${noteContent}</p>
+              </div>
             </div>`;
         });
         
