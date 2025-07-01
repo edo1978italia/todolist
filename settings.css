@@ -1,18 +1,17 @@
 
 /* 📋 Container principale */
 .settings-container {
-    margin-top: 60px;
-    padding: 0;
-    width: 100%;
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
+  margin-top: 60px; /* oppure 50px se preferisci più compatto */
+  padding: 0 10px;
+  width: 100%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
-
 
 
 body {
@@ -39,7 +38,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 17px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   border-radius: 0 0 12px 12px;
   box-sizing: border-box;
@@ -51,22 +50,8 @@ body {
     margin: 0;
 }
 
-/* 📋 Container principale */
-.settings-container {
-    margin-top: 50px;
-    padding: 0;
-    width: 100%;
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-    padding-left: 10px;
-    padding-right: 10px;
-    
-}
+
+
 
 /* 📝 Menu principale */
 .settings-menu {
@@ -77,8 +62,9 @@ body {
     overflow: hidden;
     margin-bottom: 20px;
     width: 100%;
-      max-width: inherit; /* eredita da .settings-container */
+    max-width: inherit; /* eredita da .settings-container */
     padding: 0; /* Nessun padding */
+    
 }
 
 .menu-item {
@@ -179,7 +165,7 @@ body {
     top: 0;
     right: -100vw;
     width: 100%;
-    max-width: 600px;
+    max-width: 620px;
     height: 100%;
     background: white;
     transition: all 0.3s ease;
@@ -203,7 +189,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 60px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 17px rgba(0,0,0,0.1);
     position: relative;
 }
 
