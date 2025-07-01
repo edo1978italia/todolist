@@ -19,13 +19,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 6px;
-    margin-bottom: 1px;
+    margin-bottom: 5px;
     background: #f0f0f0;
     border-radius: 5px;
     transition: background 0.2s;
     position: relative;
     min-height: 18px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.1;
 }
 .user-list-item:hover {
