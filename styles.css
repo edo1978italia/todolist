@@ -1017,7 +1017,11 @@ textarea {
     
 }
 
-
+.profile-header-title {
+    font-size: 1.3rem; 
+    font-weight: 500; 
+    margin: 0; 
+}
 
 
 #profile-container button {
@@ -1046,13 +1050,6 @@ textarea {
         height: 130px;
         margin: 1px auto;
     }
-
-@media (max-width: 600px) {
-  .profile-header-fixed {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-}
 
 
 @media (max-width: 600px) {

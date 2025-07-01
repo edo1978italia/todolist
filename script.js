@@ -310,25 +310,83 @@ window.navigateTo = function (page) {
     window.location.href = page;
 };
 
-// 🔥 Recupero dati da Firebase per il widget della lista To-Do
-document.addEventListener("DOMContentLoaded", function () {
-    const taskPreview = document.getElementById("taskPreview");
 
-    onSnapshot(collection(db, "tasks"), (snapshot) => {
-        let tasksArray = snapshot.docs.map((doc) => doc.data());
+// 🔥 Widget Home: preview delle 3 liste più recenti (stile note-preview)
+async function renderListsPreviewWidget(groupId) {
+  const container = document.getElementById("listsPreviewContainer");
+  if (!container || !groupId) return;
+  container.innerHTML = '<div style="text-align:center;color:#888;">Loading...</div>';
 
-        if (tasksArray.length === 0) {
-            taskPreview.innerHTML = "<li>❌ No products to show!</li>";
-        } else {
-            taskPreview.innerHTML = tasksArray
-                .slice(0, 3)
-                .map((task) => {
-                    const isCompleted = task.completed ? "checked" : "";
-                    return `<li class="${isCompleted}">${task.name}</li>`;
-                })
-                .join("");
-        }
+  try {
+    // Prendi le 3 liste più recenti (modificate)
+    // NB: Firestore non permette due orderBy se non sono sempre presenti entrambi i campi e indicizzati
+    // Qui usiamo solo updatedAt (se presente su tutte le liste), altrimenti solo createdAt
+    // Fallback: ordina solo per createdAt (più compatibile se mancano updatedAt)
+    const q = query(
+      collection(db, "lists"),
+      where("groupId", "==", groupId),
+      orderBy("createdAt", "desc"),
+      limit(3)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      container.innerHTML = '<div style="text-align:center;color:#888;">No lists to show</div>';
+      return;
+    }
+    // Per ogni lista, conta i task
+    const listHtmls = await Promise.all(snap.docs.map(async (docSnap) => {
+      const list = docSnap.data();
+      const listId = docSnap.id;
+      // Conta i task
+      const qTasks = query(collection(db, "tasks"), where("groupId", "==", groupId), where("listId", "==", listId));
+      const snapTasks = await getDocs(qTasks);
+      const taskCount = snapTasks.size;
+      // Data
+      let dateStr = "";
+      if (list.updatedAt && list.updatedAt.toDate) {
+        const d = list.updatedAt.toDate();
+        dateStr = d.toLocaleDateString();
+      } else if (list.createdAt && list.createdAt.toDate) {
+        const d = list.createdAt.toDate();
+        dateStr = d.toLocaleDateString();
+      }
+      // HTML box stile note-preview
+      return `<div class="note-preview-box" data-list-id="${listId}">
+        <div class="note-preview-title">${list.name || '(No title)'}
+          <span class="list-preview-badge">${taskCount}</span>
+        </div>
+        <div class="list-preview-date">${dateStr}</div>
+      </div>`;
+    }));
+    container.innerHTML = listHtmls.join("");
+
+    // Click: vai alla lista
+    container.querySelectorAll('.note-preview-box').forEach(box => {
+      box.addEventListener('click', function() {
+        const listId = this.getAttribute('data-list-id');
+        if (listId) window.location.href = `todolist.html#${listId}`;
+      });
     });
+  } catch (err) {
+    container.innerHTML = '<div style="color:red;">Error loading lists</div>';
+    console.error("[WIDGET LISTS] Errore:", err);
+  }
+}
+
+// Inizializza il widget preview liste in home
+document.addEventListener("DOMContentLoaded", function () {
+  // Se il container non esiste (per sicurezza), non fare nulla
+  if (!document.getElementById("listsPreviewContainer")) return;
+});
+
+// Aggiorna il widget quando autenticato e groupId disponibile
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  const userData = userSnap.data();
+  const groupId = userData?.groupId;
+  if (!groupId) return;
+  renderListsPreviewWidget(groupId);
 });
 
 // 🔄 Gestione navigazione e apertura sidebar
