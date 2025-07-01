@@ -1,3 +1,20 @@
+.list-task-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin-right: 10px;
+    margin-left: 10px;
+    background: #2b8ae5;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 50%;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
 /* Stili specifici per la pagina ToDo List (todolist.html) */
 
 #listSelectorContainer {
@@ -28,6 +45,29 @@
     font-size: 14px;
     line-height: 1.1;
 }
+.user-list-item.pinned {
+    background: #e0f2fe;
+    border: 1.5px solid #2b8ae5;
+    box-shadow: 0 2px 8px rgba(43,138,229,0.08);
+    font-weight: 600;
+    position: static;
+}
+.pin-list {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 7px 30px;
+    font-size: 13px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.pin-list:hover {
+    background: #444;
+    color: #38bdf8;
+}
+}
 .user-list-item:hover {
     background: #dbeafe;
 }
@@ -53,15 +93,17 @@
 
 .menu {
     display: none;
-    position: absolute;
-    right: 0;
-    top: 28px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    position: fixed;
+    right: 32px;
+    /* 32px: larghezza stimata box + padding */
+    top: auto;
+    background: #222;
+    border: 1px solid #444;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    z-index: 10;
-    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    z-index: 9999;
+    min-width: 50px !important;
+    width: 100px !important;
     padding: 4px 0;
 }
 .menu button {
@@ -69,14 +111,14 @@
     border: none;
     width: 100%;
     text-align: left;
-    padding: 8px 16px;
-    font-size: 15px;
-    color: #333;
+    padding: 7px 30px;
+    font-size: 13px;
+    color: #fff;
     cursor: pointer;
     transition: background 0.2s;
 }
 .menu button:hover {
-    background: #f3f4f6;
+    background: #444;
     color: #e11d48;
 }
 #addListButton {

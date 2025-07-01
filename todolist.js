@@ -263,6 +263,11 @@ window.addTask = async function () {
     const docRef = await addDoc(collection(db, "tasks"), nuovoTask);
     console.log("✅ Task salvato con ID:", docRef.id);
 
+    // Aggiorna il campo updatedAt della lista
+    if (selectedListId) {
+      await updateDoc(doc(db, "lists", selectedListId), { updatedAt: serverTimestamp() });
+    }
+
     taskInput.value = "";
     linkInput.value = "";
     document.getElementById("priorityHigh").checked = false;
@@ -306,7 +311,7 @@ window.addEventListener("click", function (event) {
 
 // 🔥 Eliminazione di un task
 window.deleteTask = async function (id) {
-    if (confirm("Sei sicuro di voler eliminare questo task?")) {
+    if (confirm("Are you sure you want to delete this task?")) {
         await deleteDoc(doc(db, "tasks", id));
     }
 };
@@ -404,15 +409,44 @@ function listenUserLists(groupId) {
         if(snapshot.size === 0) {
             userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata)</li>';
         }
+        // Separa le liste in pinned e unpinned
+        let pinned = [], unpinned = [];
         snapshot.forEach(docSnap => {
+            const list = docSnap.data();
+            if (list.pinned) {
+                pinned.push(docSnap);
+            } else {
+                unpinned.push(docSnap);
+            }
+        });
+        // Ordina le unpinned: la lista modificata più di recente (aggiunta task) va in cima
+        unpinned.sort((a, b) => {
+            // Se non c'è updatedAt, fallback su createdAt
+            const aTime = (a.data().updatedAt && a.data().updatedAt.toMillis ? a.data().updatedAt.toMillis() : (a.data().createdAt && a.data().createdAt.toMillis ? a.data().createdAt.toMillis() : 0));
+            const bTime = (b.data().updatedAt && b.data().updatedAt.toMillis ? b.data().updatedAt.toMillis() : (b.data().createdAt && b.data().createdAt.toMillis ? b.data().createdAt.toMillis() : 0));
+            return bTime - aTime;
+        });
+        // Funzione per creare il box lista
+        function createListBox(docSnap) {
             const list = docSnap.data();
             const li = document.createElement("li");
             li.className = "user-list-item";
+            if (list.pinned) li.classList.add("pinned");
             // Contenuto principale (nome lista)
             const nameSpan = document.createElement("span");
             nameSpan.textContent = list.name;
             nameSpan.className = "list-title-text";
             nameSpan.onclick = () => selectList(docSnap.id, list.name);
+
+            // Badge numero task
+            const countSpan = document.createElement("span");
+            countSpan.className = "list-task-count";
+            countSpan.textContent = '';
+            // Query per contare i task di questa lista
+            const q = query(collection(db, "tasks"), where("groupId", "==", groupId), where("listId", "==", docSnap.id));
+            getDocs(q).then(snap => {
+                countSpan.textContent = snap.size;
+            });
 
             // Menu 3 puntini
             const menuContainer = document.createElement("div");
@@ -423,13 +457,23 @@ function listenUserLists(groupId) {
             const menu = document.createElement("div");
             menu.className = "menu";
             menu.style.display = "none";
+            // Opzione pin/unpin
+            const pinBtn = document.createElement("button");
+            pinBtn.className = "pin-list";
+            pinBtn.innerText = list.pinned ? "📌 Unpin" : "📌 Pin";
+            pinBtn.onclick = async (e) => {
+                e.stopPropagation();
+                await updateDoc(doc(db, "lists", docSnap.id), { pinned: !list.pinned });
+                menu.style.display = "none";
+            };
+            menu.appendChild(pinBtn);
             // Opzione elimina
             const deleteBtn = document.createElement("button");
             deleteBtn.className = "delete-list";
-            deleteBtn.innerText = "🗑 Elimina";
+            deleteBtn.innerText = "🗑 Delete";
             deleteBtn.onclick = async (e) => {
                 e.stopPropagation();
-                if (confirm("Vuoi davvero eliminare questa lista?")) {
+                if (confirm("Do you really want to delete this list?")) {
                     // Elimina lista da Firestore
                     await deleteList(docSnap.id);
                 }
@@ -453,9 +497,20 @@ function listenUserLists(groupId) {
                 }
             });
 
+            li.appendChild(countSpan);
             li.appendChild(nameSpan);
             li.appendChild(menuContainer);
-            userListsUl.appendChild(li);
+            return li;
+        }
+        // Svuota la lista visiva
+        userListsUl.innerHTML = "";
+        // Prima i pinned
+        pinned.forEach(docSnap => {
+            userListsUl.appendChild(createListBox(docSnap));
+        });
+        // Poi gli altri
+        unpinned.forEach(docSnap => {
+            userListsUl.appendChild(createListBox(docSnap));
         });
 // Funzione per eliminare una lista da Firestore (e opzionalmente i suoi task)
 async function deleteList(listId) {
@@ -524,8 +579,24 @@ function selectList(listId, listName) {
 backToListsButton.onclick = () => {
     console.log('[LISTE] Click su torna alle liste');
     const titolo = document.getElementById("editListTitleInput").value.trim();
+    // Se il titolo è vuoto, controlla se la lista ha task
     if (!titolo) {
-        alert("Devi inserire un titolo per la lista prima di tornare all'elenco.");
+        // Controlla se la lista selezionata ha task
+        const q = query(collection(db, "tasks"), where("groupId", "==", currentGroupId), where("listId", "==", selectedListId));
+        getDocs(q).then(snapshot => {
+            if (snapshot.size > 0) {
+                alert("Please enter a valid list title!");
+                return;
+            } else {
+                // Nessun task: consenti il ritorno senza titolo e cancella la lista vuota
+                if (selectedListDocRef) {
+                    deleteDoc(selectedListDocRef);
+                }
+                mainContainer.style.display = "none";
+                listSelectorContainer.style.display = "block";
+                if (unsubscribeTasks) unsubscribeTasks();
+            }
+        });
         return;
     }
     // Salva il titolo su Firestore prima di tornare
