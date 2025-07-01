@@ -18,12 +18,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
-    margin-bottom: 5px;
+    padding: 0 6px;
+    margin-bottom: 1px;
     background: #f0f0f0;
     border-radius: 5px;
     transition: background 0.2s;
     position: relative;
+    min-height: 18px;
+    font-size: 13px;
+    line-height: 1.1;
 }
 .user-list-item:hover {
     background: #dbeafe;
@@ -47,9 +50,7 @@
     border-radius: 50%;
     transition: background 0.2s;
 }
-.menu-button:hover {
-    background: #e5e7eb;
-}
+
 .menu {
     display: none;
     position: absolute;
