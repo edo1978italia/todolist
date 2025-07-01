@@ -41,7 +41,8 @@ const backToListsButton = document.getElementById("backToListsButton");
 // 🔥 Debug Firebase
 console.log("Firebase inizializzato correttamente?", app ? "✅ Sì" : "❌ No");
 
-// 🔥 Gestione login e caricamento liste
+
+// 🔥 Gestione login e caricamento liste, con supporto selezione automatica da hash
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         if (unsubscribeTasks) unsubscribeTasks();
@@ -67,7 +68,44 @@ onAuthStateChanged(auth, async (user) => {
         if (mainContainer) mainContainer.style.display = "none";
         // Svuota la lista visiva
         if (userListsUl) userListsUl.innerHTML = '<li style="color:#888;">(Nessuna lista trovata o caricamento...)</li>';
+
+        // Se c'è un hash nell'URL, prova a selezionare direttamente la lista
+        const hash = window.location.hash;
+        let autoSelectListId = null;
+        if (hash && hash.length > 1) {
+            autoSelectListId = hash.substring(1);
+        }
+
         listenUserLists(currentGroupId);
+
+        // Dopo che le liste sono caricate, seleziona la lista se hash presente
+        if (autoSelectListId) {
+            // Attendi che le liste siano caricate (snapshot async), poi seleziona
+            const trySelect = () => {
+                const el = document.querySelector(`.user-list-item .list-title-text`);
+                // Se non ci sono ancora elementi, riprova tra poco
+                if (!userListsUl || userListsUl.children.length === 0) {
+                    setTimeout(trySelect, 100);
+                    return;
+                }
+                // Cerca la lista con l'id giusto
+                const li = Array.from(userListsUl.children).find(li => {
+                    // Trova il nameSpan e confronta l'id
+                    const nameSpan = li.querySelector('.list-title-text');
+                    // L'id della lista è nel closure di createListBox, quindi serve un workaround:
+                    // Aggiungiamo data-list-id su nameSpan
+                    return nameSpan && nameSpan.dataset && nameSpan.dataset.listId === autoSelectListId;
+                });
+                if (li) {
+                    // Simula il click sull'intero box
+                    li.click();
+                } else {
+                    // Se non trovata, riprova tra poco (magari snapshot non ancora arrivato)
+                    setTimeout(trySelect, 100);
+                }
+            };
+            trySelect();
+        }
     } catch (error) {
         window.location.href = "index.html";
     }
@@ -436,7 +474,22 @@ function listenUserLists(groupId) {
             const nameSpan = document.createElement("span");
             nameSpan.textContent = list.name;
             nameSpan.className = "list-title-text";
-            nameSpan.onclick = () => selectList(docSnap.id, list.name);
+            nameSpan.dataset.listId = docSnap.id; // Serve per selezione automatica da hash
+            // L'intero box è cliccabile, non serve più onclick qui
+
+            // Rendi l'intero box cliccabile
+            li.onclick = (e) => {
+                // Evita che il click su pulsanti interni (menu, pin, elimina) attivi la selezione
+                if (
+                    e.target.closest('.menu-container') ||
+                    e.target.classList.contains('menu-button') ||
+                    e.target.classList.contains('pin-list') ||
+                    e.target.classList.contains('delete-list')
+                ) {
+                    return;
+                }
+                selectList(docSnap.id, list.name);
+            };
 
             // Badge numero task
             const countSpan = document.createElement("span");

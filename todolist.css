@@ -37,16 +37,18 @@
     justify-content: space-between;
     padding: 0 6px;
     margin-bottom: 5px;
-    background: #f0f0f0;
+    background: #fff;
     border-radius: 5px;
-    transition: background 0.2s;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
+    transition: background 0.2s, box-shadow 0.2s;
     position: relative;
     min-height: 18px;
     font-size: 14px;
     line-height: 1.1;
 }
 .user-list-item.pinned {
-    background: #e0f2fe;
+    background: #fff;
     border: 1.5px solid #2b8ae5;
     box-shadow: 0 2px 8px rgba(43,138,229,0.08);
     font-weight: 600;
@@ -70,6 +72,7 @@
 }
 .user-list-item:hover {
     background: #dbeafe;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
 }
 .list-title-text {
     flex: 1;
@@ -138,7 +141,7 @@
     margin-top: 15px;
 }
 #editListTitleBox {
-    margin-bottom: 1px;
+    margin-bottom: 5px;
     background: #fff;
     border-radius: 8px;
     padding: 10px 10px;
@@ -146,6 +149,7 @@
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
+    box-shadow: 0 6px 17px rgba(0, 0, 0, 0.2);
 }
 #editListTitleInput {
     width: 60%;
